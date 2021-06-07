@@ -393,9 +393,10 @@ func testRenameVMFirstDisk(s *terraform.State, resourceName string, newDiskName 
 	var dcSpec []types.BaseVirtualDeviceConfigSpec
 	for _, d := range vprops.Config.Hardware.Device {
 		if oldDisk, ok := d.(*types.VirtualDisk); ok {
+			backing, _ := virtualdevice.GetBackingForDisk(oldDisk)
 			newFileName, err := virtualdisk.Move(
 				tVars.client,
-				oldDisk.Backing.(*types.VirtualDiskFlatVer2BackingInfo).FileName,
+				backing.GetFileName(),
 				dc,
 				newDiskName,
 				nil,
@@ -409,9 +410,9 @@ func testRenameVMFirstDisk(s *terraform.State, resourceName string, newDiskName 
 						VirtualDeviceFileBackingInfo: types.VirtualDeviceFileBackingInfo{
 							FileName: newFileName,
 						},
-						ThinProvisioned: oldDisk.Backing.(*types.VirtualDiskFlatVer2BackingInfo).ThinProvisioned,
-						EagerlyScrub:    oldDisk.Backing.(*types.VirtualDiskFlatVer2BackingInfo).EagerlyScrub,
-						DiskMode:        oldDisk.Backing.(*types.VirtualDiskFlatVer2BackingInfo).DiskMode,
+						ThinProvisioned: backing.GetThinProvisioned(),
+						EagerlyScrub:    backing.GetEagerlyScrub(),
+						DiskMode:        backing.GetDiskMode(),
 					},
 				},
 			}

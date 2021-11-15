@@ -31,6 +31,8 @@ Virtual disks can be SCSI, SATA, NVMe or IDE. The storage controllers managed by
 
 When cloning from a template, you must specify disks of either the same or greater size than the disks in the source template or the same size when cloning from a snapshot (also known as a linked clone).
 
+When cloning from a powered-on virtual machine ,you must specify disks of either the same or greater size than the disks in the parent virtual machine(also known as a instant clone). 
+
 See the section on [Creating a Virtual Machine from a Template](#creating-a-virtual-machine-from-a-template) for more information.
 
 ### Customization and Network Waiters
@@ -1117,7 +1119,7 @@ The options are:
 
 ## Creating a Virtual Machine from a Template
 
-The `clone` block can be used to create a new virtual machine from an existing virtual machine or template. The resource supports both making a complete copy of a virtual machine, or cloning from a snapshot (also known as a linked clone).
+The `clone` block can be used to create a new virtual machine from an existing virtual machine or template. The resource supports both making a complete copy of a virtual machine, or cloning from a snapshot (also known as a linked clone).The resource is also used to create powered-on virtual machines from the running state of another powered-on virtual machine (also known as a instant clone).
 
 See the section on [cloning and customization](#cloning-and-customization) for more information.
 
@@ -1129,7 +1131,9 @@ The options available in the `clone` block are:
 
 * `template_uuid` - (Required) The UUID of the source virtual machine or template.
 
-* `linked_clone` - (Optional) Clone the virtual machine from a snapshot or a template. Default: `false`.
+* `instant_clone` - (Optional) Clone the virtual machine from a running powered on virtual machine. Supported on vSphere 6.7 and later. Default: `false`. Only one of `instant_clone` or `linked_clone` can be set to `true`.
+
+* `linked_clone` - (Optional) Clone the virtual machine from a snapshot or a template. Default: `false`. Only one of `linked_clone` or `instant_clone` can be set to `true`.
 
 * `timeout` - (Optional) The timeout, in minutes, to wait for the cloning process to complete. Default: 30 minutes.
 

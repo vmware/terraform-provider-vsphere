@@ -2034,6 +2034,24 @@ func TestAccResourceVSphereVirtualMachine_cloneWithBadSizeWithLinkedClone(t *tes
 	})
 }
 
+func TestAccResourceVSphereVirtualMachine_InstantClone(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			RunSweepers()
+			testAccPreCheck(t)
+			testAccResourceVSphereVirtualMachinePreInstantCloneCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceVSphereVirtualMachineConfigInstantClone(),
+				Check:  testAccResourceVSphereVirtualMachineCheckExists(true),
+			},
+		},
+	})
+}
+
 func TestAccResourceVSphereVirtualMachine_cloneWithBadSizeWithoutLinkedClone(t *testing.T) {
 	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
@@ -2979,6 +2997,39 @@ func testAccSriovPreCheck(t *testing.T) {
 		os.Getenv("TF_VAR_VSPHERE_SRIOV_HOST_VMFS") == "" ||
 		os.Getenv("TF_VAR_VSPHERE_SRIOV_PHYSICAL_FUNCTION") == "" {
 		t.Skip(skipTxt)
+	}
+}
+
+func testAccResourceVSphereVirtualMachinePreInstantCloneCheck(t *testing.T) {
+	// Note that TF_VAR_VSPHERE_USE_INSTANT_CLONE is also a variable and its presence
+	// speeds up tests greatly, but it's not a necessary variable, so we don't
+	// enforce it here.
+	if os.Getenv("TF_VAR_VSPHERE_DATACENTER") == "" {
+		t.Skip("set TF_VAR_VSPHERE_DATACENTER to run vsphere_virtual_machine acceptance tests")
+	}
+	if os.Getenv("TF_VAR_VSPHERE_CLUSTER") == "" {
+		t.Skip("set TF_VAR_VSPHERE_CLUSTER to run vsphere_virtual_machine acceptance tests")
+	}
+	if os.Getenv("TF_VAR_VSPHERE_PG_NAME") == "" {
+		t.Skip("set TF_VAR_VSPHERE_NETWORK_LABEL to run vsphere_virtual_machine acceptance tests")
+	}
+	if os.Getenv("TF_VAR_VSPHERE_NFS_DS_NAME") == "" {
+		t.Skip("set TF_VAR_VSPHERE_NFS_DS_NAME to run vsphere_virtual_machine acceptance tests")
+	}
+	if os.Getenv("TF_VAR_VSPHERE_RESOURCE_POOL") == "" {
+		t.Skip("set TF_VAR_VSPHERE_RESOURCE_POOL to run vsphere_virtual_machine acceptance tests")
+	}
+	if os.Getenv("TF_VAR_VSPHERE_TEMPLATE") == "" {
+		t.Skip("set TF_VAR_VSPHERE_TEMPLATE to run vsphere_virtual_machine acceptance tests")
+	}
+	if os.Getenv("TF_VAR_VSPHERE_ESXI1") == "" {
+		t.Skip("set TF_VAR_VSPHERE_ESXI_HOST to run vsphere_virtual_machine acceptance tests")
+	}
+	if os.Getenv("TF_VAR_VSPHERE_ESXI2") == "" {
+		t.Skip("set TF_VAR_VSPHERE_ESXI_HOST2 to run vsphere_virtual_machine acceptance tests")
+	}
+	if os.Getenv("TF_VAR_VSPHERE_USE_INSTANT_CLONE") == "" {
+		t.Skip("set TF_VAR_VSPHERE_USE_INSTANT_CLONE to run vsphere_virtual_machine acceptance tests")
 	}
 }
 
@@ -7994,6 +8045,58 @@ resource "vsphere_virtual_machine" "vm" {
 		os.Getenv("TF_VAR_VSPHERE_TEMPLATE"),
 		os.Getenv("TF_VAR_VSPHERE_USE_LINKED_CLONE"),
 		hostname,
+	)
+}
+
+func testAccResourceVSphereVirtualMachineConfigInstantClone() string {
+	return fmt.Sprintf(`
+%s  // Mix and match config
+
+data "vsphere_virtual_machine" "template" {
+  name          = "%s"
+  datacenter_id = data.vsphere_datacenter.rootdc1.id
+}
+
+variable "instant_clone" {
+  default = "%s"
+}
+
+resource "vsphere_virtual_machine" "vm" {
+  name             = "testacc-test"
+  resource_pool_id = "${vsphere_resource_pool.pool1.id}"
+  datastore_id     = vsphere_nas_datastore.ds1.id
+
+  num_cpus         = 2
+  memory           = 2048
+  guest_id         = "${data.vsphere_virtual_machine.template.guest_id}"
+
+  wait_for_guest_net_timeout = -1
+
+  network_interface {
+    network_id   = "${data.vsphere_network.network1.id}"
+    adapter_type = "${data.vsphere_virtual_machine.template.network_interface_types[0]}"
+  }
+
+  disk {
+    label            = "disk0"
+    size             = "${data.vsphere_virtual_machine.template.disks.0.size}"
+    eagerly_scrub    = "${data.vsphere_virtual_machine.template.disks.0.eagerly_scrub}"
+    thin_provisioned = "${data.vsphere_virtual_machine.template.disks.0.thin_provisioned}"
+  }
+
+  clone {
+    template_uuid = "${data.vsphere_virtual_machine.template.id}"
+    instant_clone  = "${var.instant_clone != "" ? "true" : "false" }"
+  }
+
+  cdrom {
+    client_device = true
+  }
+}
+`,
+		testAccResourceVSphereVirtualMachineConfigBase(),
+		os.Getenv("TF_VAR_VSPHERE_TEMPLATE"),
+		os.Getenv("TF_VAR_VSPHERE_USE_INSTANT_CLONE"),
 	)
 }
 

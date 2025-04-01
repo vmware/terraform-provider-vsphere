@@ -683,7 +683,7 @@ nextNew:
 				delete(nm, "size")
 			}
 		}
-		if ok := nm["datastore_id"]; !ok {
+		if _, ok := nm["datastore_id"]; !ok {
 			nm["datastore_id"] = diskDatastoreComputedName
 		}
 		normalized = append(normalized, nm)

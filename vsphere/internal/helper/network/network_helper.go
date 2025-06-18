@@ -7,6 +7,8 @@ package network
 import (
 	"context"
 	"fmt"
+	"slices"
+	"strings"
 
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/find"
@@ -104,6 +106,47 @@ func FromNameAndDVSUuid(client *govmomi.Client, name string, dc *object.Datacent
 		}
 		return nil, fmt.Errorf("error while getting Network with name %s and Distributed virtual switch %s", name, dvsUUID)
 	}
+	return nil, NotFoundError{Name: name}
+}
+
+func FromNameAndVPCId(client *govmomi.Client, name string, dc *object.Datacenter, vpcID string) (object.NetworkReference, error) {
+	ctx := context.TODO()
+	finder := find.NewFinder(client.Client, true)
+
+	// Set the datacenter
+	if dc != nil {
+		finder.SetDatacenter(dc)
+	}
+
+	// Find the network by name
+	networks, err := finder.NetworkList(ctx, name)
+	if err != nil {
+		return nil, NotFoundError{Name: name}
+	}
+	// Filter networks by additional attributes
+	for _, network := range networks {
+		path := network.GetInventoryPath()
+		pathSplit := strings.Split(path, "/")
+
+		vpcIndex := slices.Index(pathSplit, "Virtual Private Clouds")
+		// Path format is /<datacenter>/network/Virtual Private Clouds/<VPC>/<subnet> ... And could contain folders as well
+		if vpcIndex != -1 && len(pathSplit) > vpcIndex && pathSplit[vpcIndex+1] == vpcID {
+
+			if network.Reference().Type == "DistributedVirtualPortgroup" {
+				dvPortGroup := object.NewDistributedVirtualPortgroup(client.Client, network.Reference())
+				return dvPortGroup, nil
+			}
+
+			if netObj, ok := network.(*object.Network); ok {
+				networkName, err := netObj.ObjectName(ctx)
+				if err != nil || networkName != name {
+					continue
+				}
+				return network, nil
+			}
+		}
+	}
+
 	return nil, NotFoundError{Name: name}
 }
 

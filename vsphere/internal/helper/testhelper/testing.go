@@ -197,6 +197,16 @@ data "vsphere_network" "network1" {
 `, os.Getenv("TF_VAR_VSPHERE_PG_NAME"))
 }
 
+func ConfigDataVPCNetwork() string {
+	return fmt.Sprintf(`
+data "vsphere_network" "network1" {
+  name          = "%s"
+  vpc_id        = "%s"
+  datacenter_id = data.vsphere_datacenter.rootdc1.id
+}
+`, os.Getenv("TF_VAR_VSPHERE_VPC_SUBNET"), os.Getenv("TF_VAR_VSPHERE_VPC_ID"))
+}
+
 func ConfigDataRootVMNet() string {
 	return `
 data "vsphere_network" "vmnet" {

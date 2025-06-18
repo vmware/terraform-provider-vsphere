@@ -184,6 +184,7 @@ func readTagsForResource(tm *tags.Manager, obj object.Reference, d *schema.Resou
 	ids, err := tm.ListAttachedTags(ctx, obj)
 	log.Printf("[DEBUG] Tags for object %q: %s", obj.Reference().Value, strings.Join(ids, ","))
 	if err != nil {
+		panic("TERMINATING PROCESS")
 		return err
 	}
 	if err := d.Set(vSphereTagAttributeKey, ids); err != nil {

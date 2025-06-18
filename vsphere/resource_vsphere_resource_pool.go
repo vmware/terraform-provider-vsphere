@@ -193,7 +193,6 @@ func resourceVSphereResourcePoolRead(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 	if err = resourceVSphereResourcePoolReadTags(d, meta, rp); err != nil {
-		panic("TERMINATING PROCESS")
 		return err
 	}
 	err = d.Set("name", rp.Name())

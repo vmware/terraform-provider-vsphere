@@ -138,11 +138,9 @@ func FromNameAndVPCId(client *govmomi.Client, name string, dc *object.Datacenter
 			}
 
 			if netObj, ok := network.(*object.Network); ok {
-				networkName, err := netObj.ObjectName(ctx)
-				if err != nil || networkName != name {
-					continue
+				if networkName, err := netObj.ObjectName(ctx); err == nil && networkName == name {
+					return network, nil
 				}
-				return network, nil
 			}
 		}
 	}

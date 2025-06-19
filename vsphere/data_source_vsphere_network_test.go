@@ -6,6 +6,7 @@ package vsphere
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -153,4 +154,33 @@ func testAccDataSourceVSphereNetworkConfigHostPortgroup() string {
 `,
 		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1(), testhelper.ConfigDataRootHost1(), testhelper.ConfigDataRootVMNet()),
 	)
+}
+
+func testAccDataSourceVSphereNetworkConfigVPCNetwork() string {
+	return fmt.Sprintf(`
+%s
+`,
+		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataVPCNetwork(), testhelper.ConfigDataRootVMNet()),
+	)
+}
+
+func TestAccDataSourceVSphereNetwork_vpcNetwork(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			RunSweepers()
+			testAccPreCheck(t)
+			if os.Getenv("TF_VAR_VSPHERE_VPC_SUBNET") == "" || os.Getenv("TF_VAR_VSPHERE_VPC_ID") == "" {
+				t.Skipf("This test requires VPC settings, please set TF_VAR_VSPHERE_VPC_SUBNET and TF_VAR_VSPHERE_VPC_ID environment variables")
+			}
+		},
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceVSphereNetworkConfigVPCNetwork(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.vsphere_network.vmnet", "type", "Network"),
+				),
+			},
+		},
+	})
 }

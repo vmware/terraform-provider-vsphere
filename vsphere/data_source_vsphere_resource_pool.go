@@ -11,8 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/object"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/resourcepool"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/viapi"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/resourcepool"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/viapi"
 )
 
 // dataSourceVSphereResourcePool defines a data source for retrieving information about a vSphere resource pool.

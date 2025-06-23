@@ -16,9 +16,9 @@ import (
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/vim25/types"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/storagepod"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/structure"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/viapi"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/storagepod"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/structure"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/viapi"
 )
 
 const resourceVSphereDatastoreClusterVMAntiAffinityRuleName = "vsphere_datastore_cluster_vm_anti_affinity_rule"

@@ -24,10 +24,10 @@ import (
 	"github.com/vmware/govmomi/vapi/rest"
 	"github.com/vmware/govmomi/vapi/vcenter"
 	"github.com/vmware/govmomi/vim25/soap"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/datastore"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/ovfdeploy"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/provider"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/structure"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/datastore"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/ovfdeploy"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/provider"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/structure"
 )
 
 // FromName accepts a Content Library name and returns a Library object.

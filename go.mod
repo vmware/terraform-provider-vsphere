@@ -1,4 +1,4 @@
-module github.com/vmware/terraform-provider-vsphere
+module github.com/vmware/terraform-provider-vsphere/v2
 
 go 1.23.8
 

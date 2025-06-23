@@ -24,11 +24,11 @@ import (
 	"github.com/vmware/govmomi/ovf"
 	"github.com/vmware/govmomi/vim25/soap"
 	"github.com/vmware/govmomi/vim25/types"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/datastore"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/folder"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/hostsystem"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/network"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/resourcepool"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/datastore"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/folder"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/hostsystem"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/network"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/resourcepool"
 )
 
 func getTotalBytesRead(totalBytes *int64) int64 {

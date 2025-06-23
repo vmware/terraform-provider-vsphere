@@ -17,10 +17,10 @@ import (
 	"github.com/vmware/govmomi/vim25/methods"
 	"github.com/vmware/govmomi/vim25/mo"
 	"github.com/vmware/govmomi/vim25/types"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/computeresource"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/folder"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/hostsystem"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/provider"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/computeresource"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/folder"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/hostsystem"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/provider"
 )
 
 // FromID locates a cluster by its managed object reference ID.

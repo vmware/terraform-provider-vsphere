@@ -14,8 +14,8 @@ import (
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/vapi/tags"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/structure"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/viapi"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/structure"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/viapi"
 )
 
 // A list of valid object types for tagging are below. These are referenced by

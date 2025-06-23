@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/guestoscustomizations"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/guestoscustomizations"
 )
 
 func TestAccResourceVSpherGOSC_windows_basic(t *testing.T) {

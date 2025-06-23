@@ -13,9 +13,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/vmware/govmomi/object"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/folder"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/testhelper"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/viapi"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/folder"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/testhelper"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/viapi"
 )
 
 const testAccResourceVSphereFolderConfigExpectedName = "testacc-folder"

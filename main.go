@@ -8,7 +8,7 @@ import (
 	"flag"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
-	"github.com/vmware/terraform-provider-vsphere/vsphere"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere"
 )
 
 func main() {

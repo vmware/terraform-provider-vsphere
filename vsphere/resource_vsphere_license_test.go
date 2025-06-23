@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/vmware/govmomi/license"
-	helper "github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/license"
+	helper "github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/license"
 )
 
 const testAccVSphereLicenseInvalidConfig = `

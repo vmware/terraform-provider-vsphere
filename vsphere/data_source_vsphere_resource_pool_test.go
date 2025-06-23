@@ -11,7 +11,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/testhelper"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/testhelper"
 )
 
 func TestAccDataSourceVSphereResourcePool_basic(t *testing.T) {

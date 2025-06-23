@@ -21,14 +21,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/vim25/types"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/computeresource"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/datastore"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/folder"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/resourcepool"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/structure"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/testhelper"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/virtualdisk"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/virtualdevice"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/computeresource"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/datastore"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/folder"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/resourcepool"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/structure"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/testhelper"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/virtualdisk"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/virtualdevice"
 )
 
 const (

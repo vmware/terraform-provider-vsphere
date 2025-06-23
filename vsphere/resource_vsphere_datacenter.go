@@ -18,9 +18,9 @@ import (
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/vim25/methods"
 	"github.com/vmware/govmomi/vim25/types"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/customattribute"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/datacenter"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/folder"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/customattribute"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/datacenter"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/folder"
 )
 
 func resourceVSphereDatacenter() *schema.Resource {

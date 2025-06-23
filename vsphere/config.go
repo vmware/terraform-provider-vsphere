@@ -30,7 +30,7 @@ import (
 	"github.com/vmware/govmomi/vim25/soap"
 	"github.com/vmware/govmomi/vim25/types"
 	"github.com/vmware/govmomi/vsan"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/viapi"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/viapi"
 )
 
 // Client is the client connection manager for the vSphere provider. It

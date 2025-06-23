@@ -16,10 +16,10 @@ import (
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/vim25/types"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/storagepod"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/structure"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/viapi"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/virtualmachine"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/storagepod"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/structure"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/viapi"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/virtualmachine"
 )
 
 const resourceVSphereStorageDrsVMOverrideName = "vsphere_storage_drs_vm_override"

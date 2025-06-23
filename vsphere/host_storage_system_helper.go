@@ -9,7 +9,7 @@ import (
 
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/object"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/hostsystem"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/hostsystem"
 )
 
 // hostStorageSystemFromHostSystemID locates a HostStorageSystem from a

@@ -18,12 +18,12 @@ import (
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/vim25/types"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/dvportgroup"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/hostsystem"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/network"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/nsx"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/provider"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/structure"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/dvportgroup"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/hostsystem"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/network"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/nsx"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/provider"
+	"github.com/vmware/terraform-provider-vsphere/v2/vsphere/internal/helper/structure"
 )
 
 const maxNetworkInterfaceCount = 10

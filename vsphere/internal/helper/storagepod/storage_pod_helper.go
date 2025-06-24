@@ -395,12 +395,13 @@ func recommendSDRS(client *govmomi.Client, sps types.StoragePlacementSpec, timeo
 }
 
 func applySDRS(client *govmomi.Client, placement *types.StoragePlacementResult, timeout time.Duration) (*object.VirtualMachine, error) {
-	log.Printf("[DEBUG] Applying Storage DRS recommendations (type: %q)", placement.Recommendations[0].Type)
+	recommendation := getTopRecommendation(placement.Recommendations)
+	log.Printf("[DEBUG] Applying Storage DRS recommendations (type: %q)", recommendation.Type)
 	srm := object.NewStorageResourceManager(client.Client)
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	// Apply the first recommendation
-	task, err := srm.ApplyStorageDrsRecommendation(ctx, []string{placement.Recommendations[0].Key})
+	task, err := srm.ApplyStorageDrsRecommendation(ctx, []string{recommendation.Key})
 	if err != nil {
 		return nil, err
 	}
@@ -408,7 +409,7 @@ func applySDRS(client *govmomi.Client, placement *types.StoragePlacementResult, 
 	if err != nil {
 		// Provide a friendly error message for timeouts
 		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-			return nil, fmt.Errorf("timeout waiting for Storage DRS operation to complete (type: %q)", placement.Recommendations[0].Type)
+			return nil, fmt.Errorf("timeout waiting for Storage DRS operation to complete (type: %q)", recommendation.Type)
 		}
 		return nil, err
 	}
@@ -426,6 +427,17 @@ func applySDRS(client *govmomi.Client, placement *types.StoragePlacementResult, 
 		}
 	}
 	return vm, nil
+}
+
+func getTopRecommendation(recommendations []types.ClusterRecommendation) types.ClusterRecommendation {
+	// Initialized empty, rating is 0
+	var topRecommendation types.ClusterRecommendation
+	for _, r := range recommendations {
+		if r.Rating > topRecommendation.Rating {
+			topRecommendation = r
+		}
+	}
+	return topRecommendation
 }
 
 func createVAppVMFromSPS(

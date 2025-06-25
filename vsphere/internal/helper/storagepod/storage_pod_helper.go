@@ -388,6 +388,16 @@ func recommendSDRS(client *govmomi.Client, sps types.StoragePlacementSpec, timeo
 		return nil, err
 	}
 
+	for _, r := range placement.Recommendations {
+		log.Printf("[#2448] Recommendation received, Key: %s, Rating: %d", r.Key, r.Rating)
+		for i, a := range r.Action {
+			spa := a.(*types.StoragePlacementAction)
+			for j, d := range spa.RelocateSpec.Disk {
+				log.Printf("[#2448] Recommendation action: [%d], destination: %s, disk: %d, disk datastore: %s", i, spa.Destination, j, d.Datastore.Value)
+			}
+		}
+	}
+
 	if len(placement.Recommendations) < 1 {
 		return nil, fmt.Errorf("no storage DRS recommendations were found for the requested action (type: %q)", sps.Type)
 	}
@@ -498,6 +508,8 @@ func expandVMPodConfigForPlacement(dc []types.BaseVirtualDeviceConfigSpec, pod *
 		Disk:       []types.PodDiskLocator{},
 	}
 
+	log.Printf("[#2448] Placement config created for pod %s", pod.Name())
+
 	for _, deviceConfigSpec := range dc {
 		d, ok := virtualDiskFromDeviceConfigSpecForPlacement(deviceConfigSpec)
 		if !ok {
@@ -508,6 +520,8 @@ func expandVMPodConfigForPlacement(dc []types.BaseVirtualDeviceConfigSpec, pod *
 			DiskId:          d.Key,
 			DiskBackingInfo: d.Backing,
 		})
+
+		log.Printf("[#2448] Placement config created for disk: %d, size in KB: %d", d.Key, d.CapacityInKB)
 	}
 
 	return []types.VmPodConfigForPlacement{podConfig}

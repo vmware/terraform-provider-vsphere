@@ -406,7 +406,6 @@ func recommendSDRS(client *govmomi.Client, sps types.StoragePlacementSpec, timeo
 
 func applySDRS(client *govmomi.Client, placement *types.StoragePlacementResult, timeout time.Duration) (*object.VirtualMachine, error) {
 	recommendation := getTopRecommendation(placement.Recommendations)
-	log.Printf("[#2448] You are using a development build")
 	log.Printf("[DEBUG] Applying Storage DRS recommendations (type: %q)", recommendation.Type)
 	srm := object.NewStorageResourceManager(client.Client)
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)

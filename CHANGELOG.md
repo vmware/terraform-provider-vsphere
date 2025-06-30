@@ -1,5 +1,44 @@
 # <!-- markdownlint-disable first-line-h1 no-inline-html -->
 
+## v2.14.0
+
+> Release Date: 2025-06-30
+
+FEATURES:
+
+- `r/virtual_machine`: Add/remove TPM module when editing and cloning r/virtual_machine. (#2542)
+- `r/virtual_machine`: Attach sparse `.vmdk` when creating virtual machine. (#2383)
+- `d/network`: Add VPC awareness to network data source. (#2547)
+
+IMPROVEMENTS:
+
+- `d/resource_pool`: Add `parent_resource_pool_id`. (#2460)
+
+BUG FIX:
+
+- `d/datastore_stats`: Skip inaccessible datastores. (#2497)
+- `r/virtual_disk`: Simultaneous attempts to create parent directories. (#2366)
+- `r/virtual_machine`: Apply top-rated SDRS placement recommendation. (#2550)
+
+CHORE:
+
+- `technical-debt`: Code quality improvements including resolving lint warnings, correcting error handling, simplifying control flow, improving naming consistency, cleaning code formatting, and refactoring for clearer and more maintainable code. (#2488, #2489, #2490, #2491, #2492, #2493, #2494, #2503, #2504, #2505, #2506, #2507, #2509, #2510, #2511, #2512, #2516, #2517, #2526, #2528, #2533, #2534, #2535, #2536)
+- `technical-debt`: Use of deprecated `GetOkExists`. (#2482)
+- `technical-debt`: Exported name starts with package. (#2530)
+- `technical-debt`: Direct comparison of errors. (#2529)
+- `technical-debt`: Remove legacy state migration. (#2524)
+- `technical-debt`: Remove network interface resource allocation gate. (#2522)
+- `technical-debt`: Replace type assertion on errors. (#2527)
+- `acceptance-tests`: Stabilization and refactoring of existing tests. (#2500, #2501, #2502, #2521, #2525, #2531, #2540)
+- `provider`: `d.Set` is not checked. (#2496)
+- `provider`: Remove legacy min versions. (#2515)
+- `provider`: Update codeowners. (#2518)
+- `provider`: Set golangci-lint version to v2.1.6. (#2551)
+- `provider`: Updated `CodelyTV/pr-size-labeler` to 1.10.3. (#2537)
+- `provider`: Updated `github.com/hashicorp/terraform-plugin-testing` to 1.13.2. (#2546)
+- `provider`: Updated `github.com/vmware/govmomi` to 0.51.0. (#2539)
+- `provider`: Updated `github.com/cloudflare/circl` to 1.6.1. (#2545)
+
 ## v2.13.0
 
 > Release Date: 2025-05-12

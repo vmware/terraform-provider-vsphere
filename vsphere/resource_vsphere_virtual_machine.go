@@ -1683,6 +1683,51 @@ func resourceVSphereVirtualMachinePostDeployChanges(d *schema.ResourceData, meta
 		)
 	}
 	cfgSpec.DeviceChange = virtualdevice.AppendDeviceChangeSpec(cfgSpec.DeviceChange, delta...)
+
+	if d.Get("datastore_cluster_id").(string) != "" {
+		log.Printf("[DEBUG] %s: Reconfiguring virtual machine through Storage DRS API", resourceVSphereVirtualMachineIDString(d))
+		pod, err := storagepod.FromID(client, d.Get("datastore_cluster_id").(string))
+		if err != nil {
+			return resourceVSphereVirtualMachineRollbackCreate(
+				d,
+				meta,
+				vm,
+				fmt.Errorf("error processing disk changes post-clone: %s", err),
+			)
+		}
+
+		err = storagepod.ReconfigureVM(client, vm, cfgSpec, pod)
+		if err != nil {
+			return resourceVSphereVirtualMachineRollbackCreate(
+				d,
+				meta,
+				vm,
+				fmt.Errorf("error processing disk changes post-clone: %s", err),
+			)
+		}
+
+		// Disks already added via DRS, remove from DeviceChange
+		for _, disk := range delta {
+			var index = -1
+			if disk.GetVirtualDeviceConfigSpec() != nil &&
+				disk.GetVirtualDeviceConfigSpec().Device.GetVirtualDevice() != nil {
+				diskKey := disk.GetVirtualDeviceConfigSpec().Device.GetVirtualDevice().Key
+				for i, device := range cfgSpec.DeviceChange {
+					if device.GetVirtualDeviceConfigSpec() != nil &&
+						device.GetVirtualDeviceConfigSpec().Device.GetVirtualDevice() != nil {
+						if diskKey == device.GetVirtualDeviceConfigSpec().Device.GetVirtualDevice().Key {
+							index = i
+						}
+					}
+				}
+			}
+
+			if index > -1 {
+				cfgSpec.DeviceChange = append(cfgSpec.DeviceChange[:index], cfgSpec.DeviceChange[index+1:]...)
+			}
+		}
+	}
+
 	// Network devices
 	devices, delta, err = virtualdevice.NetworkInterfacePostCloneOperation(d, client, devices)
 	if err != nil {

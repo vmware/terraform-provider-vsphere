@@ -399,6 +399,7 @@ func applySDRS(client *govmomi.Client, placement *types.StoragePlacementResult, 
 	srm := object.NewStorageResourceManager(client.Client)
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
+	// Apply the first recommendation
 	task, err := srm.ApplyStorageDrsRecommendation(ctx, []string{placement.Recommendations[0].Key})
 	if err != nil {
 		return nil, err

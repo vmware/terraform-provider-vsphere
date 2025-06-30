@@ -698,7 +698,7 @@ For example, `replace_trigger = sha256(format("%s-%s",data.template_file.cloud_i
 
 ~> **NOTE:** All clusters and standalone hosts have a default root resource pool. This resource argument does not directly accept the cluster or standalone host resource. For more information, see the section on [Specifying the Root Resource Pool][docs-resource-pool-cluster-default] in the `vsphere_resource_pool` data source documentation on using the root resource pool.
 
-[docs-resource-pool-cluster-default]: /docs/providers/vsphere/d/resource_pool.html#specifying-the-root-resource-pool-for-a-standalone-host
+[docs-resource-pool-cluster-default]: /docs/data-sources/resource_pool#specifying-the-root-resource-pool-for-a-standalone-esxi-host
 
 * `scsi_type` - (Optional) The SCSI controller type for the virtual machine. One of `lsilogic` (LSI Logic Parallel), `lsilogic-sas` (LSI Logic SAS) or `pvscsi` (VMware Paravirtual). Default: `pvscsi`.
 

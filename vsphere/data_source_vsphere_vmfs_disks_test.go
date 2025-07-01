@@ -28,6 +28,12 @@ func TestAccDataSourceVSphereVmfsDisks_basic(t *testing.T) {
 					testCheckOutputBool("found", "true"),
 				),
 			},
+			{
+				Config: testAccDataSourceVSphereVmfsDisksInfoConfig(),
+				Check: resource.ComposeTestCheckFunc(
+					testCheckOutputBool("found", "true"),
+				),
+			},
 		},
 	})
 }
@@ -73,5 +79,28 @@ output "found" {
 `,
 		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
 		os.Getenv("TF_VAR_VSPHERE_ESXI3"),
+	)
+}
+
+func testAccDataSourceVSphereVmfsDisksInfoConfig() string {
+	return fmt.Sprintf(`
+%s
+
+data "vsphere_host" "esxi_host" {
+  name          = "%s"
+  datacenter_id = "${data.vsphere_datacenter.rootdc1.id}"
+}
+
+data "vsphere_vmfs_disks" "available" {
+  host_system_id = "${data.vsphere_host.esxi_host.id}"
+  rescan         = true
+}
+
+output "found" {
+  value = "${length(data.vsphere_vmfs_disks.available.disk_details) >= 1 ? "true" : "false" }"
+}
+`,
+		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
+		os.Getenv("TF_VAR_VSPHERE_ESXI1"),
 	)
 }

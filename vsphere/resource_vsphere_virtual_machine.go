@@ -1684,7 +1684,8 @@ func resourceVSphereVirtualMachinePostDeployChanges(d *schema.ResourceData, meta
 	}
 	cfgSpec.DeviceChange = virtualdevice.AppendDeviceChangeSpec(cfgSpec.DeviceChange, delta...)
 
-	if d.Get("datastore_cluster_id").(string) != "" {
+	// Apply SDRS if new disks are being added
+	if d.Get("datastore_cluster_id").(string) != "" && len(delta) > 0 {
 		log.Printf("[DEBUG] %s: Reconfiguring virtual machine through Storage DRS API", resourceVSphereVirtualMachineIDString(d))
 		pod, err := storagepod.FromID(client, d.Get("datastore_cluster_id").(string))
 		if err != nil {

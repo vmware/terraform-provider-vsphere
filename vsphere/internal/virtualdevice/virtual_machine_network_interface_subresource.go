@@ -1053,22 +1053,20 @@ func (r *NetworkInterfaceSubresource) Update(l object.VirtualDeviceList) ([]type
 		card.Backing = backing
 	}
 
-	if r.HasChange("use_static_mac") {
-		if r.Get("use_static_mac").(bool) {
-			card.AddressType = string(types.VirtualEthernetCardMacTypeManual)
-			card.MacAddress = r.Get("mac_address").(string)
+	if r.Get("use_static_mac").(bool) {
+		card.AddressType = string(types.VirtualEthernetCardMacTypeManual)
+		card.MacAddress = r.Get("mac_address").(string)
+	} else {
+		// If we've gone from a static MAC address to a auto-generated one, we need
+		// to check what address type we need to set things to.
+		if r.client.ServiceContent.About.ApiType != "VirtualCenter" {
+			// ESXi - type is "generated"
+			card.AddressType = string(types.VirtualEthernetCardMacTypeGenerated)
 		} else {
-			// If we've gone from a static MAC address to a auto-generated one, we need
-			// to check what address type we need to set things to.
-			if r.client.ServiceContent.About.ApiType != "VirtualCenter" {
-				// ESXi - type is "generated"
-				card.AddressType = string(types.VirtualEthernetCardMacTypeGenerated)
-			} else {
-				// vCenter - type is "assigned"
-				card.AddressType = string(types.VirtualEthernetCardMacTypeAssigned)
-			}
-			card.MacAddress = ""
+			// vCenter - type is "assigned"
+			card.AddressType = string(types.VirtualEthernetCardMacTypeAssigned)
 		}
+		card.MacAddress = ""
 	}
 
 	if r.Get("adapter_type") != networkInterfaceSubresourceTypeSriov {

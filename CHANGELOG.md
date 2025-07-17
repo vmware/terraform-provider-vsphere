@@ -1,5 +1,18 @@
 # <!-- markdownlint-disable first-line-h1 no-inline-html -->
 
+## v2.14.1
+
+> Release Date: Not Released
+
+BUG FIX:
+
+- `r/virtual_machine`: Update static mac when reconfiguring VM. (#2561)
+- `r/virtual_machine`: Server fault when cloning VM on DRS-enabled cluster. (#2560)
+
+DOCUMENTATION:
+
+- `r/virtual_machine`: Fix broken link to “Specifying the Root Resource Pool”. (#2553)
+
 ## v2.14.0
 
 > Release Date: 2025-06-30

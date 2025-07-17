@@ -388,9 +388,6 @@ func recommendSDRS(client *govmomi.Client, sps types.StoragePlacementSpec, timeo
 		return nil, err
 	}
 
-	dummyAction := types.StorageMigrationAction{}
-	placement.Recommendations[0].Action[0] = &dummyAction
-
 	if len(placement.Recommendations) < 1 {
 		return nil, fmt.Errorf("no storage DRS recommendations were found for the requested action (type: %q)", sps.Type)
 	}

@@ -2784,21 +2784,18 @@ func TestAccResourceVSphereVirtualMachine_deployOvfFromUrl(t *testing.T) {
 }
 
 func TestAccResourceVSphereVirtualMachine_deployOvaFromUrl(t *testing.T) {
-	vmName := "terraform_test_vm_" + acctest.RandStringFromCharSet(4, acctest.CharSetAlphaNum)
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccResourceVSphereVirtualMachineDeployOvaFromURL(vmName),
+				Config: testAccResourceVSphereVirtualMachineDeployOvaFromURL(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccResourceVSphereVirtualMachineCheckExists(true),
-					resource.TestCheckResourceAttr("vsphere_virtual_machine.vm", "name", vmName),
+					resource.TestMatchResourceAttr("vsphere_virtual_machine.vm", "moid", regexp.MustCompile("^vm-")),
 				),
 			},
 			{
@@ -8186,7 +8183,7 @@ resource "vsphere_virtual_machine" "vm" {
 	)
 }
 
-func testAccResourceVSphereVirtualMachineDeployOvaFromURL(vmName string) string {
+func testAccResourceVSphereVirtualMachineDeployOvaFromURL() string {
 	return fmt.Sprintf(`
 %s // Mix and match config
 
@@ -8195,7 +8192,7 @@ variable "ova_url" {
 }
 
 data "vsphere_ovf_vm_template" "ovf" {
-  name              = "%s"
+  name              = "acc-test-vm"
   resource_pool_id  = vsphere_resource_pool.pool1.id
   datastore_id      = data.vsphere_datastore.rootds1.id
   host_system_id    = data.vsphere_host.roothost1.id
@@ -8215,7 +8212,6 @@ resource "vsphere_virtual_machine" "vm" {
   guest_id         = data.vsphere_ovf_vm_template.ovf.guest_id
   resource_pool_id = vsphere_resource_pool.pool1.id
   datastore_id     = data.vsphere_datastore.rootds1.id
-  host_system_id   = data.vsphere_ovf_vm_template.ovf.host_system_id
 
   wait_for_guest_net_timeout = 0
 
@@ -8234,7 +8230,6 @@ resource "vsphere_virtual_machine" "vm" {
 `,
 		testAccResourceVSphereVirtualMachineConfigBase(),
 		testhelper.TestOva,
-		vmName,
 	)
 }
 

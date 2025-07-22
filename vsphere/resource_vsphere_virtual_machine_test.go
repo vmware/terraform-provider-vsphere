@@ -80,6 +80,66 @@ func TestAccResourceVSphereVirtualMachine_basic(t *testing.T) {
 	})
 }
 
+func TestAccResourceVSphereVirtualMachine_sdrsRecommendation(t *testing.T) {
+	t.Skipf("requires SDRS-enabled cluster with multiple datastores")
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			RunSweepers()
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceVSphereVirtualMachineConfigSdrsRecommendation(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestMatchResourceAttr("vsphere_virtual_machine.vm-clone", "moid", regexp.MustCompile("^vm-")),
+				),
+			},
+		},
+	})
+}
+
+func TestAccResourceVSphereVirtualMachine_sdrsRecommendationSingleDisk(t *testing.T) {
+	t.Skipf("requires SDRS-enabled cluster with multiple datastores")
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			RunSweepers()
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceVSphereVirtualMachineConfigSdrsRecommendationSingleDisk(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestMatchResourceAttr("vsphere_virtual_machine.vm-clone", "moid", regexp.MustCompile("^vm-")),
+				),
+			},
+		},
+	})
+}
+
+func TestAccResourceVSphereVirtualMachine_sdrsRecommendationSingleDiskIncreaseSize(t *testing.T) {
+	t.Skipf("requires SDRS-enabled cluster with multiple datastores")
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			RunSweepers()
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceVSphereVirtualMachineConfigSdrsRecommendationSingleDiskLarger(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestMatchResourceAttr("vsphere_virtual_machine.vm-clone", "moid", regexp.MustCompile("^vm-")),
+				),
+			},
+		},
+	})
+}
+
 func TestAccResourceVSphereVirtualMachine_hardwareVersionBare(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -4164,6 +4224,259 @@ resource "vsphere_virtual_machine" "vm" {
     label = "disk0"
     size  = 1
     io_reservation = 1
+  }
+}
+`,
+
+		testAccResourceVSphereVirtualMachineConfigBase(),
+	)
+}
+
+func testAccResourceVSphereVirtualMachineConfigSdrsRecommendationSingleDisk() string {
+	return fmt.Sprintf(`
+
+
+%s  // Mix and match config
+
+data "vsphere_datastore_cluster" "ds_cluster1" {
+  name          = "acc-test-dscluster"
+  datacenter_id = data.vsphere_datacenter.rootdc1.id
+}
+
+resource "vsphere_virtual_machine" "vm-src" {
+  name             = "testacc-test"
+  resource_pool_id = vsphere_resource_pool.pool1.id
+  datastore_cluster_id = data.vsphere_datastore_cluster.ds_cluster1.id
+
+  num_cpus = 2
+  memory   = 2048
+  guest_id = "other3xLinuxGuest"
+  firmware = "efi"
+
+  wait_for_guest_net_timeout = 0
+
+  network_interface {
+    network_id = data.vsphere_network.network1.id
+  }
+
+  disk {
+    label = "disk1"
+    size = 5
+    io_reservation = 1
+    unit_number    = 0
+  }
+}
+
+resource "vsphere_virtual_machine" "vm-clone" {
+  name             = "testacc-test-2"
+  resource_pool_id = vsphere_resource_pool.pool1.id
+  datastore_cluster_id = data.vsphere_datastore_cluster.ds_cluster1.id
+
+  num_cpus = 2
+  memory   = 2048
+  guest_id = "other3xLinuxGuest"
+  firmware = "efi"
+
+  wait_for_guest_net_timeout = 0
+
+  network_interface {
+    network_id = data.vsphere_network.network1.id
+  }
+
+  disk {
+    label = "disk1"
+    size = 5
+    io_reservation = 1
+    unit_number    = 0
+  }
+
+  clone {
+    template_uuid = vsphere_virtual_machine.vm-src.id
+  }
+}
+`,
+
+		testAccResourceVSphereVirtualMachineConfigBase(),
+	)
+}
+
+func testAccResourceVSphereVirtualMachineConfigSdrsRecommendationSingleDiskLarger() string {
+	return fmt.Sprintf(`
+
+
+%s  // Mix and match config
+
+data "vsphere_datastore_cluster" "ds_cluster1" {
+  name          = "acc-test-dscluster"
+  datacenter_id = data.vsphere_datacenter.rootdc1.id
+}
+
+resource "vsphere_virtual_machine" "vm-src" {
+  name             = "testacc-test"
+  resource_pool_id = vsphere_resource_pool.pool1.id
+  datastore_cluster_id = data.vsphere_datastore_cluster.ds_cluster1.id
+
+  num_cpus = 2
+  memory   = 2048
+  guest_id = "other3xLinuxGuest"
+  firmware = "efi"
+
+  wait_for_guest_net_timeout = 0
+
+  network_interface {
+    network_id = data.vsphere_network.network1.id
+  }
+
+  disk {
+    label = "disk1"
+    size = 5
+    io_reservation = 1
+    unit_number    = 0
+  }
+}
+
+resource "vsphere_virtual_machine" "vm-clone" {
+  name             = "testacc-test-2"
+  resource_pool_id = vsphere_resource_pool.pool1.id
+  datastore_cluster_id = data.vsphere_datastore_cluster.ds_cluster1.id
+
+  num_cpus = 2
+  memory   = 2048
+  guest_id = "other3xLinuxGuest"
+  firmware = "efi"
+
+  wait_for_guest_net_timeout = 0
+
+  network_interface {
+    network_id = data.vsphere_network.network1.id
+  }
+
+  disk {
+    label = "disk1"
+    size = 10
+    io_reservation = 1
+    unit_number    = 0
+  }
+
+  clone {
+    template_uuid = vsphere_virtual_machine.vm-src.id
+  }
+}
+`,
+
+		testAccResourceVSphereVirtualMachineConfigBase(),
+	)
+}
+
+func testAccResourceVSphereVirtualMachineConfigSdrsRecommendation() string {
+	return fmt.Sprintf(`
+
+
+%s  // Mix and match config
+
+data "vsphere_datastore_cluster" "ds_cluster1" {
+  name          = "acc-test-dscluster"
+  datacenter_id = data.vsphere_datacenter.rootdc1.id
+}
+
+resource "vsphere_virtual_machine" "vm-src" {
+  name             = "testacc-test"
+  resource_pool_id = vsphere_resource_pool.pool1.id
+  datastore_cluster_id = data.vsphere_datastore_cluster.ds_cluster1.id
+
+  num_cpus = 2
+  memory   = 2048
+  guest_id = "other3xLinuxGuest"
+  firmware = "efi"
+
+  wait_for_guest_net_timeout = 0
+
+  network_interface {
+    network_id = data.vsphere_network.network1.id
+  }
+
+  disk {
+    label = "disk1"
+    size = 15
+    io_reservation = 1
+    unit_number    = 0
+  }
+
+  disk {
+    label = "disk2"
+    size = 15
+    io_reservation = 1
+    unit_number    = 1
+  }
+}
+
+resource "vsphere_virtual_machine" "vm-clone" {
+  name             = "testacc-test-2"
+  resource_pool_id = vsphere_resource_pool.pool1.id
+  datastore_cluster_id = data.vsphere_datastore_cluster.ds_cluster1.id
+
+  num_cpus = 2
+  memory   = 2048
+  guest_id = "other3xLinuxGuest"
+  firmware = "efi"
+
+  wait_for_guest_net_timeout = 0
+
+  network_interface {
+    network_id = data.vsphere_network.network1.id
+  }
+
+  disk {
+    label = "disk1"
+    size = 15
+    io_reservation = 1
+    unit_number    = 0
+  }
+
+  disk {
+    label = "disk2"
+    size = 15
+    io_reservation = 1
+    unit_number    = 1
+  }
+
+  disk {
+    label = "disk3"
+    size = 1
+    io_reservation = 1
+    unit_number    = 2
+  }
+
+  disk {
+    label = "disk4"
+    size = 1
+    io_reservation = 1
+    unit_number    = 3
+  }
+
+  disk {
+    label = "disk5"
+    size = 1
+    io_reservation = 1
+    unit_number    = 4
+  }
+
+  disk {
+    label = "disk6"
+    size = 1
+    io_reservation = 1
+    unit_number    = 5
+  }
+
+  disk {
+    label = "disk7"
+    size = 1
+    io_reservation = 1
+    unit_number    = 6
+  }
+
+  clone {
+    template_uuid = vsphere_virtual_machine.vm-src.id
   }
 }
 `,

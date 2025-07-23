@@ -23,7 +23,7 @@ data "vsphere_datacenter" "datacenter" {
   name = "dc-01"
 }
 
-data "vsphere_datacenter" "datastore" {
+data "vsphere_datastore" "datastore" {
   name = "datastore-01"
 }
 

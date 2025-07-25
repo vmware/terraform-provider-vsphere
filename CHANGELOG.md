@@ -1,5 +1,17 @@
 # <!-- markdownlint-disable first-line-h1 no-inline-html -->
 
+## v2.14.2
+
+> Release Date: 2025-07-25
+
+BUG FIX:
+
+- `r/virtual_machine`: Don't use DRS when resizing existing disks. (#2565)
+
+DOCUMENTATION:
+
+- `r/virtual_disk`: Doc typo for virtual_disk. (#2556)
+
 ## v2.14.1
 
 > Release Date: 2025-07-21

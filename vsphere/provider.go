@@ -111,6 +111,7 @@ func Provider() *schema.Provider {
 			"vsphere_compute_cluster_vm_group":                 resourceVSphereComputeClusterVMGroup(),
 			"vsphere_compute_cluster_vm_host_rule":             resourceVSphereComputeClusterVMHostRule(),
 			"vsphere_content_library":                          resourceVSphereContentLibrary(),
+			"vsphere_config_profile":                           resourceVSphereConfigProfile(),
 			"vsphere_content_library_item":                     resourceVSphereContentLibraryItem(),
 			"vsphere_custom_attribute":                         resourceVSphereCustomAttribute(),
 			"vsphere_datacenter":                               resourceVSphereDatacenter(),

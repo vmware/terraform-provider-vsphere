@@ -240,8 +240,7 @@ data "vsphere_network" "network" {
 resource "vsphere_virtual_machine" "vmFromRemoteOvf" {
   name             = "remote-foo"
   datacenter_id    = data.vsphere_datacenter.datacenter.id
-  datastore_id     = data.vsphere_datastore.datastore.id
-  host_system_id   = data.vsphere_host.host.id
+  datastore_id     = data.vsphere_datastore.datastore.i
   resource_pool_id = data.vsphere_resource_pool.default.id
 
   wait_for_guest_net_timeout = 0
@@ -278,7 +277,6 @@ resource "vsphere_virtual_machine" "vmFromLocalOvf" {
   name             = "local-foo"
   datacenter_id    = data.vsphere_datacenter.datacenter.id
   datastore_id     = data.vsphere_datastore.datastore.id
-  host_system_id   = data.vsphere_host.host.id
   resource_pool_id = data.vsphere_resource_pool.default.id
 
   wait_for_guest_net_timeout = 0
@@ -353,7 +351,6 @@ data "vsphere_ovf_vm_template" "ovfRemote" {
   disk_provisioning = "thin"
   resource_pool_id  = data.vsphere_resource_pool.default.id
   datastore_id      = data.vsphere_datastore.datastore.id
-  host_system_id    = data.vsphere_host.host.id
   remote_ovf_url    = "https://cloud-images.ubuntu.com/releases/xx.xx/release/ubuntu-xx.xx-server-cloudimg-amd64.ova"
   ovf_network_map = {
     "VM Network" : data.vsphere_network.network.id
@@ -366,7 +363,6 @@ data "vsphere_ovf_vm_template" "ovfLocal" {
   disk_provisioning = "thin"
   resource_pool_id  = data.vsphere_resource_pool.default.id
   datastore_id      = data.vsphere_datastore.datastore.id
-  host_system_id    = data.vsphere_host.host.id
   local_ovf_path    = "/Volume/Storage/OVA/ubuntu-xx-xx-server-cloudimg-amd64.ova"
   ovf_network_map = {
     "VM Network" : data.vsphere_network.network.id
@@ -378,7 +374,6 @@ resource "vsphere_virtual_machine" "vmFromRemoteOvf" {
   name                 = "ubuntu-server-cloud-image-01"
   datacenter_id        = data.vsphere_datacenter.datacenter.id
   datastore_id         = data.vsphere_datastore.datastore.id
-  host_system_id       = data.vsphere_host.host.id
   resource_pool_id     = data.vsphere_resource_pool.default.id
   num_cpus             = data.vsphere_ovf_vm_template.ovfRemote.num_cpus
   num_cores_per_socket = data.vsphere_ovf_vm_template.ovfRemote.num_cores_per_socket
@@ -435,7 +430,6 @@ resource "vsphere_virtual_machine" "vmFromLocalOvf" {
   name                 = "ubuntu-server-cloud-image-02"
   datacenter_id        = data.vsphere_datacenter.datacenter.id
   datastore_id         = data.vsphere_datastore.datastore.id
-  host_system_id       = data.vsphere_host.host.id
   resource_pool_id     = data.vsphere_resource_pool.default.id
   num_cpus             = data.vsphere_ovf_vm_template.ovfLocal.num_cpus
   num_cores_per_socket = data.vsphere_ovf_vm_template.ovfLocal.num_cores_per_socket

@@ -23,6 +23,10 @@ func TestAccResourceVSphereConfigProfile(t *testing.T) {
 				Config: testAccResourceVSphereConfigProfileConfig(),
 				Check:  resource.ComposeTestCheckFunc(),
 			},
+			{
+				Config: testAccResourceVSphereConfigProfileConfig2(),
+				Check:  resource.ComposeTestCheckFunc(),
+			},
 		},
 	})
 }
@@ -35,7 +39,7 @@ resource "vsphere_config_profile" "profile" {
   #reference_host_id = data.vsphere_host.roothost2.id
   #reference_host_id = "host-10"
   #cluster_id = data.vsphere_compute_cluster.rootcompute_cluster1.id
-  cluster_id = "domain-c85"
+  cluster_id = "domain-c94"
   config = file("~/git/terraform-provider-vsphere/config.json")
 }
 `,
@@ -44,4 +48,16 @@ resource "vsphere_config_profile" "profile" {
 	//	testhelper.ConfigDataRootDC1(),
 	//	testhelper.ConfigDataRootComputeCluster1(),
 	//	testhelper.ConfigDataRootHost2()))
+}
+
+func testAccResourceVSphereConfigProfileConfig2() string {
+	return fmt.Sprintf(`
+resource "vsphere_config_profile" "profile" {
+  #reference_host_id = data.vsphere_host.roothost2.id
+  #reference_host_id = "host-10"
+  #cluster_id = data.vsphere_compute_cluster.rootcompute_cluster1.id
+  cluster_id = "domain-c94"
+  config = file("~/git/terraform-provider-vsphere/config2.json")
+}
+`)
 }

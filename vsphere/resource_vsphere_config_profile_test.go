@@ -35,7 +35,7 @@ resource "vsphere_config_profile" "profile" {
   #reference_host_id = data.vsphere_host.roothost2.id
   #reference_host_id = "host-10"
   #cluster_id = data.vsphere_compute_cluster.rootcompute_cluster1.id
-  cluster_id = "domain-c49"
+  cluster_id = "domain-c85"
   config = file("~/git/terraform-provider-vsphere/config.json")
 }
 `,

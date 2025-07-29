@@ -6,7 +6,9 @@ package vsphere
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"reflect"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -29,11 +31,12 @@ func resourceVSphereConfigProfile() *schema.Resource {
 				Description:   "The identifier of the host to use as a source of the configuration.",
 			},
 			"config": {
-				Type:          schema.TypeString,
-				Optional:      true,
-				Computed:      true,
-				ConflictsWith: []string{"reference_host_id"},
-				Description:   "The source configuration.",
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				ConflictsWith:    []string{"reference_host_id"},
+				Description:      "The configuration json.",
+				DiffSuppressFunc: configDiffSuppressFunc,
 			},
 			"schema": {
 				Type:        schema.TypeString,
@@ -61,43 +64,42 @@ func resourceVSphereConfigProfileCreate(ctx context.Context, d *schema.ResourceD
 
 	client := meta.(*Client).restClient
 	m := enablement.NewManager(client)
+	tm := tasks.NewManager(client)
 
 	if taskId, err := m.CheckEligibility(clusterId); err != nil {
 		return diag.FromErr(fmt.Errorf("failed to run eligibility check: %s", err))
-	} else if _, err := tasks.NewManager(client).WaitForCompletion(ctx, taskId); err != nil {
+	} else if _, err := tm.WaitForCompletion(ctx, taskId); err != nil {
 		return diag.FromErr(err)
 	}
 
 	if referenceHostId != "" {
 		if taskId, err := m.ImportFromReferenceHost(clusterId, referenceHostId); err != nil {
 			return diag.FromErr(fmt.Errorf("failed to import configuration from reference host: %s", err))
-		} else if _, err := tasks.NewManager(client).WaitForCompletion(ctx, taskId); err != nil {
+		} else if _, err := tm.WaitForCompletion(ctx, taskId); err != nil {
 			return diag.FromErr(err)
 		}
 	} else {
 		spec := enablement.FileSpec{Config: config}
-		if importResult, err := m.ImportFromFile(clusterId, spec); err != nil {
+		if _, err := m.ImportFromFile(clusterId, spec); err != nil {
 			return diag.FromErr(fmt.Errorf("failed to import configuration: %s", err))
-		} else {
-			fmt.Println(importResult.Status)
 		}
 	}
 
 	if taskId, err := m.ValidateConfiguration(clusterId); err != nil {
 		return diag.FromErr(fmt.Errorf("failed to validate configuration: %s", err))
-	} else if _, err := tasks.NewManager(client).WaitForCompletion(ctx, taskId); err != nil {
+	} else if _, err := tm.WaitForCompletion(ctx, taskId); err != nil {
 		return diag.FromErr(err)
 	}
 
 	if taskId, err := m.RunPrecheck(clusterId); err != nil {
 		return diag.FromErr(fmt.Errorf("failed to run precheck: %s", err))
-	} else if _, err := tasks.NewManager(client).WaitForCompletion(ctx, taskId); err != nil {
+	} else if _, err := tm.WaitForCompletion(ctx, taskId); err != nil {
 		return diag.FromErr(err)
 	}
 
 	if taskId, err := m.EnableClusterConfiguration(clusterId); err != nil {
 		return diag.FromErr(fmt.Errorf("failed to enable cluster configuration: %s", err))
-	} else if _, err := tasks.NewManager(client).WaitForCompletion(ctx, taskId); err != nil {
+	} else if _, err := tm.WaitForCompletion(ctx, taskId); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -136,4 +138,22 @@ func resourceVSphereConfigProfileUpdate(ctx context.Context, d *schema.ResourceD
 func resourceVSphereConfigProfileDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	// Can't go back after management via config profiles is enabled
 	return nil
+}
+
+func configDiffSuppressFunc(k, old, new string, d *schema.ResourceData) bool {
+	var oldMap map[string]interface{}
+
+	if err := json.Unmarshal([]byte(old), &oldMap); err != nil {
+		return false
+	}
+
+	var newMap map[string]interface{}
+	if err := json.Unmarshal([]byte(new), &newMap); err != nil {
+		return false
+	}
+
+	delete(oldMap, "metadata")
+	delete(newMap, "metadata")
+
+	return reflect.DeepEqual(oldMap, newMap)
 }

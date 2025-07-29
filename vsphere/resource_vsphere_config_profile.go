@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/govmomi/vapi/cis/tasks"
 	"github.com/vmware/govmomi/vapi/esx/settings/clusters/configuration"
+	"github.com/vmware/govmomi/vapi/esx/settings/clusters/configuration/drafts"
 	"github.com/vmware/govmomi/vapi/esx/settings/clusters/enablement"
 )
 
@@ -132,7 +133,57 @@ func resourceVSphereConfigProfileRead(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceVSphereConfigProfileUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	return diag.FromErr(fmt.Errorf("not implemented"))
+	clusterId := d.Get("cluster_id").(string)
+
+	client := meta.(*Client).restClient
+
+	m := drafts.NewManager(client)
+
+	draftsList, err := m.ListDrafts(clusterId)
+	if err != nil {
+		return diag.FromErr(fmt.Errorf("failed to list drafts: %s", err))
+	}
+
+	if len(draftsList) > 0 {
+		// there is only one active draft
+		for draftId, _ := range draftsList {
+			if err := m.DeleteDraft(clusterId, draftId); err != nil {
+				return diag.FromErr(fmt.Errorf("failed to delete draft: %s", err))
+			}
+		}
+	}
+
+	var createSpec drafts.CreateSpec
+
+	if d.HasChange("reference_host_id") {
+		createSpec.ReferenceHost = d.Get("reference_host_id").(string)
+	} else {
+		createSpec.Config = d.Get("config").(string)
+	}
+	draftId, err := m.CreateDraft(clusterId, createSpec)
+	if err != nil {
+		return diag.FromErr(fmt.Errorf("failed to create draft: %s", err))
+	}
+
+	taskId, err := m.Precheck(clusterId, draftId)
+	if err != nil {
+		return diag.FromErr(fmt.Errorf("failed to trigger precheck: %s", err))
+	}
+
+	if _, err := tasks.NewManager(client).WaitForCompletion(ctx, taskId); err != nil {
+		return diag.FromErr(fmt.Errorf("precheck failed: %s", err))
+	}
+
+	res, err := m.ApplyDraft(clusterId, draftId)
+	if err != nil {
+		return diag.FromErr(fmt.Errorf("failed to apply draft: %s", err))
+	}
+
+	if _, err := tasks.NewManager(client).WaitForCompletion(ctx, res.ApplyTask); err != nil {
+		return diag.FromErr(fmt.Errorf("failed to apply draft: %s", err))
+	}
+
+	return resourceVSphereConfigProfileRead(ctx, d, meta)
 }
 
 func resourceVSphereConfigProfileDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

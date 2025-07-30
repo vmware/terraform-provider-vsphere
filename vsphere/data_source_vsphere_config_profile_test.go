@@ -13,7 +13,7 @@ import (
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/testhelper"
 )
 
-func TestAccResourceVSphereConfigProfile(t *testing.T) {
+func TestAccDataSourceVSphereConfigProfile(t *testing.T) {
 	// Run this test manually, do not include in automated testing
 	t.Skipf("Skipped due to cleanup problems - https://github.com/vmware/terraform-provider-vsphere/issues/2543")
 	resource.Test(t, resource.TestCase{
@@ -24,19 +24,17 @@ func TestAccResourceVSphereConfigProfile(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccResourceVSphereConfigProfileConfig(),
+				Config: testAccDataSourceVSphereConfigProfileConfig(),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet("vsphere_config_profile.profile1", "config"),
-					resource.TestCheckResourceAttrSet("vsphere_config_profile.profile1", "schema"),
-					resource.TestCheckResourceAttrSet("vsphere_config_profile.profile2", "config"),
-					resource.TestCheckResourceAttrSet("vsphere_config_profile.profile2", "schema"),
+					resource.TestCheckResourceAttrSet("data.vsphere_config_profile.profile2", "config"),
+					resource.TestCheckResourceAttrSet("data.vsphere_config_profile.profile2", "schema"),
 				),
 			},
 		},
 	})
 }
 
-func testAccResourceVSphereConfigProfileConfig() string {
+func testAccDataSourceVSphereConfigProfileConfig() string {
 	return fmt.Sprintf(`
 %s
 
@@ -64,19 +62,13 @@ resource "vsphere_compute_cluster" "cluster1" {
   host_system_ids = [vsphere_host.h1.id]
 }
 
-resource "vsphere_compute_cluster" "cluster2" {
-  name            = "cluster2"
-  datacenter_id   = data.vsphere_datacenter.rootdc1.id
-}
-
 resource "vsphere_config_profile" "profile1" {
   reference_host_id = vsphere_host.h1.id
   cluster_id = vsphere_compute_cluster.cluster1.id
 }
 
-resource "vsphere_config_profile" "profile2" {
-  cluster_id = vsphere_compute_cluster.cluster2.id
-  config = vsphere_config_profile.profile1.config
+data "vsphere_config_profile" "profile2" {
+  cluster_id = vsphere_config_profile.profile1.cluster_id
 }
 `,
 		testhelper.ConfigDataRootDC1(),

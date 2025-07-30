@@ -6,12 +6,16 @@ package vsphere
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/testhelper"
 )
 
 func TestAccResourceVSphereConfigProfile(t *testing.T) {
+	// Run this test manually, do not include in automated testing
+	t.Skipf("Skipped due to cleanup problems - https://github.com/vmware/terraform-provider-vsphere/issues/2543")
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -21,11 +25,12 @@ func TestAccResourceVSphereConfigProfile(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereConfigProfileConfig(),
-				Check:  resource.ComposeTestCheckFunc(),
-			},
-			{
-				Config: testAccResourceVSphereConfigProfileConfig2(),
-				Check:  resource.ComposeTestCheckFunc(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("vsphere_config_profile.profile1", "config"),
+					resource.TestCheckResourceAttrSet("vsphere_config_profile.profile1", "schema"),
+					resource.TestCheckResourceAttrSet("vsphere_config_profile.profile2", "config"),
+					resource.TestCheckResourceAttrSet("vsphere_config_profile.profile2", "schema"),
+				),
 			},
 		},
 	})
@@ -35,29 +40,48 @@ func testAccResourceVSphereConfigProfileConfig() string {
 	return fmt.Sprintf(`
 %s
 
-resource "vsphere_config_profile" "profile" {
-  #reference_host_id = data.vsphere_host.roothost2.id
-  #reference_host_id = "host-10"
-  #cluster_id = data.vsphere_compute_cluster.rootcompute_cluster1.id
-  cluster_id = "domain-c94"
-  config = file("~/git/terraform-provider-vsphere/config.json")
-}
-`,
-		"")
-	//testhelper.CombineConfigs(
-	//	testhelper.ConfigDataRootDC1(),
-	//	testhelper.ConfigDataRootComputeCluster1(),
-	//	testhelper.ConfigDataRootHost2()))
+data "vsphere_host_thumbprint" "thumbprint" {
+  address  = "%s"
+  insecure = true
 }
 
-func testAccResourceVSphereConfigProfileConfig2() string {
-	return fmt.Sprintf(`
-resource "vsphere_config_profile" "profile" {
-  #reference_host_id = data.vsphere_host.roothost2.id
-  #reference_host_id = "host-10"
-  #cluster_id = data.vsphere_compute_cluster.rootcompute_cluster1.id
-  cluster_id = "domain-c94"
-  config = file("~/git/terraform-provider-vsphere/config2.json")
+resource "vsphere_host" "h1" {
+  hostname = "%s"
+  username = "root"
+  password = "%s"
+  thumbprint = data.vsphere_host_thumbprint.thumbprint.id
+
+  datacenter = data.vsphere_datacenter.rootdc1.id
+
+  lifecycle {
+    ignore_changes = ["services"]
+  }
 }
-`)
+
+resource "vsphere_compute_cluster" "cluster1" {
+  name            = "cluster1"
+  datacenter_id   = data.vsphere_datacenter.rootdc1.id
+  host_system_ids = [vsphere_host.h1.id]
+}
+
+resource "vsphere_compute_cluster" "cluster2" {
+  name            = "cluster2"
+  datacenter_id   = data.vsphere_datacenter.rootdc1.id
+}
+
+resource "vsphere_config_profile" "profile1" {
+  reference_host_id = vsphere_host.h1.id
+  cluster_id = vsphere_compute_cluster.cluster1.id
+}
+
+resource "vsphere_config_profile" "profile2" {
+  cluster_id = vsphere_compute_cluster.cluster2.id
+  config = vsphere_config_profile.profile1.config
+}
+
+`,
+		testhelper.ConfigDataRootDC1(),
+		os.Getenv("TF_VAR_VSPHERE_ESXI4"),
+		os.Getenv("TF_VAR_VSPHERE_ESXI4"),
+		os.Getenv("TF_VAR_VSPHERE_ESXI4_PASSWORD"))
 }

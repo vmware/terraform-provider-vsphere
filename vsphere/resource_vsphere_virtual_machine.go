@@ -243,7 +243,7 @@ func resourceVSphereVirtualMachine() *schema.Resource {
 			Type:        schema.TypeList,
 			Optional:    true,
 			Description: "A specification for a CDROM device on this virtual machine.",
-			MaxItems:    2,
+			MaxItems:    20,
 			Elem:        &schema.Resource{Schema: virtualdevice.CdromSubresourceSchema()},
 		},
 		"pci_device_id": {

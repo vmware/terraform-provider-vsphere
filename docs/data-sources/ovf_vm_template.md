@@ -206,12 +206,11 @@ The following arguments are supported:
 * `ip_protocol` - (Optional) The IP protocol.
 * `disk_provisioning` - (Optional) The disk provisioning type. If set, all the
   disks included in the OVF/OVA will have the same specified policy. Can be
-  one of `thin`, `thick`, `eagerZeroedThick`, or `sameAsSource`.
+  one of `thin`, `thick`, or `eagerZeroedThick`.
   * `thin`: Each disk is allocated and zeroed on demand as the space is used.
   * `thick`: Each disk is allocated at creation time and the space is zeroed
      on demand as the space is used.
   * `eagerZeroedThick`: Each disk is allocated and zeroed at creation time.
-  * `sameAsSource`: Each disk will have the same disk type as the source.
 * `deployment_option` - (Optional) The key of the chosen deployment option. If
   empty, the default option is chosen.
 * `ovf_network_map` - (Optional) The mapping of name of network identifiers

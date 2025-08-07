@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"reflect"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -55,6 +56,36 @@ var virtualMachineLatencySensitivityAllowedValues = []string{
 	string(types.LatencySensitivitySensitivityLevelNormal),
 	string(types.LatencySensitivitySensitivityLevelMedium),
 	string(types.LatencySensitivitySensitivityLevelHigh),
+}
+
+var virtualMachineHardwareVersionValidRanges = [][]int{{4, 4}, {7, 11}, {13, 15}, {17, 22}}
+
+// generateHardwareVersionDescription creates a description string from the
+// valid hardware version ranges.
+func generateHardwareVersionDescription() string {
+	var parts []string
+	for _, r := range virtualMachineHardwareVersionValidRanges {
+		if r[0] == r[1] {
+			parts = append(parts, fmt.Sprintf("%d", r[0]))
+		} else {
+			parts = append(parts, fmt.Sprintf("%d-%d", r[0], r[1]))
+		}
+	}
+	return fmt.Sprintf("The hardware version for the virtual machine. Allows versions within ranges: %s.", strings.Join(parts, ", "))
+}
+
+// generateHardwareVersionErrorMessage creates an error message string from the
+// valid hardware version ranges.
+func generateHardwareVersionErrorMessage() string {
+	var parts []string
+	for _, r := range virtualMachineHardwareVersionValidRanges {
+		if r[0] == r[1] {
+			parts = append(parts, fmt.Sprintf("%d", r[0]))
+		} else {
+			parts = append(parts, fmt.Sprintf("%d-%d", r[0], r[1]))
+		}
+	}
+	return strings.Join(parts, ", ")
 }
 
 // getWithRestart fetches the resource data specified at key. If the value has
@@ -357,11 +388,20 @@ func schemaVirtualMachineConfigSpec() map[string]*schema.Schema {
 			Description: "The ID of the storage policy to assign to the virtual machine home directory.",
 		},
 		"hardware_version": {
-			Type:         schema.TypeInt,
-			Optional:     true,
-			ValidateFunc: validation.IntBetween(4, 21),
-			Description:  "The hardware version for the virtual machine.",
-			Computed:     true,
+			Type:     schema.TypeInt,
+			Optional: true,
+			ValidateFunc: func(val interface{}, key string) (warns []string, errs []error) {
+				v := val.(int)
+				for _, r := range virtualMachineHardwareVersionValidRanges {
+					if v >= r[0] && v <= r[1] {
+						return
+					}
+				}
+				errs = append(errs, fmt.Errorf("%q must be %s, got: %d", key, generateHardwareVersionErrorMessage(), v))
+				return
+			},
+			Description: generateHardwareVersionDescription(),
+			Computed:    true,
 		},
 	}
 	structure.MergeSchema(s, schemaVirtualMachineResourceAllocation())

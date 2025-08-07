@@ -757,7 +757,7 @@ func schemaDVSCreateSpec() map[string]*schema.Schema {
 		"version": {
 			Type:         schema.TypeString,
 			Computed:     true,
-			Description:  "The version of this virtual switch. Allowed versions are 8.0.3, 8.0.0, 7.0.3, 7.0.2, 7.0.0, 6.6.0, 6.5.0, 6.0.0, 5.5.0, 5.1.0, and 5.0.0.",
+			Description:  fmt.Sprintf("The version of this virtual switch. Allowed versions: %s.", strings.Join(dvsVersions, ", ")),
 			Optional:     true,
 			ValidateFunc: validation.StringInSlice(dvsVersions, false),
 		},

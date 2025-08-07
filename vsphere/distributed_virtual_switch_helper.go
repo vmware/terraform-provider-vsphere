@@ -18,10 +18,6 @@ import (
 )
 
 var dvsVersions = []string{
-	"5.0.0",
-	"5.1.0",
-	"5.5.0",
-	"6.0.0",
 	"6.5.0",
 	"6.6.0",
 	"7.0.0",
@@ -29,6 +25,7 @@ var dvsVersions = []string{
 	"7.0.3",
 	"8.0.0",
 	"8.0.3",
+	"9.0.0",
 }
 
 // dvsFromUUID gets a DVS object from its UUID.

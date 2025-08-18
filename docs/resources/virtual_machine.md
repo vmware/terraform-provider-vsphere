@@ -1403,11 +1403,10 @@ The options available in the `ovf_deploy` block are:
 
 * `ip_protocol` - (Optional) The IP protocol.
 
-* `disk_provisioning` - (Optional) The disk provisioning type. If set, all the disks included in the OVF/OVA will have the same specified policy. One of `thin`, `thick`, `eagerZeroedThick`, or `sameAsSource`.
+* `disk_provisioning` - (Optional) The disk provisioning type. If set, all the disks included in the OVF/OVA will have the same specified policy. One of `thin`, `thick`, or `eagerZeroedThick`.
   * `thin`: Each disk is allocated and zeroed on demand as the space is used.
   * `thick`: Each disk is allocated at creation time and the space is zeroed on demand as the space is used.
   * `eagerZeroedThick`: Each disk is allocated and zeroed at creation time.
-  * `sameAsSource`: Each disk will have the same disk type as the source.
 
 * `deployment_option` - (Optional) The key for the deployment option. If empty, the default option is selected.
 

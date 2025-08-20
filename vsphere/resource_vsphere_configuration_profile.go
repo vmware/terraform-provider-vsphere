@@ -37,7 +37,7 @@ func resourceVSphereConfigurationProfile() *schema.Resource {
 				Optional:         true,
 				Computed:         true,
 				ConflictsWith:    []string{"reference_host_id"},
-				Description:      "The configuration json.",
+				Description:      "The configuration JSON.",
 				DiffSuppressFunc: configDiffSuppressFunc,
 			},
 			"schema": {

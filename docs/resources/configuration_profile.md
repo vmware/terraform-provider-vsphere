@@ -91,7 +91,7 @@ data "vsphere_compute_cluster" "cluster1" {
 
 resource "vsphere_configuration_profile" "profile1" {
   cluster_id    = data.vsphere_compute_cluster.cluster1.id
-  configuration = file("/Users/you/terraform/cluster_config_1.json")
+  configuration = file("/path/to/cluster_config_1.json")
 }
 ```
 

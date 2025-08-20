@@ -16,7 +16,7 @@ It is allowed to switch from one type of configuration source to the other at an
 Deleting a `vsphere_configuration_profile` resource has no effect on the compute cluster. Once management via configuration
 profiles is turned ot it is not possible to disable it.
 
-~> **NOTE:** This resource requires a vCenter and will not work on
+~> **NOTE:** This resource requires a vCenter 8 or higher and will not work on
 direct ESXi connections.
 
 ## Example Usage

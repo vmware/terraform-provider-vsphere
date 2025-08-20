@@ -15,7 +15,7 @@ import (
 
 func TestAccResourceVSphereConfigProfile(t *testing.T) {
 	// Run this test manually, do not include in automated testing
-	//t.Skipf("Skipped due to cleanup problems - https://github.com/vmware/terraform-provider-vsphere/issues/2543")
+	t.Skipf("Skipped due to cleanup problems - https://github.com/vmware/terraform-provider-vsphere/issues/2543")
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()

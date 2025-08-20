@@ -19,7 +19,7 @@ func dataSourceVSphereConfigurationProfile() *schema.Resource {
 			"configuration": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The configuration json.",
+				Description: "The configuration JSON.",
 			},
 			"schema": {
 				Type:        schema.TypeString,

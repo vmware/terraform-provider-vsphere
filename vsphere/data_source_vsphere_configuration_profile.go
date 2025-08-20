@@ -12,11 +12,11 @@ import (
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/configprofile"
 )
 
-func dataSourceVSphereConfigProfile() *schema.Resource {
+func dataSourceVSphereConfigurationProfile() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceVSphereConfigProfileRead,
+		ReadContext: dataSourceVSphereConfigurationProfileRead,
 		Schema: map[string]*schema.Schema{
-			"config": {
+			"configuration": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The configuration json.",
@@ -35,7 +35,7 @@ func dataSourceVSphereConfigProfile() *schema.Resource {
 	}
 }
 
-func dataSourceVSphereConfigProfileRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceVSphereConfigurationProfileRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*Client).restClient
 	return configprofile.ReadConfigProfile(ctx, client, d)
 }

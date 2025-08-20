@@ -62,12 +62,12 @@ resource "vsphere_compute_cluster" "cluster1" {
   host_system_ids = [vsphere_host.h1.id]
 }
 
-resource "vsphere_config_profile" "profile1" {
+resource "vsphere_configuration_profile" "profile1" {
   reference_host_id = vsphere_host.h1.id
   cluster_id = vsphere_compute_cluster.cluster1.id
 }
 
-data "vsphere_config_profile" "profile2" {
+data "vsphere_configuration_profile" "profile2" {
   cluster_id = vsphere_config_profile.profile1.cluster_id
 }
 `,

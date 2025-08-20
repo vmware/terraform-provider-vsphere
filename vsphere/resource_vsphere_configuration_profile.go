@@ -19,20 +19,20 @@ import (
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/configprofile"
 )
 
-func resourceVSphereConfigProfile() *schema.Resource {
+func resourceVSphereConfigurationProfile() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceVSphereConfigProfileCreate,
-		ReadContext:   resourceVSphereConfigProfileRead,
-		UpdateContext: resourceVSphereConfigProfileUpdate,
-		DeleteContext: resourceVSphereConfigProfileDelete,
+		CreateContext: resourceVSphereConfigurationProfileCreate,
+		ReadContext:   resourceVSphereConfigurationProfileRead,
+		UpdateContext: resourceVSphereConfigurationProfileUpdate,
+		DeleteContext: resourceVSphereConfigurationProfileDelete,
 		Schema: map[string]*schema.Schema{
 			"reference_host_id": {
 				Type:          schema.TypeString,
 				Optional:      true,
-				ConflictsWith: []string{"config"},
+				ConflictsWith: []string{"configuration"},
 				Description:   "The identifier of the host to use as a source of the configuration.",
 			},
-			"config": {
+			"configuration": {
 				Type:             schema.TypeString,
 				Optional:         true,
 				Computed:         true,
@@ -54,89 +54,89 @@ func resourceVSphereConfigProfile() *schema.Resource {
 	}
 }
 
-func resourceVSphereConfigProfileCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	referenceHostId := d.Get("reference_host_id").(string)
-	config := d.Get("config").(string)
+func resourceVSphereConfigurationProfileCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	referenceHostID := d.Get("reference_host_id").(string)
+	config := d.Get("configuration").(string)
 
-	if referenceHostId != "" && config != "" {
-		return diag.FromErr(fmt.Errorf("cannot specify both `reference_host_id` and `config`"))
+	if referenceHostID != "" && config != "" {
+		return diag.FromErr(fmt.Errorf("cannot specify both `reference_host_id` and `configuration`"))
 	}
 
-	clusterId := d.Get("cluster_id").(string)
+	clusterID := d.Get("cluster_id").(string)
 
 	client := meta.(*Client).restClient
 	m := enablement.NewManager(client)
 	tm := tasks.NewManager(client)
 
-	tflog.Debug(ctx, fmt.Sprintf("running eligibility checks on cluster: %s", clusterId))
-	if taskId, err := m.CheckEligibility(clusterId); err != nil {
+	tflog.Debug(ctx, fmt.Sprintf("running eligibility checks on cluster: %s", clusterID))
+	if taskID, err := m.CheckEligibility(clusterID); err != nil {
 		return diag.FromErr(fmt.Errorf("failed to run eligibility check: %s", err))
-	} else if _, err := tm.WaitForCompletion(ctx, taskId); err != nil {
+	} else if _, err := tm.WaitForCompletion(ctx, taskID); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if referenceHostId != "" {
-		tflog.Debug(ctx, fmt.Sprintf("importing configuration from reference host: %s", referenceHostId))
-		if taskId, err := m.ImportFromReferenceHost(clusterId, referenceHostId); err != nil {
+	if referenceHostID != "" {
+		tflog.Debug(ctx, fmt.Sprintf("importing configuration from reference host: %s", referenceHostID))
+		if taskID, err := m.ImportFromReferenceHost(clusterID, referenceHostID); err != nil {
 			return diag.FromErr(fmt.Errorf("failed to import configuration from reference host: %s", err))
-		} else if _, err := tm.WaitForCompletion(ctx, taskId); err != nil {
+		} else if _, err := tm.WaitForCompletion(ctx, taskID); err != nil {
 			return diag.FromErr(err)
 		}
 	} else {
 		tflog.Debug(ctx, "using configuration json")
 		spec := enablement.FileSpec{Config: config}
-		if _, err := m.ImportFromFile(clusterId, spec); err != nil {
+		if _, err := m.ImportFromFile(clusterID, spec); err != nil {
 			return diag.FromErr(fmt.Errorf("failed to import configuration: %s", err))
 		}
 	}
 
 	tflog.Debug(ctx, "validating imported configuration")
-	if taskId, err := m.ValidateConfiguration(clusterId); err != nil {
+	if taskID, err := m.ValidateConfiguration(clusterID); err != nil {
 		return diag.FromErr(fmt.Errorf("failed to validate configuration: %s", err))
-	} else if _, err := tm.WaitForCompletion(ctx, taskId); err != nil {
+	} else if _, err := tm.WaitForCompletion(ctx, taskID); err != nil {
 		return diag.FromErr(err)
 	}
 
-	tflog.Debug(ctx, fmt.Sprintf("running pre-checks on cluster: %s", clusterId))
-	if taskId, err := m.RunPrecheck(clusterId); err != nil {
+	tflog.Debug(ctx, fmt.Sprintf("running pre-checks on cluster: %s", clusterID))
+	if taskID, err := m.RunPrecheck(clusterID); err != nil {
 		return diag.FromErr(fmt.Errorf("failed to run precheck: %s", err))
-	} else if _, err := tm.WaitForCompletion(ctx, taskId); err != nil {
+	} else if _, err := tm.WaitForCompletion(ctx, taskID); err != nil {
 		return diag.FromErr(err)
 	}
 
-	tflog.Debug(ctx, fmt.Sprintf("transitioning cluster %s to configuration profiles", clusterId))
-	if taskId, err := m.EnableClusterConfiguration(clusterId); err != nil {
+	tflog.Debug(ctx, fmt.Sprintf("transitioning cluster %s to configuration profiles", clusterID))
+	if taskID, err := m.EnableClusterConfiguration(clusterID); err != nil {
 		return diag.FromErr(fmt.Errorf("failed to enable cluster configuration: %s", err))
-	} else if _, err := tm.WaitForCompletion(ctx, taskId); err != nil {
+	} else if _, err := tm.WaitForCompletion(ctx, taskID); err != nil {
 		return diag.FromErr(err)
 	}
 
-	return resourceVSphereConfigProfileRead(ctx, d, meta)
+	return resourceVSphereConfigurationProfileRead(ctx, d, meta)
 }
 
-func resourceVSphereConfigProfileRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVSphereConfigurationProfileRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*Client).restClient
 	return configprofile.ReadConfigProfile(ctx, client, d)
 }
 
-func resourceVSphereConfigProfileUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	clusterId := d.Get("cluster_id").(string)
+func resourceVSphereConfigurationProfileUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	clusterID := d.Get("cluster_id").(string)
 
 	client := meta.(*Client).restClient
 
 	m := drafts.NewManager(client)
 
-	tflog.Debug(ctx, fmt.Sprintf("looking for pending configuration draft on cluster: %s", clusterId))
-	draftsList, err := m.ListDrafts(clusterId)
+	tflog.Debug(ctx, fmt.Sprintf("looking for pending configuration draft on cluster: %s", clusterID))
+	draftsList, err := m.ListDrafts(clusterID)
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("failed to list drafts: %s", err))
 	}
 
 	if len(draftsList) > 0 {
 		// there is only one active draft per user
-		for draftId, _ := range draftsList {
-			tflog.Debug(ctx, fmt.Sprintf("deleting pending configuration draft: %s", draftId))
-			if err := m.DeleteDraft(clusterId, draftId); err != nil {
+		for draftID := range draftsList {
+			tflog.Debug(ctx, fmt.Sprintf("deleting pending configuration draft: %s", draftID))
+			if err := m.DeleteDraft(clusterID, draftID); err != nil {
 				return diag.FromErr(fmt.Errorf("failed to delete draft: %s", err))
 			}
 		}
@@ -145,32 +145,32 @@ func resourceVSphereConfigProfileUpdate(ctx context.Context, d *schema.ResourceD
 	var createSpec drafts.CreateSpec
 
 	if d.HasChange("reference_host_id") {
-		referenceHostId := d.Get("reference_host_id").(string)
-		tflog.Debug(ctx, fmt.Sprintf("updating cluster configuration using reference host: %s", referenceHostId))
-		createSpec.ReferenceHost = referenceHostId
+		referenceHostID := d.Get("reference_host_id").(string)
+		tflog.Debug(ctx, fmt.Sprintf("updating cluster configuration using reference host: %s", referenceHostID))
+		createSpec.ReferenceHost = referenceHostID
 	} else {
 		tflog.Debug(ctx, "updating cluster configuration")
-		createSpec.Config = d.Get("config").(string)
+		createSpec.Config = d.Get("configuration").(string)
 	}
 
 	tflog.Debug(ctx, "creating a new draft")
-	draftId, err := m.CreateDraft(clusterId, createSpec)
+	draftID, err := m.CreateDraft(clusterID, createSpec)
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("failed to create draft: %s", err))
 	}
 
-	tflog.Debug(ctx, fmt.Sprintf("running pre-checks for draft: %s", draftId))
-	taskId, err := m.Precheck(clusterId, draftId)
+	tflog.Debug(ctx, fmt.Sprintf("running pre-checks for draft: %s", draftID))
+	taskID, err := m.Precheck(clusterID, draftID)
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("failed to trigger precheck: %s", err))
 	}
 
-	if _, err := tasks.NewManager(client).WaitForCompletion(ctx, taskId); err != nil {
+	if _, err := tasks.NewManager(client).WaitForCompletion(ctx, taskID); err != nil {
 		return diag.FromErr(fmt.Errorf("precheck failed: %s", err))
 	}
 
-	tflog.Debug(ctx, fmt.Sprintf("applying draft: %s", draftId))
-	res, err := m.ApplyDraft(clusterId, draftId)
+	tflog.Debug(ctx, fmt.Sprintf("applying draft: %s", draftID))
+	res, err := m.ApplyDraft(clusterID, draftID)
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("failed to apply draft: %s", err))
 	}
@@ -179,23 +179,23 @@ func resourceVSphereConfigProfileUpdate(ctx context.Context, d *schema.ResourceD
 		return diag.FromErr(fmt.Errorf("failed to apply draft: %s", err))
 	}
 
-	return resourceVSphereConfigProfileRead(ctx, d, meta)
+	return resourceVSphereConfigurationProfileRead(ctx, d, meta)
 }
 
-func resourceVSphereConfigProfileDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceVSphereConfigurationProfileDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
 	// Can't go back after management via config profiles is enabled
 	return nil
 }
 
-func configDiffSuppressFunc(_, old, new string, _ *schema.ResourceData) bool {
+func configDiffSuppressFunc(_, oldVal, newVal string, _ *schema.ResourceData) bool {
 	var oldMap map[string]interface{}
 
-	if err := json.Unmarshal([]byte(old), &oldMap); err != nil {
+	if err := json.Unmarshal([]byte(oldVal), &oldMap); err != nil {
 		return false
 	}
 
 	var newMap map[string]interface{}
-	if err := json.Unmarshal([]byte(new), &newMap); err != nil {
+	if err := json.Unmarshal([]byte(newVal), &newMap); err != nil {
 		return false
 	}
 

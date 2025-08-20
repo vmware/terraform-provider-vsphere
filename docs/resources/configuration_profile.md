@@ -1,19 +1,19 @@
 ---
 subcategory: "Host and Cluster Management"
-page_title: "VMware vSphere: vsphere_config_profile"
+page_title: "VMware vSphere: vsphere_configuration_profile"
 sidebar_current: "docs-vsphere-resource-config-profile"
 description: |-
   Provides a vSphere cluster configuration profile resource.
 ---
 
-# vsphere_config_profile
+# vsphere_configuration_profile
 
-The `vsphere_config_profile` resource can be used to configure profile-based host management on a vSphere compute cluster.
+The `vsphere_configuration_profile` resource can be used to configure profile-based host management on a vSphere compute cluster.
 The source for the configuration can either be a ESXi host that is part of the compute cluster or a JSON file, but not both at the same time.
 
 It is allowed to switch from one type of configuration source to the other at any time.
 
-Deleting a `vsphere_config_profile` resource has no effect on the compute cluster. Once management via configuration
+Deleting a `vsphere_configuration_profile` resource has no effect on the compute cluster. Once management via configuration
 profiles is turned ot it is not possible to disable it.
 
 ~> **NOTE:** This resource requires a vCenter and will not work on
@@ -56,21 +56,21 @@ data "vsphere_host" "host" {
 }
 
 # Configure a profile on "cluster-01" using one of its hosts as a reference
-resource "vsphere_config_profile" "profile1" {
-  cluster_id = data.vsphere_compute_cluster.cluster1.id
+resource "vsphere_configuration_profile" "profile1" {
+  cluster_id        = data.vsphere_compute_cluster.cluster1.id
   reference_host_id = data.vsphere_host.host.id
 }
 
 # Copy the configuration of "cluster-01" onto "cluster-02"
-resource "vsphere_config_profile" "profile2" {
-  cluster_id = data.vsphere_compute_cluster.cluster2.id
-  config = vsphere_config_profile.profile1.config
+resource "vsphere_configuration_profile" "profile2" {
+  cluster_id    = data.vsphere_compute_cluster.cluster2.id
+  configuration = vsphere_configuration_profile.profile1.configuration
 }
 
 # Copy the configuration of "cluster-01" onto "cluster-03"
-resource "vsphere_config_profile" "profile3" {
-  cluster_id = data.vsphere_compute_cluster.cluster3.id
-  config = vsphere_config_profile.profile1.config
+resource "vsphere_configuration_profile" "profile3" {
+  cluster_id    = data.vsphere_compute_cluster.cluster3.id
+  configuration = vsphere_configuration_profile.profile1.configuration
 }
 ```
 
@@ -89,9 +89,9 @@ data "vsphere_compute_cluster" "cluster1" {
   datacenter_id = data.vsphere_datacenter.datacenter.id
 }
 
-resource "vsphere_config_profile" "profile1" {
-  cluster_id = data.vsphere_compute_cluster.cluster1.id
-  config = file("/Users/you/terraform/cluster_config_1.json")
+resource "vsphere_configuration_profile" "profile1" {
+  cluster_id    = data.vsphere_compute_cluster.cluster1.id
+  configuration = file("/Users/you/terraform/cluster_config_1.json")
 }
 ```
 
@@ -102,13 +102,13 @@ The following arguments are supported:
 * `cluster_id` - (Required) The identifier of the cluster.
 * `reference_host_id` - (Optional) The identifier of the host to use as a configuration source.
 The host needs to be a member of the cluster identified by `cluster_id`. This argument can only be specified if
-`config` is not set.
-* `config` - (Optional) The configuration JSON provided as a plain string. This argument can only be specified if `reference_host_id` is not set.
+`configuration` is not set.
+* `configuration` - (Optional) The configuration JSON provided as a plain string. This argument can only be specified if `reference_host_id` is not set.
 
 ## Attribute Reference
 
 The following attributes are exported:
 
-* `id` - A custom identifier for the profile. The value for this attribute is constructed using the `cluster_id` in the following format - `config_profile_${cluster_id}`.
+* `id` - A custom identifier for the profile. The value for this attribute is constructed using the `cluster_id` in the following format - `configuration_profile_${cluster_id}`.
 * `schema`- The JSON schema for the profile.
-* `config` - The current configuration which is active on the cluster.
+* `configuration` - The current configuration which is active on the cluster.

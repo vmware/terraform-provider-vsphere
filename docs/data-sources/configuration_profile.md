@@ -1,14 +1,14 @@
 ---
 subcategory: "Host and Cluster Management"
-page_title: "VMware vSphere: vsphere_config_profile"
+page_title: "VMware vSphere: vsphere_configuration_profile"
 sidebar_current: "docs-vsphere-data-source-config-profile"
 description: |-
   Provides a vSphere cluster configuration profile data source.
 ---
 
-# vsphere_config_profile
+# vsphere_configuration_profile
 
-The `vsphere_config_profile` data source can be used to export the configuration and schema
+The `vsphere_configuration_profile` data source can be used to export the configuration and schema
 of a cluster that is already managed via configuration profiles.
 
 ## Example Usage
@@ -23,7 +23,7 @@ data "vsphere_compute_cluster" "compute_cluster" {
   datacenter_id = data.vsphere_datacenter.datacenter.id
 }
 
-data "vsphere_config_profile" "profile" {
+data "vsphere_configuration_profile" "profile" {
   cluster_id = data.vsphere_compute_cluster.compute_cluster.id
 }
 ```
@@ -38,6 +38,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-* `id` - A custom identifier for the profile. The value for this attribute is constructed using the `cluster_id` in the following format - `config_profile_${cluster_id}`.
+* `id` - A custom identifier for the profile. The value for this attribute is constructed using the `cluster_id` in the following format - `configuration_profile_${cluster_id}`.
 * `schema`- The JSON schema for the profile.
-* `config` - The current configuration which is active on the cluster.
+* `configuration` - The current configuration which is active on the cluster.

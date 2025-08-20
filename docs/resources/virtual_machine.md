@@ -665,7 +665,7 @@ The following options are general virtual machine and provider workflow options:
   $osDescriptor | Select-Object Id, Fullname
   ```
 
-* `hardware_version` - (Optional) The hardware version number. Valid range is from 4 to 21. The hardware version cannot be downgraded. See virtual machine hardware [versions][virtual-machine-hardware-versions] and [compatibility][virtual-machine-hardware-compatibility] for more information on supported settings.
+* `hardware_version` - (Optional) The hardware version number. Allows versions within ranges: 4, 7-11, 13-15, 17-22. The hardware version cannot be downgraded. See virtual machine hardware [versions][virtual-machine-hardware-versions] and [compatibility][virtual-machine-hardware-compatibility] for more information on supported settings.
 
 [virtual-machine-hardware-versions]: https://knowledge.broadcom.com/external/article?articleNumber=315655
 [virtual-machine-hardware-compatibility]: https://knowledge.broadcom.com/external/article?articleNumber=312100

@@ -1,5 +1,34 @@
 # <!-- markdownlint-disable first-line-h1 no-inline-html -->
 
+## v2.15.0
+
+> Release Date: 2025-08-22
+
+BUG FIX:
+
+- `r/virtual_machine`: Check for MissingPortGroupReferenceError when reading a VM network subresource. (#2589)
+
+DOCUMENTATION:
+
+- `r/virtual_machine`: Removed `sameAsSource` from `disk_provisioning`. (#2578)
+
+FEATURES:
+
+- `r/virtual_machine`: Support deploying OVA without specifying `host_system_id`. (#2567)
+- `r/onfiguration_profile`: Created a resource and data source for host configuration profiles. (#2588)
+
+IMPROVEMENTS:
+
+- `r/virtual_machine`: Updated hardware versions and validation. (#2582)
+- `r/distributed_virtual_switch`: Updated distributed switch versions. (#2580)
+
+CHORE:
+
+- `provider`: Updated `goreleaser/goreleaser-action` to 6.4.0. (#2583)
+- `provider`: Updated `github.com/hashicorp/terraform-plugin-testing` to 1.13.3. (#2585)
+- `provider`: Updated `actions/checkout` to 5.0.0. (#2584)
+- `provider`: Updated `vmware/govmomi` to 0.52.0. (#2587)
+
 ## v2.14.2
 
 > Release Date: 2025-07-25

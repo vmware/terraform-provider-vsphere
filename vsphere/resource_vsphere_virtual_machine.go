@@ -1525,6 +1525,22 @@ func resourceVSphereVirtualMachineCreateClone(d *schema.ResourceData, meta inter
 	name := d.Get("name").(string)
 	timeout := d.Get("clone.0.timeout").(int)
 	var vm *object.VirtualMachine
+
+	// instant Clone
+	if d.Get("clone.0.instant_clone").(bool) {
+		log.Printf("[DEBUG] %s: Instant Clone being created from VM", resourceVSphereVirtualMachineIDString(d))
+		// Expand the clone spec. We get the source VM here too.
+		cloneSpec, srcVM, err := vmworkflow.ExpandVirtualMachineInstantCloneSpec(d, client)
+		if err != nil {
+			return nil, err
+		}
+		vm, err = virtualmachine.InstantClone(client, srcVM, fo, name, cloneSpec, timeout)
+		if err != nil {
+			return nil, fmt.Errorf("error Instant cloning virtual machine: %s", err)
+		}
+		return vm, resourceVSphereVirtualMachinePostDeployChanges(d, meta, vm, false)
+	}
+
 	switch contentlibrary.IsContentLibraryItem(meta.(*Client).restClient, d.Get("clone.0.template_uuid").(string)) {
 	case true:
 		deploySpec, err := createVCenterDeploy(d, meta)
@@ -1851,9 +1867,12 @@ func resourceVSphereVirtualMachinePostDeployChanges(d *schema.ResourceData, meta
 	}
 	// Finally time to power on the virtual machine!
 	pTimeout := time.Duration(d.Get("poweron_timeout").(int)) * time.Second
-	if err := virtualmachine.PowerOn(vm, pTimeout); err != nil {
-		return fmt.Errorf("error powering on virtual machine: %s", err)
+	if vprops.Runtime.PowerState == types.VirtualMachinePowerStatePoweredOff {
+		if err := virtualmachine.PowerOn(vm, pTimeout); err != nil {
+			return fmt.Errorf("error powering on virtual machine: %s", err)
+		}
 	}
+
 	// If we customized, wait on customization.
 	if cw != nil {
 		log.Printf("[DEBUG] %s: Waiting for VM customization to complete", resourceVSphereVirtualMachineIDString(d))

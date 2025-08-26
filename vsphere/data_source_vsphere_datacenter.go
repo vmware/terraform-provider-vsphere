@@ -48,17 +48,17 @@ func dataSourceVSphereDatacenterRead(d *schema.ResourceData, meta interface{}) e
 	finder := find.NewFinder(client.Client)
 	finder.SetDatacenter(dc)
 	viewManager := view.NewManager(client.Client)
-	view, err := viewManager.CreateContainerView(ctx, dc.Reference(), []string{"VirtualMachine"}, true)
+	containerView, err := viewManager.CreateContainerView(ctx, dc.Reference(), []string{"VirtualMachine"}, true)
 	if err != nil {
 		return fmt.Errorf("error fetching datacenter: %s", err)
 	}
 	defer func() {
-		if err := view.Destroy(ctx); err != nil {
-			log.Printf("[WARN] Error destroying view during cleanup: %v", err)
+		if err := containerView.Destroy(ctx); err != nil {
+			log.Printf("[WARN] Error destroying containerView during cleanup: %v", err)
 		}
 	}()
 	var vms []mo.VirtualMachine
-	err = view.Retrieve(ctx, []string{"VirtualMachine"}, []string{"name"}, &vms)
+	err = containerView.Retrieve(ctx, []string{"VirtualMachine"}, []string{"name"}, &vms)
 	if err != nil {
 		return fmt.Errorf("error fetching virtual machines: %s", err)
 	}

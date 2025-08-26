@@ -786,6 +786,8 @@ The options are:
 
 * `memory_reservation` - (Optional) The amount of memory (in MB) that the virtual machine is guaranteed. The default is no reservation.
 
+* `memory_reservation_locked_to_max` - (Optional) If set true, memory resource reservation for this virtual machine will always be equal to the virtual machine's memory size.
+
 * `memory_share_level` - (Optional) The allocation level for the virtual machine memory resources. One of `high`, `low`, `normal`, or `custom`. Default: `custom`.
 
 * `memory_share_count` - (Optional) The number of memory shares allocated to the virtual machine when the `memory_share_level` is `custom`.

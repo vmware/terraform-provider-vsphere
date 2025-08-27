@@ -953,6 +953,14 @@ func DiskCloneRelocateOperation(resourceData *schema.ResourceData, client *govmo
 		}
 		r := NewDiskSubresource(client, resourceData, diskDataMap, nil, i)
 
+		// A disk locator is only useful if a target datastore is available. If we
+		// don't have a datastore specified (ie: when Storage DRS is in use), then
+		// we just need to skip this disk. The disk will be migrated properly
+		// through the SDRS API.
+		if dsID := r.Get("datastore_id"); dsID == "" || dsID == diskDatastoreComputedName {
+			continue
+		}
+
 		shouldRelocate := shouldAddRelocateSpec(resourceData, device.(*types.VirtualDisk), i)
 		if !shouldRelocate {
 			continue

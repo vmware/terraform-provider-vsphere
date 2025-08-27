@@ -909,7 +909,11 @@ func getHostThumbprint(d *schema.ResourceData) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("error dialing TLS connection: %w", err)
 	}
-	defer conn.Close()
+	defer func() {
+		if err := conn.Close(); err != nil {
+			log.Printf("[WARN] failed to close TLS connection to %s:%s: %v", address, port, err)
+		}
+	}()
 
 	cert := conn.ConnectionState().PeerCertificates[0]
 	fingerprint := sha1.Sum(cert.Raw)

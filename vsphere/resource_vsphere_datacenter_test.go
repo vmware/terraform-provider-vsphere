@@ -312,11 +312,11 @@ func testAccCheckVSphereDatacenterDestroy(s *terraform.State) error {
 			continue
 		}
 
-		path := rs.Primary.Attributes["name"]
+		datacenterPath := rs.Primary.Attributes["name"]
 		if _, ok := rs.Primary.Attributes["folder"]; ok {
-			path = rs.Primary.Attributes["folder"] + "/" + path
+			datacenterPath = rs.Primary.Attributes["folder"] + "/" + datacenterPath
 		}
-		_, err := finder.Datacenter(context.TODO(), path)
+		_, err := finder.Datacenter(context.TODO(), datacenterPath)
 		if err != nil {
 			var notFoundError *find.NotFoundError
 			switch {
@@ -326,7 +326,7 @@ func testAccCheckVSphereDatacenterDestroy(s *terraform.State) error {
 				return err
 			}
 		} else {
-			return fmt.Errorf("datacenter '%s' still exists", path)
+			return fmt.Errorf("datacenter '%s' still exists", datacenterPath)
 		}
 	}
 
@@ -347,11 +347,11 @@ func testAccCheckVSphereDatacenterExists(n string, exists bool) resource.TestChe
 		client := testAccProvider.Meta().(*Client).vimClient
 		finder := find.NewFinder(client.Client, true)
 
-		path := rs.Primary.Attributes["name"]
+		datacenterPath := rs.Primary.Attributes["name"]
 		if _, ok := rs.Primary.Attributes["folder"]; ok {
-			path = rs.Primary.Attributes["folder"] + "/" + path
+			datacenterPath = rs.Primary.Attributes["folder"] + "/" + datacenterPath
 		}
-		_, err := finder.Datacenter(context.TODO(), path)
+		_, err := finder.Datacenter(context.TODO(), datacenterPath)
 		if err != nil {
 			var notFoundError *find.NotFoundError
 			switch {
@@ -384,14 +384,14 @@ func testAccResourceVSphereDatacenterCheckTags(tagResName string) resource.TestC
 
 		finder := find.NewFinder(vars.client.Client, true)
 
-		path := vars.resourceAttributes["name"]
+		datacenterPath := vars.resourceAttributes["name"]
 		if _, ok := vars.resourceAttributes["folder"]; ok {
-			path = vars.resourceAttributes["folder"] + "/" + path
+			datacenterPath = vars.resourceAttributes["folder"] + "/" + datacenterPath
 		}
 
 		ctx, cancel := context.WithTimeout(context.Background(), defaultAPITimeout)
 		defer cancel()
-		dc, err := finder.Datacenter(ctx, path)
+		dc, err := finder.Datacenter(ctx, datacenterPath)
 		if err != nil {
 			return err
 		}

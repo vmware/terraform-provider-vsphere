@@ -184,3 +184,32 @@ func TestAccDataSourceVSphereNetwork_vpcNetwork(t *testing.T) {
 		},
 	})
 }
+
+func testAccDataSourceVSphereNetworkConfigProjectVPCNetwork() string {
+	return fmt.Sprintf(`
+%s
+`,
+		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataProjectVPCNetwork(), testhelper.ConfigDataRootVMNet()),
+	)
+}
+
+func TestAccDataSourceVSphereNetwork_vpcNetworkAndProject(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			RunSweepers()
+			testAccPreCheck(t)
+			if os.Getenv("TF_VAR_VSPHERE_PROJECT_VPC_SUBNET") == "" || os.Getenv("TF_VAR_VSPHERE_PROJECT_VPC_ID") == "" || os.Getenv("TF_VAR_VSPHERE_PROJECT_ID") == "" {
+				t.Skipf("This test requires project and VPC settings, please set TF_VAR_VSPHERE_PROJECT_VPC_SUBNET, TF_VAR_VSPHERE_PROJECT_VPC_ID and TF_VAR_VSPHERE_PROJECT_ID environment variables")
+			}
+		},
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceVSphereNetworkConfigProjectVPCNetwork(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.vsphere_network.vmnet", "type", "Network"),
+				),
+			},
+		},
+	})
+}

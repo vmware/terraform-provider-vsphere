@@ -109,7 +109,7 @@ func FromNameAndDVSUuid(client *govmomi.Client, name string, dc *object.Datacent
 	return nil, NotFoundError{Name: name}
 }
 
-func FromNameAndVPCId(client *govmomi.Client, name string, dc *object.Datacenter, vpcID string) (object.NetworkReference, error) {
+func FromNameAndVPCId(client *govmomi.Client, name string, dc *object.Datacenter, vpcProjectID, vpcID string) (object.NetworkReference, error) {
 	ctx := context.TODO()
 	finder := find.NewFinder(client.Client, true)
 
@@ -127,10 +127,23 @@ func FromNameAndVPCId(client *govmomi.Client, name string, dc *object.Datacenter
 	for _, network := range networks {
 		path := network.GetInventoryPath()
 		pathSplit := strings.Split(path, "/")
-
-		vpcIndex := slices.Index(pathSplit, "Virtual Private Clouds")
-		// Path format is /<datacenter>/network/Virtual Private Clouds/<VPC>/<subnet> ... And could contain folders as well
-		if vpcIndex != -1 && len(pathSplit) > vpcIndex && pathSplit[vpcIndex+1] == vpcID {
+		networkVPC := ""
+		networkVpcProject := ""
+		if vpcProjectID == "" {
+			vpcIndex := slices.Index(pathSplit, "Virtual Private Clouds")
+			// Path format is /<datacenter>/network/Virtual Private Clouds/<VPC>/<subnet> ... And could contain folders as well
+			if vpcIndex != -1 && len(pathSplit) > vpcIndex {
+				networkVPC = pathSplit[vpcIndex+1]
+			}
+		} else {
+			projectIndex := slices.Index(pathSplit, "NSX Managed Folders")
+			// Path format is /<datacenter>/network/NSX Managed Folders/<project>/<VPC>/<subnet>
+			if projectIndex != -1 && len(pathSplit) > projectIndex+1 {
+				networkVpcProject = pathSplit[projectIndex+1]
+				networkVPC = pathSplit[projectIndex+2]
+			}
+		}
+		if networkVPC != "" && networkVPC == vpcID && networkVpcProject == vpcProjectID {
 
 			if network.Reference().Type == "DistributedVirtualPortgroup" {
 				dvPortGroup := object.NewDistributedVirtualPortgroup(client.Client, network.Reference())

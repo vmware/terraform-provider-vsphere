@@ -40,6 +40,24 @@ type BaseComputeResource interface {
 	String() string
 }
 
+// ClusterFromID locates a ClusterComputeResource by its managed object reference ID.
+func ClusterFromID(client *govmomi.Client, id string) (*object.ClusterComputeResource, error) {
+	finder := find.NewFinder(client.Client, false)
+
+	ref := types.ManagedObjectReference{
+		Type:  "ClusterComputeResource",
+		Value: id,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), provider.DefaultAPITimeout)
+	defer cancel()
+	obj, err := finder.ObjectReference(ctx, ref)
+	if err != nil {
+		return nil, err
+	}
+	return obj.(*object.ClusterComputeResource), nil
+}
+
 // StandaloneFromID locates a ComputeResource by its managed object reference ID.
 //
 // Note this is for base level ComputeResource objects only, and should only be
@@ -123,7 +141,7 @@ func BaseFromReference(client *govmomi.Client, ref types.ManagedObjectReference)
 	case "ComputeResource":
 		return StandaloneFromID(client, ref.Value)
 	case "ClusterComputeResource":
-		return StandaloneFromID(client, ref.Value)
+		return ClusterFromID(client, ref.Value)
 	}
 	return nil, fmt.Errorf("unknown object type %s", ref.Type)
 }

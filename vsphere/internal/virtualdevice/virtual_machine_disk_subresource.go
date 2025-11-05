@@ -398,8 +398,8 @@ func DiskRefreshOperation(d *schema.ResourceData, c *govmomi.Client, l object.Vi
 	devices := SelectDisks(
 		l,
 		d.Get("scsi_controller_count").(int),
-		d.Get("scsi_controller_count").(int),
-		d.Get("scsi_controller_count").(int),
+		d.Get("sata_controller_count").(int),
+		d.Get("ide_controller_count").(int),
 		d.Get("nvme_controller_count").(int),
 	)
 	log.Printf("[DEBUG] DiskRefreshOperation: Disk devices located: %s", DeviceListString(devices))

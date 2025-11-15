@@ -7,6 +7,8 @@ package network
 import (
 	"context"
 	"fmt"
+	"slices"
+	"strings"
 
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/find"
@@ -104,6 +106,58 @@ func FromNameAndDVSUuid(client *govmomi.Client, name string, dc *object.Datacent
 		}
 		return nil, fmt.Errorf("error while getting Network with name %s and Distributed virtual switch %s", name, dvsUUID)
 	}
+	return nil, NotFoundError{Name: name}
+}
+
+func FromNameAndVPCId(client *govmomi.Client, name string, dc *object.Datacenter, vpcProjectID, vpcID string) (object.NetworkReference, error) {
+	ctx := context.TODO()
+	finder := find.NewFinder(client.Client, true)
+
+	// Set the datacenter
+	if dc != nil {
+		finder.SetDatacenter(dc)
+	}
+
+	// Find the network by name
+	networks, err := finder.NetworkList(ctx, name)
+	if err != nil {
+		return nil, NotFoundError{Name: name}
+	}
+	// Filter networks by additional attributes
+	for _, network := range networks {
+		path := network.GetInventoryPath()
+		pathSplit := strings.Split(path, "/")
+		networkVPC := ""
+		networkVpcProject := ""
+		if vpcProjectID == "" {
+			vpcIndex := slices.Index(pathSplit, "Virtual Private Clouds")
+			// Path format is /<datacenter>/network/Virtual Private Clouds/<VPC>/<subnet> ... And could contain folders as well
+			if vpcIndex != -1 && len(pathSplit) > vpcIndex {
+				networkVPC = pathSplit[vpcIndex+1]
+			}
+		} else {
+			projectIndex := slices.Index(pathSplit, "NSX Managed Folders")
+			// Path format is /<datacenter>/network/NSX Managed Folders/<project>/<VPC>/<subnet>
+			if projectIndex != -1 && len(pathSplit) > projectIndex+1 {
+				networkVpcProject = pathSplit[projectIndex+1]
+				networkVPC = pathSplit[projectIndex+2]
+			}
+		}
+		if networkVPC != "" && networkVPC == vpcID && networkVpcProject == vpcProjectID {
+
+			if network.Reference().Type == "DistributedVirtualPortgroup" {
+				dvPortGroup := object.NewDistributedVirtualPortgroup(client.Client, network.Reference())
+				return dvPortGroup, nil
+			}
+
+			if netObj, ok := network.(*object.Network); ok {
+				if networkName, err := netObj.ObjectName(ctx); err == nil && networkName == name {
+					return network, nil
+				}
+			}
+		}
+	}
+
 	return nil, NotFoundError{Name: name}
 }
 

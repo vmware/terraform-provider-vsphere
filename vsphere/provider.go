@@ -103,6 +103,7 @@ func Provider() *schema.Provider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
+			"vsphere_alarm":                                    resourceVSphereAlarm(),
 			"vsphere_compute_cluster":                          resourceVSphereComputeCluster(),
 			"vsphere_compute_cluster_host_group":               resourceVSphereComputeClusterHostGroup(),
 			"vsphere_compute_cluster_vm_affinity_rule":         resourceVSphereComputeClusterVMAffinityRule(),
@@ -110,6 +111,7 @@ func Provider() *schema.Provider {
 			"vsphere_compute_cluster_vm_dependency_rule":       resourceVSphereComputeClusterVMDependencyRule(),
 			"vsphere_compute_cluster_vm_group":                 resourceVSphereComputeClusterVMGroup(),
 			"vsphere_compute_cluster_vm_host_rule":             resourceVSphereComputeClusterVMHostRule(),
+			"vsphere_configuration_profile":                    resourceVSphereConfigurationProfile(),
 			"vsphere_content_library":                          resourceVSphereContentLibrary(),
 			"vsphere_content_library_item":                     resourceVSphereContentLibraryItem(),
 			"vsphere_custom_attribute":                         resourceVSphereCustomAttribute(),
@@ -150,8 +152,10 @@ func Provider() *schema.Provider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
+			"vsphere_alarm":                      dataSourceVSphereAlarm(),
 			"vsphere_compute_cluster":            dataSourceVSphereComputeCluster(),
 			"vsphere_compute_cluster_host_group": dataSourceVSphereComputeClusterHostGroup(),
+			"vsphere_configuration_profile":      dataSourceVSphereConfigurationProfile(),
 			"vsphere_content_library":            dataSourceVSphereContentLibrary(),
 			"vsphere_content_library_item":       dataSourceVSphereContentLibraryItem(),
 			"vsphere_custom_attribute":           dataSourceVSphereCustomAttribute(),

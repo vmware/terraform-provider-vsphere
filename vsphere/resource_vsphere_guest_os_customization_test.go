@@ -93,8 +93,8 @@ func TestAccResourceVSpherGOSC_sysprep(t *testing.T) {
 
 func testAccGOSCExists(resourceName string, goscName string, expectToExist bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		resource := fmt.Sprintf("vsphere_guest_os_customization.%s", resourceName)
-		vars, err := testClientVariablesForResource(s, resource)
+		customizationResource := fmt.Sprintf("vsphere_guest_os_customization.%s", resourceName)
+		vars, err := testClientVariablesForResource(s, customizationResource)
 		if err != nil {
 			return err
 		}

@@ -856,6 +856,8 @@ func Relocate(vm *object.VirtualMachine, spec types.VirtualMachineRelocateSpec, 
 		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 			return errors.New("timeout waiting for migration to complete")
 		}
+		// Other type of error, just return it
+		return err
 	}
 	return nil
 }

@@ -26,6 +26,7 @@ import (
 	"github.com/vmware/govmomi/vim25/mo"
 	"github.com/vmware/govmomi/vim25/types"
 	"github.com/vmware/govmomi/vsan"
+	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/alarm"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/clustercomputeresource"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/contentlibrary"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/datacenter"
@@ -1400,4 +1401,32 @@ func testGetVsphereRole(s *terraform.State, resourceName string) (string, error)
 		return "", fmt.Errorf("role not found")
 	}
 	return role.Name, nil
+}
+
+func testGetVsphereAlarm(s *terraform.State, resourceName string) (string, error) {
+	tVars, err := testClientVariablesForResource(s, fmt.Sprintf("vsphere_alarm.%s", resourceName))
+	if err != nil {
+		return "", err
+	}
+	id, ok := tVars.resourceAttributes["id"]
+	if !ok {
+		return "", fmt.Errorf("resource %q has no id", resourceName)
+	}
+	entityID, ok := tVars.resourceAttributes["entity_id"]
+	if !ok {
+		return "", fmt.Errorf("resource %q has no id", resourceName)
+	}
+	entityType, ok := tVars.resourceAttributes["entity_type"]
+	if !ok {
+		return "", fmt.Errorf("resource %q has no entity_type", resourceName)
+	}
+	entityMor := types.ManagedObjectReference{
+		Type:  entityType,
+		Value: entityID,
+	}
+	al, err := alarm.FromID(tVars.client, id, entityMor)
+	if err != nil {
+		return "", err
+	}
+	return al.Info.Name, nil
 }

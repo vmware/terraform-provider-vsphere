@@ -379,7 +379,13 @@ func (uploadSession libraryUploadSession) uploadOvaDisksFromURL(ovfFilePath stri
 	if err != nil {
 		return fmt.Errorf("error performing GET request to %s: %w", ovfFilePath, err)
 	}
-	defer resp.Body.Close()
+	if resp != nil && resp.Body != nil {
+		defer func() {
+			if err := resp.Body.Close(); err != nil {
+				log.Printf("[WARN] failed to close HTTP response body: %v", err)
+			}
+		}()
+	}
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("got status %d (%s) while getting file from %s", resp.StatusCode, http.StatusText(resp.StatusCode), ovfFilePath)

@@ -143,7 +143,7 @@ The following arguments are supported:
 - `max_mtu` - (Optional) The maximum transmission unit (MTU) for the VDS.
 - `multicast_filtering_mode` - (Optional) The multicast filtering mode to use
   with the VDS. Can be one of `legacyFiltering` or `snooping`.
-- `version` - (Optional) - The version of the VDS. BY default, a VDS is created
+- `version` - (Optional) - The version of the VDS. By default, a VDS is created
   at the latest version supported by the vSphere version if not specified.
   A VDS can be upgraded to a newer version, but can not be downgraded.
 - `tags` - (Optional) The IDs of any tags to attach to this resource. See

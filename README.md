@@ -22,16 +22,6 @@ Learn more:
 
 ## Requirements
 
-* [Terraform 0.13+][terraform-install]
-
-    For general information about Terraform, visit [HashiCorp Developer][terraform-install] and [the project][terraform-github] on GitHub.
-
-* [Go 1.23.8][golang-install]
-
-    Required, if [building][provider-build] the provider.
-
-## Requirements
-
 - [Terraform 0.13+][terraform-install]
 
     For general information about Terraform, visit [HashiCorp Developer][terraform-install] and [the project][terraform-github] on GitHub.

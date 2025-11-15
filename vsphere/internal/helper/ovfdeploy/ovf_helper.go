@@ -487,14 +487,13 @@ func NewOvfHelper(client *govmomi.Client, o *OvfHelperParams) (*OvfHelper, error
 
 	// Host
 	hostID := o.HostID
-	if hostID == "" {
-		return nil, fmt.Errorf("host system ID is required for ovf deployment")
+	if hostID != "" {
+		hostObj, err := hostsystem.FromID(client, hostID)
+		if err != nil {
+			return nil, fmt.Errorf("could not find host with ID %q: %s", hostID, err)
+		}
+		ovfParams.HostSystem = hostObj
 	}
-	hostObj, err := hostsystem.FromID(client, hostID)
-	if err != nil {
-		return nil, fmt.Errorf("could not find host with ID %q: %s", hostID, err)
-	}
-	ovfParams.HostSystem = hostObj
 
 	// Datastore
 	dsID := o.DatastoreID
@@ -518,10 +517,15 @@ func NewOvfHelper(client *govmomi.Client, o *OvfHelperParams) (*OvfHelper, error
 }
 
 func (o *OvfHelper) GetImportSpec(client *govmomi.Client) (*types.OvfCreateImportSpecResult, error) {
-	hsRef := o.HostSystem.Reference()
+	var hsRef *types.ManagedObjectReference
+	if o.HostSystem != nil {
+		moref := o.HostSystem.Reference()
+		hsRef = &moref
+	}
+
 	importSpecParam := &types.OvfCreateImportSpecParams{
 		EntityName:         o.Name,
-		HostSystem:         &hsRef,
+		HostSystem:         hsRef,
 		NetworkMapping:     o.NetworkMapping,
 		IpAllocationPolicy: o.IPAllocationPolicy,
 		IpProtocol:         o.IPProtocol,

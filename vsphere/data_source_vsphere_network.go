@@ -47,6 +47,16 @@ func dataSourceVSphereNetwork() *schema.Resource {
 				Description: "Id of the distributed virtual switch of which the port group is a part of",
 				Optional:    true,
 			},
+			"vpc_project_id": {
+				Type:        schema.TypeString,
+				Description: "Id of the project object, which the VPC and network belongs to",
+				Optional:    true,
+			},
+			"vpc_id": {
+				Type:        schema.TypeString,
+				Description: "Id of the VPC which the network belongs to",
+				Optional:    true,
+			},
 			"filter": {
 				Type:        schema.TypeSet,
 				Description: "Apply a filter for the discovered network.",
@@ -83,6 +93,8 @@ func dataSourceVSphereNetworkRead(d *schema.ResourceData, meta interface{}) erro
 
 	name := d.Get("name").(string)
 	dvSwitchUUID := d.Get("distributed_virtual_switch_uuid").(string)
+	vpcID := d.Get("vpc_id").(string)
+	vpcProjectID := d.Get("vpc_project_id").(string)
 	var dc *object.Datacenter
 	if dcID, ok := d.GetOk("datacenter_id"); ok {
 		var err error
@@ -111,6 +123,18 @@ func dataSourceVSphereNetworkRead(d *schema.ResourceData, meta interface{}) erro
 		if dvSwitchUUID != "" {
 			// Handle distributed virtual switch port group
 			net, err = network.FromNameAndDVSUuid(client, name, dc, dvSwitchUUID)
+			if err != nil {
+				var notFoundError *network.NotFoundError
+				if errors.As(err, &notFoundError) {
+					return struct{}{}, waitForNetworkPending, nil
+				}
+
+				return struct{}{}, waitForNetworkError, err
+			}
+			return net, waitForNetworkCompleted, nil
+		} else if vpcID != "" {
+			// Handle VPC network
+			net, err = network.FromNameAndVPCId(client, name, dc, vpcProjectID, vpcID)
 			if err != nil {
 				var notFoundError *network.NotFoundError
 				if errors.As(err, &notFoundError) {

@@ -183,6 +183,7 @@ func Provider() *schema.Provider {
 			"vsphere_vapp_container":             dataSourceVSphereVAppContainer(),
 			"vsphere_virtual_machine":            dataSourceVSphereVirtualMachine(),
 			"vsphere_vmfs_disks":                 dataSourceVSphereVmfsDisks(),
+			"vsphere_zone":                       dataSourceVSphereZone(),
 		},
 
 		ConfigureFunc: providerConfigure,

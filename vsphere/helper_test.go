@@ -23,6 +23,7 @@ import (
 	"github.com/vmware/govmomi/vapi/library"
 	"github.com/vmware/govmomi/vapi/rest"
 	"github.com/vmware/govmomi/vapi/tags"
+	"github.com/vmware/govmomi/vapi/vcenter/consumptiondomains/zones"
 	"github.com/vmware/govmomi/vim25/mo"
 	"github.com/vmware/govmomi/vim25/types"
 	"github.com/vmware/govmomi/vsan"
@@ -1162,6 +1163,27 @@ func testGetVMStoragePolicy(s *terraform.State, resourceName string) (string, er
 	}
 
 	return spbm.PolicyNameByID(tVars.client, policyID)
+}
+
+func testGetVSphereZone(s *terraform.State, resourceName string) (string, error) {
+	tVars, err := testClientVariablesForResource(s, fmt.Sprintf("vsphere_zone.%s", resourceName))
+	if err != nil {
+		return "", err
+	}
+	zoneID, ok := tVars.resourceAttributes["id"]
+	if !ok {
+		return "", fmt.Errorf("resource %q has no id", resourceName)
+	}
+
+	zm := zones.NewManager(tVars.restClient)
+	_, err = zm.GetZone(zoneID)
+	if err != nil {
+		return "", err
+	}
+
+	// A zone's name is its identifier. As long as the API returns successfully
+	// we are good to go
+	return zoneID, nil
 }
 
 func RunSweepers() {

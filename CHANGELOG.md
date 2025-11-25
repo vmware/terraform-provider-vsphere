@@ -1,5 +1,14 @@
 # <!-- markdownlint-disable first-line-h1 no-inline-html -->
 
+## v2.15.2
+
+> Release Date: 2026-03-26
+
+DOCUMENTATION:
+
+- Updated documentation to list support for vSphere 9.x.
+- Updated documentation to remove support for vSphere 7.x.
+
 ## v2.15.1
 
 > Release Date: 2026-03-23

@@ -19,8 +19,8 @@ this provider.
 
 This release is supported with:
 
+- VMware vSphere 9.x
 - VMware vSphere 8.x
-- VMware vSphere 7.x
 
 Refer to the [Broadcom Product Lifecycle][product-lifecycle].
 

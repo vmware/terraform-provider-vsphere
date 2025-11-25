@@ -26,13 +26,13 @@ Learn more:
 
     For general information about Terraform, visit [HashiCorp Developer][terraform-install] and [the project][terraform-github] on GitHub.
 
-- [Go 1.23.8][golang-install]
+- [Go 1.24.0][golang-install]
 
     Required, if [building][provider-build] the provider.
 
 - VMware vSphere
 
-  The plugin supports versions in accordance with the [Broadcom Product Lifecycle][product-lifecycle].
+  The provider supports versions in accordance with the [Broadcom Product Lifecycle][product-lifecycle].
 
 ## Using the Provider
 

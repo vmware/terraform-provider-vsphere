@@ -12,3 +12,15 @@ func stringInSlice(s string, list []string) bool {
 	}
 	return false
 }
+
+func Strptr(s string) *string {
+	return &s
+}
+
+func Intptr(i int) *int {
+	return &i
+}
+
+func Boolptr(b bool) *bool {
+	return &b
+}

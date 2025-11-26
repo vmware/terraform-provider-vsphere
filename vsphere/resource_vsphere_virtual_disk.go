@@ -263,7 +263,7 @@ func resourceVSphereVirtualDiskRead(d *schema.ResourceData, meta interface{}) er
 			FileSize:     true,
 			FileType:     true,
 			Modification: true,
-			FileOwner:    types.NewBool(true),
+			FileOwner:    true,
 		},
 		MatchPattern: []string{path.Base(vDisk.vmdkPath)},
 	}
@@ -528,7 +528,7 @@ func searchForDirectory(client *govmomi.Client, datacenter string, datastore str
 			FileSize:     true,
 			FileType:     true,
 			Modification: true,
-			FileOwner:    types.NewBool(true),
+			FileOwner:    true,
 		},
 		MatchPattern: []string{path.Base(directoryPath)},
 	}

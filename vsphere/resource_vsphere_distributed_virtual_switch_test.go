@@ -485,7 +485,7 @@ func testAccResourceVSphereDistributedVirtualSwitchHasNetworkResourceControlEnab
 			return err
 		}
 		actual := props.Config.(*types.VMwareDVSConfigInfo).NetworkResourceManagementEnabled
-		if actual == nil || !*actual {
+		if !actual {
 			return errors.New("expected network resource control to be enabled")
 		}
 		return nil

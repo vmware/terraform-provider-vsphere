@@ -979,7 +979,7 @@ func expandVirtualMachineConfigSpec(d *schema.ResourceData, client *govmomi.Clie
 		Tools:                        expandToolsConfigInfo(d, client),
 		Flags:                        expandVirtualMachineFlagInfo(d, client),
 		NumCPUs:                      expandCPUCountConfig(d),
-		NumCoresPerSocket:            int32(getWithRestart(d, "num_cores_per_socket").(int)),
+		NumCoresPerSocket:            structure.Int32Ptr(int32(getWithRestart(d, "num_cores_per_socket").(int))),
 		MemoryMB:                     expandMemorySizeConfig(d),
 		MemoryHotAddEnabled:          getBoolWithRestart(d, "memory_hot_add_enabled"),
 		CpuHotAddEnabled:             getBoolWithRestart(d, "cpu_hot_add_enabled"),

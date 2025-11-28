@@ -200,7 +200,7 @@ func searchDatastore(ds *object.Datastore, name string) (*types.HostDatastoreBro
 		Details: &types.FileQueryFlags{
 			FileType:     true,
 			FileSize:     true,
-			FileOwner:    types.NewBool(true),
+			FileOwner:    true,
 			Modification: true,
 		},
 	}

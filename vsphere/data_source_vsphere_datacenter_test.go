@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/testhelper"
 )
 
 var testAccDataSourceVSphereDatacenterExpectedRegexp = regexp.MustCompile("^datacenter-")
@@ -96,12 +97,41 @@ data "vsphere_datacenter" "dc" {}
 
 func testAccDataSourceVSphereDatacenterConfigGetVirtualMachines() string {
 	return fmt.Sprintf(`
+%s
+
+resource "vsphere_virtual_machine" "srcvm" {
+  name             = "acc-test-vm"
+  resource_pool_id = data.vsphere_compute_cluster.rootcompute_cluster1.resource_pool_id
+  datastore_id     = data.vsphere_datastore.rootds1.id
+  num_cpus         = 1
+  memory           = 1024
+  guest_id         = "otherLinux64Guest"
+  network_interface {
+    network_id = data.vsphere_network.network1.id
+  }
+  disk {
+    label = "disk0"
+    size  = 1
+    io_reservation = 1
+  }
+  wait_for_guest_ip_timeout  = 0
+  wait_for_guest_net_timeout = 0
+}
+
 data "vsphere_datacenter" "dc" {
   name = "%s"
+  depends_on = [vsphere_virtual_machine.srcvm]
 }
+
 output "found_virtual_machines" {
   value = length(data.vsphere_datacenter.dc.virtual_machines) >= 1 ? "true" : "false"
 }
-`, os.Getenv("TF_VAR_VSPHERE_DATACENTER"),
+`,
+		testhelper.CombineConfigs(
+			testhelper.ConfigDataRootDC1(),
+			testhelper.ConfigDataRootDS1(),
+			testhelper.ConfigDataRootComputeCluster1(),
+			testhelper.ConfigDataRootPortGroup1()),
+		os.Getenv("TF_VAR_VSPHERE_DATACENTER"),
 	)
 }

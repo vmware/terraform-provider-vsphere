@@ -102,6 +102,7 @@ The following attributes are exported:
   virtual machine.
 * `num_cores_per_socket` - The number of cores per socket for this virtual
   machine.
+* `num_cores_per_numa_node` - The number of cores per NUMA node for this virtual machine.
 * `firmware` - The firmware interface that is used by this virtual machine. Can
   be either `bios` or `efi`.
 * `hardware_version` - The hardware version number on this virtual machine.

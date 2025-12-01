@@ -728,7 +728,9 @@ The following options control CPU and memory settings on a virtual machine:
 
 [kb-2008405]: https://knowledge.broadcom.com/external/article?articleNumber=343190
 
-* `num_cores_per_socket` - (Optional) The number of cores per socket in the virtual machine. The number of vCPUs on the virtual machine will be `num_cpus` divided by `num_cores_per_socket`. If specified, the value supplied to `num_cpus` must be evenly divisible by this value. Default: `1`.
+* `num_cores_per_socket` - (Optional) The number of cores per socket in the virtual machine. The number of vCPUs on the virtual machine will be `num_cpus` divided by `num_cores_per_socket`. If specified, the value supplied to `num_cpus` must be evenly divisible by this value. If `0` is specified a value will be determined automatically at power on. Default: `1`.
+
+* `num_cores_per_numa_node` - (Optional) The number of cores per NUMA node in the virtual machine. If `0` is specified a value will be determined automatically at power on.
 
 * `num_cpus` - (Optional) The total number of virtual processor cores to assign to the virtual machine. Default: `1`.
 

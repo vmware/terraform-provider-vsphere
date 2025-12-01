@@ -8536,12 +8536,12 @@ resource "vsphere_virtual_machine" "vm" {
   resource_pool_id = vsphere_resource_pool.pool1.id
   datastore_id     = data.vsphere_datastore.rootds1.id
 
-  num_cpus = 2
-  num_cores_per_socket = %d
+  num_cpus                = 2
+  num_cores_per_socket    = %d
   num_cores_per_numa_node = %d
-  memory   = 2048
-  guest_id = "other3xLinuxGuest"
-  firmware = "efi"
+  memory                  = 2048
+  guest_id                = "other3xLinuxGuest"
+  firmware                = "efi"
 
   hardware_version = 20
 

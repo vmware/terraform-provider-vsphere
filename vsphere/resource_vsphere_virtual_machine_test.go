@@ -3994,13 +3994,13 @@ resource "vsphere_virtual_machine" "vm" {
   resource_pool_id = vsphere_resource_pool.pool1.id
   datastore_id     = data.vsphere_datastore.rootds1.id
 
-  num_cpus         = 2
-  memory           = 2048
-  guest_id         = vsphere_virtual_machine.template.guest_id
-  hardware_version = %d
-  num_cores_per_socket = 0
+  num_cpus                = 2
+  memory                  = 2048
+  guest_id                = vsphere_virtual_machine.template.guest_id
+  hardware_version        = %d
+  num_cores_per_socket    = 0
   num_cores_per_numa_node = 0
-  firmware         = "efi"
+  firmware                = "efi"
 
   wait_for_guest_net_timeout = 0
 

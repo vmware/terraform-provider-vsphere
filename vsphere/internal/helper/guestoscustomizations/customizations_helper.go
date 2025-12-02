@@ -163,6 +163,7 @@ func SpecSchema(isVM bool) map[string]*schema.Schema {
 					Type:        schema.TypeString,
 					Optional:    true,
 					Sensitive:   true,
+					Ephemeral:   true,
 					Description: "The new administrator password for this virtual machine.",
 				},
 				"time_zone": {
@@ -198,6 +199,7 @@ func SpecSchema(isVM bool) map[string]*schema.Schema {
 					Type:          schema.TypeString,
 					Optional:      true,
 					Sensitive:     true,
+					Ephemeral:     true,
 					ConflictsWith: []string{prefix + "windows_options.0.workgroup"},
 					Description:   "The password of the domain administrator used to join this virtual machine to the domain.",
 					RequiredWith:  []string{prefix + "windows_options.0.join_domain"},
@@ -435,14 +437,8 @@ func flattenWindowsOptions(customizationPrep *types.CustomizationSysprep, versio
 	}
 	winOptionsData["auto_logon"] = customizationPrep.GuiUnattended.AutoLogon
 	winOptionsData["auto_logon_count"] = customizationPrep.GuiUnattended.AutoLogonCount
-	if customizationPrep.GuiUnattended.Password != nil {
-		winOptionsData["admin_password"] = customizationPrep.GuiUnattended.Password.Value
-	}
 	winOptionsData["time_zone"] = customizationPrep.GuiUnattended.TimeZone
 	winOptionsData["domain_admin_user"] = customizationPrep.Identification.DomainAdmin
-	if customizationPrep.Identification.DomainAdminPassword != nil {
-		winOptionsData["domain_admin_password"] = customizationPrep.Identification.DomainAdminPassword.Value
-	}
 	winOptionsData["join_domain"] = customizationPrep.Identification.JoinDomain
 
 	// Minimum Supported Version: 8.0.2

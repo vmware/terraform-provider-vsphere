@@ -1311,7 +1311,7 @@ The options are:
 
 * `admin_password` - (Optional) The administrator password for the virtual machine.
 
-~> **NOTE:** `admin_password` is a sensitive field and will not be output on-screen, but is stored in state and sent to the virtual machine in plain text.
+~> **NOTE:** `admin_password` supports ephemeral values (Terraform 1.10+) and will not stored in state when ephemeral is set to `true`.
 
 * `workgroup` - (Optional) The workgroup name for the virtual machine. One of this or `join_domain` must be included.
 
@@ -1344,7 +1344,7 @@ resource "vsphere_virtual_machine" "vm" {
 
 * `domain_admin_password` - (Optional) The password user account with administrative privileges used to join the virtual machine to the domain. Required if setting `join_domain`.
 
-~> **NOTE:** `domain_admin_password` is a sensitive field and will not be output on-screen, but is stored in state and sent to the virtual machine in plain text
+~> **NOTE:** `domain_admin_password` supports ephemeral values (Terraform 1.10+) and will not stored in state when ephemeral is set to `true`.
 
 * `full_name` - (Optional) The full name of the organization owner of the virtual machine. This populates the "user" field in the general Windows system information. Default: `Administrator`.
 

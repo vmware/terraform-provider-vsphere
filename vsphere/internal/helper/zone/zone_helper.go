@@ -16,7 +16,7 @@ import (
 	"github.com/vmware/govmomi/vapi/vcenter/consumptiondomains/zones"
 )
 
-func DataSourceVSphereZoneRead(ctx context.Context, c *rest.Client, d *schema.ResourceData) diag.Diagnostics {
+func VSphereZoneRead(ctx context.Context, c *rest.Client, d *schema.ResourceData) diag.Diagnostics {
 	zm := zones.NewManager(c)
 
 	zoneName := d.Get("name").(string)

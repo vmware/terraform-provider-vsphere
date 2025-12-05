@@ -40,5 +40,5 @@ func dataSourceVSphereZone() *schema.Resource {
 }
 
 func dataSourceVSphereZoneRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	return zone.DataSourceVSphereZoneRead(ctx, meta.(*Client).restClient, d)
+	return zone.VSphereZoneRead(ctx, meta.(*Client).restClient, d)
 }

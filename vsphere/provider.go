@@ -138,6 +138,7 @@ func Provider() *schema.Provider {
 			"vsphere_role":                                     resourceVsphereRole(),
 			"vsphere_storage_drs_vm_override":                  resourceVSphereStorageDrsVMOverride(),
 			"vsphere_supervisor":                               resourceVsphereSupervisor(),
+			"vsphere_supervisor_v2":                            resourceVsphereSupervisorV2(),
 			"vsphere_tag":                                      resourceVSphereTag(),
 			"vsphere_tag_category":                             resourceVSphereTagCategory(),
 			"vsphere_vapp_container":                           resourceVSphereVAppContainer(),

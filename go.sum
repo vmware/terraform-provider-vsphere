@@ -155,6 +155,8 @@ github.com/vmihailenco/tagparser/v2 v2.0.0 h1:y09buUbR+b5aycVFQs/g70pqKVZNBmxwAh
 github.com/vmihailenco/tagparser/v2 v2.0.0/go.mod h1:Wri+At7QHww0WTrCBeu4J6bNtoV6mEfg5OIWRZA9qds=
 github.com/vmware/govmomi v0.53.0-alpha.0.0.20251127155234-4da134ecba9f h1:q8ZK3gOqVjLqLPTCe/j5tOX7QPQr7fMgEjRk31cqIDU=
 github.com/vmware/govmomi v0.53.0-alpha.0.0.20251127155234-4da134ecba9f/go.mod h1:FM3GTg002dFFN7l2/hNS0YWC4f78HTw4kvgUwAE52cM=
+github.com/vmware/govmomi v0.53.0-alpha.0.0.20251206181948-b345718843b2 h1:gDCsc2/eyLEiie04ObVKCE5cBdxt2H3btqxH00PyMpg=
+github.com/vmware/govmomi v0.53.0-alpha.0.0.20251206181948-b345718843b2/go.mod h1:FM3GTg002dFFN7l2/hNS0YWC4f78HTw4kvgUwAE52cM=
 github.com/xanzy/ssh-agent v0.3.3 h1:+/15pJfg/RsTxqYcX6fHqOXZwwMP+2VyYWJeWM2qQFM=
 github.com/xanzy/ssh-agent v0.3.3/go.mod h1:6dzNDKs0J9rVPHPhaGCukekBHKqfl+L3KghI1Bc68Uw=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=

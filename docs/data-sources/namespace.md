@@ -16,7 +16,7 @@ The vsphere-namespace data source can be used to read the properties of a vSpher
 
 ```hcl
 data vsphere_namespace "namespace" {
-  name       = "example-namespace"
+  name = "example-namespace"
 }
 ```
 

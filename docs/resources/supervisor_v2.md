@@ -58,7 +58,7 @@ resource "vsphere_supervisor_v2" "supervisor" {
     data.vsphere_zone.zone2.id,
     data.vsphere_zone.zone3.id
   ]
-  name    = "supervisor"
+  name = "supervisor"
   # ...
 }
 ```
@@ -81,8 +81,8 @@ provide the network type of your workload network, it is assumed based on the ty
 ```hcl
 
 resource "vsphere_supervisor_v2" "supervisor" {
-  cluster         = "domain-c52"
-  name            = "supervisor"
+  cluster = "domain-c52"
+  name    = "supervisor"
 
   control_plane {
     size           = "SMALL"
@@ -119,7 +119,7 @@ resource "vsphere_supervisor_v2" "supervisor" {
           servers = ["ntp1.mycompany.local"]
         }
         dns {
-          servers        = ["192.19.189.10"]
+          servers = ["192.19.189.10"]
           search_domains = [
             "domain-1.test",
             "wcp.integration.test",
@@ -230,8 +230,8 @@ resource "vsphere_supervisor_v2" "supervisor" {
 
 ```hcl
 resource "vsphere_supervisor_v2" "supervisor" {
-  zones           = ["zone-1", "zone-2", "zone-3"]
-  name            = "supervisor"
+  zones = ["zone-1", "zone-2", "zone-3"]
+  name  = "supervisor"
 
   control_plane {
     size           = "SMALL"
@@ -268,7 +268,7 @@ resource "vsphere_supervisor_v2" "supervisor" {
           servers = ["ntp1.mycompany.local"]
         }
         dns {
-          servers        = ["192.19.189.10"]
+          servers = ["192.19.189.10"]
           search_domains = [
             "domain-1.test",
             "wcp.integration.test",

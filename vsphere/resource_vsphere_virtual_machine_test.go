@@ -80,6 +80,26 @@ func TestAccResourceVSphereVirtualMachine_basic(t *testing.T) {
 	})
 }
 
+func TestAccResourceVSphereVirtualMachine_videoCard(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceVSphereVirtualMachineConfigVideoCard(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccResourceVSphereVirtualMachineCheckExists(true),
+					resource.TestCheckResourceAttr("vsphere_virtual_machine.vm", "video_card.0.num_displays", "2"),
+					resource.TestCheckResourceAttr("vsphere_virtual_machine.vm", "video_card.0.total_video_memory", "128"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccResourceVSphereVirtualMachine_sdrsRecommendation(t *testing.T) {
 	t.Skipf("requires SDRS-enabled cluster with multiple datastores")
 	resource.Test(t, resource.TestCase{
@@ -4255,6 +4275,43 @@ resource "vsphere_virtual_machine" "vm" {
     label = "disk0"
     size  = 1
     io_reservation = 1
+  }
+}
+`,
+
+		testAccResourceVSphereVirtualMachineConfigBase(),
+	)
+}
+
+func testAccResourceVSphereVirtualMachineConfigVideoCard() string {
+	return fmt.Sprintf(`
+%s  // Mix and match config
+
+resource "vsphere_virtual_machine" "vm" {
+  name             = "testacc-test"
+  resource_pool_id = vsphere_resource_pool.pool1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
+
+  num_cpus = 2
+  memory   = 2048
+  guest_id = "other3xLinuxGuest"
+  firmware = "efi"
+
+  wait_for_guest_net_timeout = 0
+
+  network_interface {
+    network_id = data.vsphere_network.network1.id
+  }
+
+  disk {
+    label = "disk0"
+    size  = 1
+    io_reservation = 1
+  }
+
+  video_card {
+    num_displays = 2
+    total_video_memory = 128
   }
 }
 `,

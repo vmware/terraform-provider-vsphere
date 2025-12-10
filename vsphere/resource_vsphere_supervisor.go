@@ -266,7 +266,7 @@ func resourceVsphereSupervisorRead(d *schema.ResourceData, meta interface{}) err
 	cluster := getClusterByID(m, d.Id())
 
 	if cluster == nil {
-		return fmt.Errorf("could not find cluster %s", cluster.ID)
+		return fmt.Errorf("could not find cluster %s", d.Id())
 	}
 
 	// To fully implement "read" and allow this resource to be imported

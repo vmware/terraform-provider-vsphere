@@ -89,11 +89,11 @@ func dataSourceVSphereNamespaceRead(ctx context.Context, d *schema.ResourceData,
 
 	_ = d.Set("config_status", data.ConfigStatus)
 
-	supervisorId, err := getSupervisorId(ctx, m, data.ClusterId)
+	supervisorID, err := getSupervisorID(ctx, m, data.ClusterId)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	_ = d.Set("supervisor", supervisorId)
+	_ = d.Set("supervisor", supervisorID)
 
 	flattenNamespaceInfo(d, data)
 
@@ -119,7 +119,7 @@ func flattenNamespaceInfo(d *schema.ResourceData, info namespace.NamespacesInsta
 	_ = d.Set("storage_policies", storagePolicies)
 }
 
-func getSupervisorId(ctx context.Context, m *namespace.Manager, clusterId string) (string, error) {
+func getSupervisorID(ctx context.Context, m *namespace.Manager, clusterID string) (string, error) {
 	summaries, err := m.GetSupervisorSummaries(ctx)
 	if err != nil {
 		return "", err
@@ -131,18 +131,18 @@ func getSupervisorId(ctx context.Context, m *namespace.Manager, clusterId string
 			return "", err
 		}
 
-		if isClusterInSupervisor(topology, clusterId) {
+		if isClusterInSupervisor(topology, clusterID) {
 			return s.Supervisor, nil
 		}
 	}
 
-	return "", fmt.Errorf("could not find supervisor for cluster %s", clusterId)
+	return "", fmt.Errorf("could not find supervisor for cluster %s", clusterID)
 }
 
-func isClusterInSupervisor(topologies []namespace.SupervisorTopologyInfo, clusterId string) bool {
+func isClusterInSupervisor(topologies []namespace.SupervisorTopologyInfo, clusterID string) bool {
 	for _, topology := range topologies {
 		for _, cluster := range topology.Clusters {
-			if cluster == clusterId {
+			if cluster == clusterID {
 				return true
 			}
 		}

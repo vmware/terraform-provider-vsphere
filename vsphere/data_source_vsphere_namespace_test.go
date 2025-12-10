@@ -5,7 +5,6 @@
 package vsphere
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -38,9 +37,9 @@ func TestAccDataSourceVSphereNamespace_basic(t *testing.T) {
 }
 
 func testAccDataSourceVSphereNamespaceConfigBasic() string {
-	return fmt.Sprintf(`
+	return `
 data vsphere_namespace "namespace" {
   name = "test-acc-namespace"
 }
-`)
+`
 }

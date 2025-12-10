@@ -109,7 +109,7 @@ func resourceVSphereNamespaceRead(ctx context.Context, d *schema.ResourceData, m
 	}
 
 	var vmServiceAttr []map[string]interface{}
-	if len(data.VmServiceSpec.ContentLibraries) > 0 || len(data.VmServiceSpec.ContentLibraries) > 0 {
+	if len(data.VmServiceSpec.ContentLibraries) > 0 || len(data.VmServiceSpec.VmClasses) > 0 {
 		vmService := make(map[string]interface{})
 		vmService["content_libraries"] = data.VmServiceSpec.ContentLibraries
 		vmService["vm_classes"] = data.VmServiceSpec.VmClasses
@@ -168,7 +168,8 @@ func waitForNamespaceCreation(ctx context.Context, d *schema.ResourceData, meta 
 
 	name := d.Get("name").(string)
 
-	tickerCtx, _ := context.WithTimeout(ctx, time.Minute*time.Duration(2))
+	tickerCtx, cancel := context.WithTimeout(ctx, time.Minute*time.Duration(2))
+	defer cancel()
 	ticker := time.NewTicker(time.Second * time.Duration(15))
 
 	for {

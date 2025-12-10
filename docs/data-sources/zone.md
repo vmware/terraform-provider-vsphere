@@ -1,7 +1,7 @@
 ---
 subcategory: "Workload Management"
 page_title: "VMware vSphere: vsphere_zone"
-sidebar_current: "docs-vsphere-data-source-zone"
+sidebar_current: "docs-vsphere-data-source-vsphere-zone"
 description: |-
   Provides a vSphere Zone data source.
 ---

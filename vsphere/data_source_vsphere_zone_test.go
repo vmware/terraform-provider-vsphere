@@ -15,7 +15,6 @@ import (
 func TestAccDataSourceVSphereZone_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			RunSweepers()
 			testAccPreCheck(t)
 		},
 		Providers: testAccProviders,
@@ -35,7 +34,6 @@ func TestAccDataSourceVSphereZone_basic(t *testing.T) {
 func TestAccDataSourceVSphereZone_associations(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			RunSweepers()
 			testAccPreCheck(t)
 		},
 		Providers: testAccProviders,

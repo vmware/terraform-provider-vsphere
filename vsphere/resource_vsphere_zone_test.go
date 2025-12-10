@@ -25,7 +25,6 @@ const (
 func TestAccResourceVSphereZone_createBasic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			RunSweepers()
 			testAccPreCheck(t)
 		},
 		Providers: testAccProviders,
@@ -47,7 +46,6 @@ func TestAccResourceVSphereZone_createBasic(t *testing.T) {
 func TestAccResourceVSphereZone_createAssociations(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			RunSweepers()
 			testAccPreCheck(t)
 		},
 		Providers: testAccProviders,
@@ -68,7 +66,6 @@ func TestAccResourceVSphereZone_createAssociations(t *testing.T) {
 func TestAccResourceVSphereZone_updateBasic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			RunSweepers()
 			testAccPreCheck(t)
 		},
 		Providers: testAccProviders,
@@ -96,7 +93,6 @@ func TestAccResourceVSphereZone_updateBasic(t *testing.T) {
 func TestAccResourceVSphereZone_updateAddAssociation(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			RunSweepers()
 			testAccPreCheck(t)
 		},
 		Providers: testAccProviders,
@@ -122,7 +118,6 @@ func TestAccResourceVSphereZone_updateAddAssociation(t *testing.T) {
 func TestAccResourceVSphereZone_updateRemoveAssociation(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			RunSweepers()
 			testAccPreCheck(t)
 		},
 		Providers: testAccProviders,
@@ -148,7 +143,6 @@ func TestAccResourceVSphereZone_updateRemoveAssociation(t *testing.T) {
 func TestAccResourceVSphereZone_updateAssociations(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
-			RunSweepers()
 			testAccPreCheck(t)
 		},
 		Providers: testAccProviders,

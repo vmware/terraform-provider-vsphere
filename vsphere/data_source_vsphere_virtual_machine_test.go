@@ -52,6 +52,8 @@ func TestAccDataSourceVSphereVirtualMachine_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.vsphere_virtual_machine.vm", "network_interfaces.0.bandwidth_share_count"),
 					resource.TestCheckResourceAttrSet("data.vsphere_virtual_machine.vm", "network_interfaces.0.mac_address"),
 					resource.TestCheckResourceAttrSet("data.vsphere_virtual_machine.vm", "network_interfaces.0.network_id"),
+					resource.TestCheckResourceAttrSet("data.vsphere_virtual_machine.vm", "video_card.0.num_displays"),
+					resource.TestCheckResourceAttrSet("data.vsphere_virtual_machine.vm", "video_card.0.total_video_memory"),
 					resource.TestCheckResourceAttrSet("data.vsphere_virtual_machine.vm", "instance_uuid"),
 				),
 			},

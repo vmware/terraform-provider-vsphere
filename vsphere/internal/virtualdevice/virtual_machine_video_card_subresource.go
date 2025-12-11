@@ -129,9 +129,29 @@ func VideoCardRefreshOperation(d *schema.ResourceData, c *govmomi.Client, l obje
 	return nil
 }
 
+func ReadVideoCardForDataSource(l object.VirtualDeviceList) ([]map[string]interface{}, error) {
+	device, err := findVideoCard(l)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make(map[string]interface{})
+
+	result["num_displays"] = device.NumDisplays
+	result["total_video_memory"] = device.VideoRamSizeInKB / 1024
+	if device.Enable3DSupport != nil && *device.Enable3DSupport {
+		m := make(map[string]interface{})
+		m["renderer"] = device.Use3dRenderer
+		m["memory"] = device.GraphicsMemorySizeInKB / 1024
+		result["graphics_3d"] = m
+	}
+
+	return []map[string]interface{}{result}, nil
+}
+
 func (r *VideoCardSubresource) Create(l object.VirtualDeviceList) ([]types.BaseVirtualDeviceConfigSpec, error) {
 	var specs []types.BaseVirtualDeviceConfigSpec
-	device, err := r.findVideoCard(l)
+	device, err := findVideoCard(l)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +165,7 @@ func (r *VideoCardSubresource) Create(l object.VirtualDeviceList) ([]types.BaseV
 }
 
 func (r *VideoCardSubresource) Read(l object.VirtualDeviceList) error {
-	device, err := r.findVideoCard(l)
+	device, err := findVideoCard(l)
 	if err != nil {
 		return err
 	}
@@ -156,13 +176,14 @@ func (r *VideoCardSubresource) Read(l object.VirtualDeviceList) error {
 		m := make(map[string]interface{})
 		m["renderer"] = device.Use3dRenderer
 		m["memory"] = device.GraphicsMemorySizeInKB / 1024
+		r.Set("graphics_3d", m)
 	}
 	r.Set("key", device.Key)
 	return nil
 }
 
 func (r *VideoCardSubresource) Update(l object.VirtualDeviceList) ([]types.BaseVirtualDeviceConfigSpec, error) {
-	device, err := r.findVideoCard(l)
+	device, err := findVideoCard(l)
 	if err != nil {
 		return nil, err
 	}
@@ -197,7 +218,7 @@ func (r *VideoCardSubresource) mapProperties(videoCard *types.VirtualMachineVide
 	}
 }
 
-func (r *VideoCardSubresource) findVideoCard(l object.VirtualDeviceList) (*types.VirtualMachineVideoCard, error) {
+func findVideoCard(l object.VirtualDeviceList) (*types.VirtualMachineVideoCard, error) {
 	devices := l.Select(func(device types.BaseVirtualDevice) bool {
 		if _, ok := device.(*types.VirtualMachineVideoCard); ok {
 			return true

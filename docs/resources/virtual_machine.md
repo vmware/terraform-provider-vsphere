@@ -1041,19 +1041,19 @@ This will happen if vCenter is unable to find a host which supports these option
 
 ```hcl
 resource "vsphere_virtual_machine" "vm" {
-  name             = "example-vm"
-  #...
+  name = "example-vm"
+  # ... other configuration ...
 
   num_cpus = 2
   memory   = 2048
-  #...
+  # ... other configuration ...
 
   video_card {
-    num_displays = 2
+    num_displays       = 2
     total_video_memory = 128
     graphics_3d {
       renderer = "hardware"
-      memory = 512
+      memory   = 512
     }
   }
 }

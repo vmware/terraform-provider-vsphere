@@ -54,10 +54,12 @@ func VideoCardSubresourceSchema() map[string]*schema.Schema {
 	return s
 }
 
+// VideoCardSubresource represents a virtual video card device
 type VideoCardSubresource struct {
 	*Subresource
 }
 
+// NewVideoCardSubresource creates a new VideoCardSubresource
 func NewVideoCardSubresource(client *govmomi.Client, rdd resourceDataDiff, d, old map[string]interface{}, idx int) *VideoCardSubresource {
 	sr := &VideoCardSubresource{
 		Subresource: &Subresource{
@@ -73,14 +75,19 @@ func NewVideoCardSubresource(client *govmomi.Client, rdd resourceDataDiff, d, ol
 	return sr
 }
 
+// VideoCardApplyOperation creates the device change specification for a virtual video card.
+// The signature for this function follows the pattern used for the apply operations of other virtual devices and returns a slice of
+// BaseVirtualDeviceConfigSpec. In practice a virtual machine will always have exactly one virtual video card.
 func VideoCardApplyOperation(d *schema.ResourceData, c *govmomi.Client, l object.VirtualDeviceList) (object.VirtualDeviceList, []types.BaseVirtualDeviceConfigSpec, error) {
 	o, n := d.GetChange(subresourceTypeVideoCard)
 	ods := o.([]interface{})
 	nds := n.([]interface{})
 
-	// can have only one virtual video card
 	var odsmap map[string]interface{}
 	var ndsmap map[string]interface{}
+
+	// There can only be one virtual video card per virtual machine
+	// We don't need to use a loop, we can use the first element for simplicity
 	if len(ods) > 0 {
 		odsmap = ods[0].(map[string]interface{})
 	}
@@ -88,33 +95,30 @@ func VideoCardApplyOperation(d *schema.ResourceData, c *govmomi.Client, l object
 		ndsmap = nds[0].(map[string]interface{})
 	}
 
-	var specs []types.BaseVirtualDeviceConfigSpec
+	var result []types.BaseVirtualDeviceConfigSpec
 
 	if ndsmap != nil {
+		r := NewVideoCardSubresource(c, d, ndsmap, odsmap, 0)
+
+		var specs []types.BaseVirtualDeviceConfigSpec
+		var err error
 		if d.IsNewResource() {
-			// create
-			r := NewVideoCardSubresource(c, d, ndsmap, odsmap, 0)
-			spec, err := r.Create(l)
-			if err != nil {
-				return nil, nil, fmt.Errorf("%s: %s", r.Addr(), err)
-			}
-			l = applyDeviceChange(l, spec)
-			specs = append(specs, spec...)
+			specs, err = r.Create(l)
 		} else {
-			// update
-			r := NewVideoCardSubresource(c, d, ndsmap, odsmap, 0)
-			spec, err := r.Update(l)
-			if err != nil {
-				return nil, nil, fmt.Errorf("%s: %s", r.Addr(), err)
-			}
-			l = applyDeviceChange(l, spec)
-			specs = append(specs, spec...)
+			specs, err = r.Update(l)
 		}
+
+		if err != nil {
+			return nil, nil, fmt.Errorf("%s: %s", r.Addr(), err)
+		}
+		l = applyDeviceChange(l, specs)
+		result = append(result, specs...)
 	}
 
-	return l, specs, nil
+	return l, result, nil
 }
 
+// VideoCardRefreshOperation reads the virtual video card device and sets the corresponding attributes on the schema
 func VideoCardRefreshOperation(d *schema.ResourceData, c *govmomi.Client, l object.VirtualDeviceList) error {
 	curSet := d.Get(subresourceTypeVideoCard).([]interface{})
 
@@ -129,6 +133,8 @@ func VideoCardRefreshOperation(d *schema.ResourceData, c *govmomi.Client, l obje
 	return nil
 }
 
+// VideoCardPostCloneOperation creates the device change specification for modifying an existing virtual video card after
+// cloning a base virtual machine.
 func VideoCardPostCloneOperation(d *schema.ResourceData, c *govmomi.Client, l object.VirtualDeviceList) (object.VirtualDeviceList, []types.BaseVirtualDeviceConfigSpec, error) {
 	curSet := d.Get(subresourceTypeVideoCard).([]interface{})
 
@@ -151,6 +157,7 @@ func VideoCardPostCloneOperation(d *schema.ResourceData, c *govmomi.Client, l ob
 	return l, specs, nil
 }
 
+// ReadVideoCardForDataSource reads the virtual video card device and returns a map of its attributes.
 func ReadVideoCardForDataSource(l object.VirtualDeviceList) ([]map[string]interface{}, error) {
 	device, err := findVideoCard(l)
 	if err != nil {
@@ -249,6 +256,7 @@ func (r *VideoCardSubresource) mapProperties(videoCard *types.VirtualMachineVide
 	}
 }
 
+// findVideoCard returns the virtual video card device if present in the provided list or an error if not
 func findVideoCard(l object.VirtualDeviceList) (*types.VirtualMachineVideoCard, error) {
 	devices := l.Select(func(device types.BaseVirtualDevice) bool {
 		if _, ok := device.(*types.VirtualMachineVideoCard); ok {

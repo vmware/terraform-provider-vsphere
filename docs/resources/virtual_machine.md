@@ -1025,6 +1025,52 @@ The options are:
 
 * `ovf_mapping` - (Optional) Specifies which NIC in an OVF/OVA the `network_interface` should be associated. Only applies at creation when deploying from an OVF/OVA.
 
+### Video Card Options
+
+The virtual video card is managed by adding a `video_card` block.
+A virtual machine always has exactly one virtual video card (this does not apply to passthrough devices). This device
+is created automatically even if it is not included in the configuration.
+
+This means that
+* Creating a virtual machine with a `video_card` block in its configuration creates the video card device with the specified settings.
+* Adding a `video_card` block to an existing machine modifies the existing device. 
+* Removing the `video_card` block from a virtual machine does not delete the device.
+
+Using the options under the `graphics_3d` section may result in a failure to power on the virtual machine.
+This will happen if vCenter is unable to find a host which supports these options.
+
+```hcl
+resource "vsphere_virtual_machine" "vm" {
+  name             = "example-vm"
+  #...
+
+  num_cpus = 2
+  memory   = 2048
+  #...
+
+  video_card {
+    num_displays = 2
+    total_video_memory = 128
+    graphics_3d {
+      renderer = "hardware"
+      memory = 512
+    }
+  }
+}
+```
+
+The options are:
+
+* `num_displays` - The number of supported displays.
+
+* `total_video_memory` - The total video memory buffer in megabytes.
+
+* `graphics_3d` - 3D graphics options.
+
+  * `renderer` - The 3D renderer - software, hardware or automatic.
+  
+  * `memory` - The dedicated 3D graphics memory in megabytes.
+
 #### Using SR-IOV Network Interfaces
 
 In order to attach your virtual machine to an SR-IOV network interface,

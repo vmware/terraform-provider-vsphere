@@ -152,6 +152,12 @@ The following attributes are exported:
   * `mac_address` - The MAC address of this network interface.
   * `network_id` - The managed object reference ID of the network this interface
      is connected to.
+* `video_card` - Information about the virtual video card
+  * `num_displays` - The number of supported displays.
+  * `total_video_memory` - The total video memory buffer in megabytes.
+  * `graphics_3d` - 3D graphics options.
+    * `renderer` - The 3D renderer - software, hardware or automatic.
+    * `memory` - The dedicated 3D graphics memory in megabytes.
 * `firmware` - The firmware type for this virtual machine. Can be `bios` or
   `efi`.
 * `default_ip_address` - Whenever possible, this is the first IPv4 address that

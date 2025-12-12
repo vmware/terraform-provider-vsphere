@@ -201,6 +201,15 @@ func (r *VideoCardSubresource) Read(l object.VirtualDeviceList) error {
 		r.Set("graphics_3d", m)
 	}
 	r.Set("key", device.Key)
+	ctlr := l.FindByKey(device.ControllerKey)
+	if ctlr == nil {
+		return fmt.Errorf("could not find controller with key %d", device.ControllerKey)
+	}
+	addr, err := computeDevAddr(device, ctlr.(types.BaseVirtualController))
+	if err != nil {
+		return err
+	}
+	r.Set("device_address", addr)
 	return nil
 }
 

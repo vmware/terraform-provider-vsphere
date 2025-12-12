@@ -129,6 +129,28 @@ func VideoCardRefreshOperation(d *schema.ResourceData, c *govmomi.Client, l obje
 	return nil
 }
 
+func VideoCardPostCloneOperation(d *schema.ResourceData, c *govmomi.Client, l object.VirtualDeviceList) (object.VirtualDeviceList, []types.BaseVirtualDeviceConfigSpec, error) {
+	curSet := d.Get(subresourceTypeVideoCard).([]interface{})
+
+	var data map[string]interface{}
+	if len(curSet) > 0 {
+		data = curSet[0].(map[string]interface{})
+	}
+
+	var specs []types.BaseVirtualDeviceConfigSpec
+
+	r := NewVideoCardSubresource(c, d, data, make(map[string]interface{}), 0)
+	spec, err := r.Update(l)
+	if err != nil {
+		return nil, nil, fmt.Errorf("%s: %s", r.Addr(), err)
+	}
+
+	l = applyDeviceChange(l, spec)
+	specs = append(specs, spec...)
+
+	return l, specs, nil
+}
+
 func ReadVideoCardForDataSource(l object.VirtualDeviceList) ([]map[string]interface{}, error) {
 	device, err := findVideoCard(l)
 	if err != nil {

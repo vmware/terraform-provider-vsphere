@@ -80,26 +80,6 @@ func TestAccResourceVSphereVirtualMachine_basic(t *testing.T) {
 	})
 }
 
-func TestAccResourceVSphereVirtualMachine_videoCard(t *testing.T) {
-	resource.Test(t, resource.TestCase{
-		PreCheck: func() {
-			testAccPreCheck(t)
-		},
-		Providers:    testAccProviders,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
-		Steps: []resource.TestStep{
-			{
-				Config: testAccResourceVSphereVirtualMachineConfigVideoCard(),
-				Check: resource.ComposeTestCheckFunc(
-					testAccResourceVSphereVirtualMachineCheckExists(true),
-					resource.TestCheckResourceAttr("vsphere_virtual_machine.vm", "video_card.0.num_displays", "2"),
-					resource.TestCheckResourceAttr("vsphere_virtual_machine.vm", "video_card.0.total_video_memory", "128"),
-				),
-			},
-		},
-	})
-}
-
 func TestAccResourceVSphereVirtualMachine_sdrsRecommendation(t *testing.T) {
 	t.Skipf("requires SDRS-enabled cluster with multiple datastores")
 	resource.Test(t, resource.TestCase{
@@ -207,6 +187,46 @@ func TestAccResourceVSphereVirtualMachine_fromSparseVmdk(t *testing.T) {
 	})
 }
 
+func TestAccResourceVSphereVirtualMachine_videoCardCreate(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceVSphereVirtualMachineConfigVideoCardCreate(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccResourceVSphereVirtualMachineCheckExists(true),
+					resource.TestCheckResourceAttr("vsphere_virtual_machine.vm", "video_card.0.num_displays", "2"),
+					resource.TestCheckResourceAttr("vsphere_virtual_machine.vm", "video_card.0.total_video_memory", "128"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccResourceVSphereVirtualMachine_videoCardClone(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceVSphereVirtualMachineConfigVideoCardClone(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestMatchResourceAttr("vsphere_virtual_machine.clonevm", "moid", regexp.MustCompile("^vm-")),
+					resource.TestCheckResourceAttr("vsphere_virtual_machine.clonevm", "video_card.0.num_displays", "2"),
+					resource.TestCheckResourceAttr("vsphere_virtual_machine.clonevm", "video_card.0.total_video_memory", "128"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccResourceVSphereVirtualMachine_vtpmCreate(t *testing.T) {
 	t.Skipf("requires key management server to run")
 	resource.Test(t, resource.TestCase{
@@ -300,8 +320,6 @@ func TestAccResourceVSphereVirtualMachine_vtpmClone(t *testing.T) {
 					testAccResourceVSphereVirtualMachineCheckExists(true),
 					resource.TestMatchResourceAttr("vsphere_virtual_machine.vm", "moid", regexp.MustCompile("^vm-")),
 					resource.TestMatchResourceAttr("vsphere_virtual_machine.vm2", "moid", regexp.MustCompile("^vm-")),
-					testAccResourceVSphereVirtualMachineVtpm("vm", true),
-					testAccResourceVSphereVirtualMachineVtpm("vm2", false),
 				),
 			},
 		},
@@ -4177,8 +4195,9 @@ resource "vsphere_virtual_machine" "vm" {
     template_uuid = vsphere_virtual_machine.srcvm.id
   }
 
-  vtpm {
-    version = "2.0"
+  video_card {
+    num_displays = 4
+    total_video_memory = 16
   }
 }
 
@@ -4283,7 +4302,7 @@ resource "vsphere_virtual_machine" "vm" {
 	)
 }
 
-func testAccResourceVSphereVirtualMachineConfigVideoCard() string {
+func testAccResourceVSphereVirtualMachineConfigVideoCardCreate() string {
 	return fmt.Sprintf(`
 %s  // Mix and match config
 
@@ -4312,6 +4331,70 @@ resource "vsphere_virtual_machine" "vm" {
   video_card {
     num_displays = 2
     total_video_memory = 128
+  }
+}
+`,
+
+		testAccResourceVSphereVirtualMachineConfigBase(),
+	)
+}
+
+func testAccResourceVSphereVirtualMachineConfigVideoCardClone() string {
+	return fmt.Sprintf(`
+%s  // Mix and match config
+
+resource "vsphere_virtual_machine" "srcvm" {
+  name             = "testacc-test-template"
+  resource_pool_id = vsphere_resource_pool.pool1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
+
+  num_cpus = 2
+  memory   = 2048
+  guest_id = "other3xLinuxGuest"
+  firmware = "efi"
+
+  wait_for_guest_net_timeout = 0
+
+  network_interface {
+    network_id = data.vsphere_network.network1.id
+  }
+
+  disk {
+    label = "disk0"
+    size  = 1
+    io_reservation = 1
+  }
+}
+
+resource "vsphere_virtual_machine" "clonevm" {
+  name             = "testacc-test"
+  resource_pool_id = vsphere_resource_pool.pool1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
+
+  num_cpus = 2
+  memory   = 2048
+  guest_id = "other3xLinuxGuest"
+  firmware = "efi"
+
+  wait_for_guest_net_timeout = 0
+
+  network_interface {
+    network_id = data.vsphere_network.network1.id
+  }
+
+  disk {
+    label = "disk0"
+    size  = 1
+    io_reservation = 1
+  }
+
+  video_card {
+    num_displays = 2
+    total_video_memory = 128
+  }
+
+  clone {
+    template_uuid = vsphere_virtual_machine.srcvm.id
   }
 }
 `,

@@ -735,8 +735,22 @@ func haProxySchema() *schema.Resource {
 			"server": {
 				Type:        schema.TypeList,
 				Required:    true,
-				Description: "The address for the data plane API server.",
-				Elem:        edgeServerSchema(),
+				Description: "The servers for the data plane API server.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"host": {
+							Type:         schema.TypeString,
+							Required:     true,
+							Description:  "The IP address of the API server.",
+							ValidateFunc: validation.IsIPv4Address,
+						},
+						"port": {
+							Type:        schema.TypeInt,
+							Required:    true,
+							Description: "The port of the API server.",
+						},
+					},
+				},
 			},
 			"username": {
 				Type:        schema.TypeString,
@@ -803,12 +817,16 @@ func nsxSchema() *schema.Resource {
 func nsxAdvancedSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"server": {
-				Type:        schema.TypeList,
-				MaxItems:    1,
+			"host": {
+				Type:         schema.TypeString,
+				Required:     true,
+				Description:  "The IP address of the AVI controller.",
+				ValidateFunc: validation.IsIPv4Address,
+			},
+			"port": {
+				Type:        schema.TypeInt,
 				Required:    true,
-				Description: "The address for the AVI controller.",
-				Elem:        edgeServerSchema(),
+				Description: "The port of the AVI controller.",
 			},
 			"username": {
 				Type:         schema.TypeString,
@@ -838,24 +856,6 @@ func nsxAdvancedSchema() *schema.Resource {
 	}
 }
 
-func edgeServerSchema() *schema.Resource {
-	return &schema.Resource{
-		Schema: map[string]*schema.Schema{
-			"host": {
-				Type:         schema.TypeString,
-				Required:     true,
-				Description:  "The IP address of the host.",
-				ValidateFunc: validation.IsIPv4Address,
-			},
-			"port": {
-				Type:        schema.TypeInt,
-				Required:    true,
-				Description: "The port of the host.",
-			},
-		},
-	}
-}
-
 func syslogSchema() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
@@ -865,7 +865,7 @@ func syslogSchema() *schema.Resource {
 				Description:  "FQDN or IP address of the remote syslog server taking the form protocol://hostname|ipv4|ipv6[:port]. The syslog protocol defaults to tcp.",
 				ValidateFunc: validation.StringIsNotEmpty,
 			},
-			"cert_authority_pem": {
+			"ca_cert": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Description:  "Certificate authority PEM.",

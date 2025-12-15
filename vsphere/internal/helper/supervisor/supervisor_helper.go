@@ -306,7 +306,11 @@ func buildEdgeHAProxy(haproxyData map[string]interface{}) namespace.HAProxy {
 	serversData := haproxyData["server"].([]interface{})
 	servers := make([]namespace.EdgeServer, len(serversData))
 	for i, v := range serversData {
-		servers[i] = buildEdgeServer(v.(map[string]interface{}))
+		vd := v.(map[string]interface{})
+		servers[i] = namespace.EdgeServer{
+			Host: vd["host"].(string),
+			Port: vd["port"].(int),
+		}
 	}
 
 	return namespace.HAProxy{
@@ -359,14 +363,14 @@ func buildNsx(nsxData map[string]interface{}) namespace.EdgeNSX {
 }
 
 func buildNsxAdvanced(advancedLBData map[string]interface{}) namespace.NSXAdvancedLBConfig {
-	serversData := advancedLBData["servers"].([]interface{})
-	serverData := serversData[0].(map[string]interface{})
-
 	result := namespace.NSXAdvancedLBConfig{
 		Username:                  advancedLBData["username"].(string),
 		Password:                  advancedLBData["password"].(string),
 		CertificateAuthorityChain: advancedLBData["ca_chain"].(string),
-		Server:                    buildEdgeServer(serverData),
+		Server: namespace.EdgeServer{
+			Host: advancedLBData["host"].(string),
+			Port: advancedLBData["port"].(int),
+		},
 	}
 
 	if cloudName := advancedLBData["cloud_name"].(string); cloudName != "" {
@@ -374,13 +378,6 @@ func buildNsxAdvanced(advancedLBData map[string]interface{}) namespace.NSXAdvanc
 	}
 
 	return result
-}
-
-func buildEdgeServer(edgeServerData map[string]interface{}) namespace.EdgeServer {
-	return namespace.EdgeServer{
-		Host: edgeServerData["host"].(string),
-		Port: edgeServerData["port"].(int),
-	}
 }
 
 func buildFoundation(foundationData map[string]interface{}) namespace.VSphereFoundationConfig {
@@ -449,8 +446,8 @@ func buildEdgeNetworkServices(networkServicesData map[string]interface{}) namesp
 			result.Syslog.Endpoint = &endpoint
 		}
 
-		if certAuthPem := syslog["cert_authority_pem"].(string); certAuthPem != "" {
-			result.Syslog.CertificateAuthorityPEM = &certAuthPem
+		if caCert := syslog["ca_cert"].(string); caCert != "" {
+			result.Syslog.CertificateAuthorityPEM = &caCert
 		}
 	}
 

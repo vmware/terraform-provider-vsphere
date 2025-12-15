@@ -345,7 +345,7 @@ The `control_plane` block configures the management layer of the Supervisor.
 
 * `network` - (Required) The network configuration for the control plane VM(s). See [control_plane.network](#nestedblock--control-plane-network).
 * `count` - (Optional) The number of control plane VMs to deploy. If specified, this should be greater or equal to the number of zones backing the Supervisor - 1 for single zone deployments and 3 for stretched Supervisors.
-* `size` - (Optional) The size preset for the control plane VM(s). Allowed values are TINY, SMALL, MEDIUM, and LARGE.
+* `size` - (Optional) The size preset for the control plane VM(s). Allowed values are `TINY`, `SMALL`, `MEDIUM`, and `LARGE`.
 * `storage_policy` - (Optional) The storage policy for the control plane VM(s).
 
 <a id="nestedblock--control-plane-network"></a>
@@ -420,7 +420,7 @@ The edge block configures the load balancer settings.
 * * * `servers` - (Required) The list of NTP servers.
 * * `syslog` - (Optional) Remote log forwarding configuration.
 * * * `endpoint` - (Optional) FQDN or IP address of the remote syslog server.
-* * * `cert_authority_pem` - (Optional) Certificate authority PEM.
+* * * `ca_cert` - (Optional) Certificate authority certificate in PEM format.
 
 <a id="nestedblock--workloads-edge-haproxy"></a>
 ### Nested schema for `workloads.edge.haproxy`
@@ -436,18 +436,17 @@ The edge block configures the load balancer settings.
 ### Nested schema for `workloads.edge.nsx`
 
 * `edge_cluster` - (Optional) The identifier of the edge cluster.
-* `load_balancer_size` - (Optional) The size of the load balancer node (SMALL, MEDIUM, LARGE).
+* `load_balancer_size` - (Optional) The size of the load balancer node. Allowed values are `SMALL`, `MEDIUM`, `LARGE`.
 * `t0_gateway` - (Optional) Tier-0 gateway ID for the namespaces configuration.
-* `routing_mode` - (Optional) Routing mode (ROUTED or NAT).
+* `routing_mode` - (Optional) Routing mode. Allowed values are `ROUTED`, `NAT`.
 * `default_ingress_tls_certificate` - (Optional) The default certificate that is served on Ingress services, when another certificate is not presented.
 * `egress_ip_range` - (Optional) An IP Range from which NSX assigns IP addresses used for performing SNAT from container IPs to external IPs. [ip_range](#nestedblock--ip-range).
 
 <a id="nestedblock--workloads-edge-nsxadvanced"></a>
 ### Nested schema for `workloads.edge.nsxadvanced`
 
-* `server` - (Required) The address for the AVI controller.
-* * `host` - (Required) The IP address of the host.
-* * `port` - (Required) The port of the host.
+* `host` - (Required) The IP address of the AVI controller.
+* `port` - (Required) The port of the AVI controller.
 * `username` - (Required) Username.
 * `password` - (Required) Password.
 * `ca_chain` - (Required) Certificate authority chain.
@@ -508,9 +507,9 @@ The edge block configures the load balancer settings.
 <a id="nestedblock--proxy"></a>
 ### Nested schema for `proxy`
 
-* `settings_source` - (Required) The source of the proxy settings. Allowed values: `VC_INHERITED`, `CLUSTER_CONFIGURED`, `NONE`.
-* `http_config` - (Optional) HTTP proxy configuration. Can be used if `CLUSTER_CONFIGURED`.
-* `https_config` - (Optional) HTTPS proxy configuration. Can be used if `CLUSTER_CONFIGURED`.
+* `settings_source` - (Required) The source of the proxy settings. Allowed values are `VC_INHERITED`, `CLUSTER_CONFIGURED`, `NONE`.
+* `http_config` - (Optional) HTTP proxy configuration. Can be used if CLUSTER_CONFIGURED.
+* `https_config` - (Optional) HTTPS proxy configuration. Can be used if CLUSTER_CONFIGURED.
 * `tls_root_ca_bundle` - (Optional) Proxy TLS root CA bundle which will be used to verify the proxy's certificates.
 * `no_proxy_config` - (Optional) List of addresses that should be accessed directly.
 

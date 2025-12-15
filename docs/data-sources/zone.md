@@ -32,4 +32,4 @@ The following attributes are exported:
 * `id` - The identifier of the vSphere Zone. Matches the name of the Zone.
 * `name` - The display name of the vSphere Zone. Matches the identifier of the resource.
 * `description` - The plain text description of the vSphere Zone.
-* `cluster_ids` - The identifiers of the compute clusters (e.g. `domain-c123`) associated with this vSphere Zone.
+* `cluster_ids` - The identifiers of the compute clusters (_e.g._, `domain-c123`) associated with this vSphere Zone.

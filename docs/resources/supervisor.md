@@ -10,9 +10,7 @@ description: |-
 
 Provides a resource for configuring Workload Management.
 
-This resource is deprecated and will be removed in a future major version of the provider.
-Use `vsphere_supervisor_v2` instead.
-
+> **NOTE:** This resource is deprecated and will be removed in a future major version of the provider. Use `vsphere_supervisor_v2` instead.
 ## Example Usages
 
 ### Enable Workload Management on a Compute Cluster

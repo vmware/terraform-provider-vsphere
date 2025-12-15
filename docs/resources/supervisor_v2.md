@@ -3,7 +3,7 @@ subcategory: "Workload Management"
 page_title: "VMware vSphere: vsphere_supervisor_v2"
 sidebar_current: "docs-vsphere-resource-vsphere-supervisor-v2"
 description: |-
-  Provides a VMware vSphere Supervisor resource.
+  Provides a vSphere Supervisor resource.
 ---
 
 # vsphere_supervisor_v2
@@ -14,7 +14,7 @@ Provides a resource for configuring vSphere Supervisor.
 
 ~> **NOTE:** Update and Import operations are not supported yet and will be added in a future release.
 
-To configure a single-zone Supervisor you have to set the `cluster` attribute.
+To configure a single-zone Supervisor you must set the `cluster` attribute.
 Its value should be the Managed Object identifier of the compute cluster you wish to deploy on.
 This identifier corresponds to the `id` attribute of `d/compute_cluster` and `r/compute_cluster`.
 
@@ -35,7 +35,7 @@ resource "vsphere_supervisor_v2" "supervisor" {
 }
 ```
 
-To configure a multi-zone Supervisor you have to set the `zones` attribute.
+To configure a multi-zone Supervisor you must set the `zones` attribute.
 A standard stretched Supervisor is deployed on 3 vSphere zones and their identifiers can be obtained from
 `d/vsphere_zone` or `r/vsphere_zone`.
 
@@ -64,15 +64,16 @@ resource "vsphere_supervisor_v2" "supervisor" {
 ```
 
 The two deployment modes are not interchangeable - you cannot stretch a single-zone deployment into a three-zone one or shrink
-a three-zone Supervisor into a single zone. The `cluster` and `zones` attribute are marked as conflicting and
+a three-zone Supervisor into a single-zone. The `cluster` and `zones` attribute are marked as conflicting and
 the provider will not allow you to specify both at the same time.
 Apart from these two attributes the rest of the schema for this resource is identical for both modes.
 
 The resource requires you to provide control plane and workload configurations as mandatory nested blocks
 but most of their inner attributes are optional and can be specified based on the requirements of your
 deployment.
-The schema closely follows the structure of the API payload with some simplifications where possible (e.g. you do not need to 
-provide the network type of your workload network, it is assumed based on the type of the configuration provided - vsphere, nsx or nsx_vpc).
+
+The schema closely follows the structure of the API payload with some simplifications where possible (_e.g._, you do not need to 
+provide the network type of your workload network, it is assumed based on the network type of the configuration provided.)
 
 ## Example Usages
 
@@ -116,7 +117,7 @@ resource "vsphere_supervisor_v2" "supervisor" {
 
       services {
         ntp {
-          servers = ["ntp1.mycompany.local"]
+          servers = ["ntp1.example.com"]
         }
         dns {
           servers = ["192.19.189.10"]
@@ -265,7 +266,7 @@ resource "vsphere_supervisor_v2" "supervisor" {
 
       services {
         ntp {
-          servers = ["ntp1.mycompany.local"]
+          servers = ["ntp1.example.com"]
         }
         dns {
           servers = ["192.19.189.10"]
@@ -335,8 +336,8 @@ The following arguments are supported:
 * `name` - (Required) The name of the Supervisor cluster.
 * `control_plane` - (Required) The configuration for the control plane VM(s). See [control_plane](#nestedblock--control-plane).
 * `workloads` - (Required) The configuration for the Supervisor workloads. See [workloads](#nestedblock--workloads).
-* `cluster` - (Optional) The name of the compute cluster to enable the Supervisor on. Use this property if you want to create a single zone deployment. Conflicts with zones.
-* `zones` - (Optional) A list of vSphere Zones to enable the Supervisor on. Conflicts with cluster.
+* `cluster` - (Optional) The name of the compute cluster to enable the Supervisor on. Use this property if you want to create a single zone deployment. Conflicts with `zones`.
+* `zones` - (Optional) A list of vSphere Zones to enable the Supervisor on. Conflicts with `cluster`.
 
 <a id="nestedblock--control-plane"></a>
 ### Nested schema for `control_plane`
@@ -353,7 +354,7 @@ The `control_plane` block configures the management layer of the Supervisor.
 * `backing` - (Required) Backing network configuration. See [backing](#nestedblock--backing).
 * `network` - (Optional) The network identifier for the management network.
 * `floating_ip` - (Optional) Floating IP address.
-* `services` - (Optional) Network services (e.g DNS, NTP) configuration.
+* `services` - (Optional) Network services (_e.g._, DNS, NTP) configuration.
 * * `dns` - (Optional) The DNS configuration.
 * * * `servers` - (Required) The list of DNS servers.
 * * * `search_domains` - (Required) The list of search domains.
@@ -364,6 +365,7 @@ The `control_plane` block configures the management layer of the Supervisor.
 
 <a id="nestedblock--workloads"></a>
 ### Nested schema for `workloads`
+
 The workloads block configures the workload network, storage, and image registry settings.
 
 * `network` - (Required) The primary workload network configuration. Workloads will communicate with each other and will reach external networks over this network. See [workloads.network](#nestedblock--workloads-network).
@@ -379,17 +381,17 @@ The workloads block configures the workload network, storage, and image registry
 * `dvpg` - (Required) The identifier of the Distributed Virtual Portgroup.
 * `default_private_cidr` - (Required) Specifies CIDR blocks from which private subnets are allocated. See [cidr](#nestedblock--cidr).
 * `network` - (Optional) A unique identifier for the workload network.
-* `services` - (Optional) Network services (e.g DNS, NTP) configuration.
+* `services` - (Optional) Network services (_e.g._, DNS, NTP) configuration.
 * * `dns` - (Optional) The DNS configuration.
 * * * `servers` - (Required) The list of DNS servers.
 * * * `search_domains` - (Required) The list of search domains.
 * * `ntp` - (Optional) The NTP configuration.
 * * * `servers` - (Required) The list of NTP servers.
 * `ip_management` - (Optional) IP Management configuration. See [ip-management](#nestedblock--ip-management).
-* `vsphere` - (Optional) Configuration for vSphere network backing. Conflicts with nsx and nsx_vpc.
-* `nsx` - (Optional) Configuration for NSX-T backing. Conflicts with vsphere and nsx_vpc.
+* `vsphere` - (Optional) Configuration for vSphere network backing. Conflicts with `nsx` and `nsx_vpc`.
+* `nsx` - (Optional) Configuration for NSX backing. Conflicts with `vsphere` and `nsx_vpc`.
 * `namespace_subnet_prefix` - (Optional) The size of the subnet reserved for namespace segments.
-* `nsx_vpc` - (Optional) Configuration for NSX VPC backing. Conflicts with vsphere and nsx.
+* `nsx_vpc` - (Optional) Configuration for NSX VPC backing. Conflicts with `vsphere` and `nsx`.
 * `nsx_project` - (Optional) The NSX Project for VPCs in the Supervisor, including the System VPC, and Supervisor Services VPC.
 * `vpc_connectivity_profile` - (Optional) The identifier of the VPC Connectivity Profile.
 
@@ -400,15 +402,15 @@ The edge block configures the load balancer settings.
 
 * `id` - (Optional) The unique identifier of this edge.
 * `lb_address_range` - (Optional) The list of addresses that a load balancer can consume to publish Kubernetes services. See [ip_range](#nestedblock--ip-range).
-* `foundation` - (Optional) Configuration for the vSphere Foundation Load Balancer. Conflicts with haproxy, nsx, nsx_advanced. See [workloads.edge.foundation](#nestedblock--workloads-edge-foundation).
-* `haproxy` - (Optional) Configuration for the HAProxy Load Balancer. Conflicts with foundation, nsx, nsx_advanced. See [workloads.edge.haproxy](#nestedblock--workloads-edge-haproxy).
-* `nsx` - (Optional) Configuration for the NSX Load Balancer. Conflicts with haproxy, foundation, nsx_advanced. See [workloads.edge.nsx](#nestedblock--workloads-edge-nsx).
+* `foundation` - (Optional) Configuration for the vSphere Foundation Load Balancer. Conflicts with `haproxy`, `nsx`, `nsx_advanced`. See [workloads.edge.foundation](#nestedblock--workloads-edge-foundation).
+* `haproxy` - (Optional) Configuration for the HAProxy Load Balancer. Conflicts with `foundation`, `nsx`, `nsx_advanced`. See [workloads.edge.haproxy](#nestedblock--workloads-edge-haproxy).
+* `nsx` - (Optional) Configuration for the NSX Load Balancer. Conflicts with `haproxy`, `foundation`, `nsx_advanced`. See [workloads.edge.nsx](#nestedblock--workloads-edge-nsx).
 * `nsx_advanced` - (Optional) Configuration for the NSX Advanced Load Balancer. Conflicts with haproxy, nsx, foundation. See [workloads.edge.nsxadvanced](#nestedblock--workloads-edge-nsxadvanced).
 
 <a id="nestedblock--workloads-edge-foundation"></a>
 ### Nested schema for `workloads.edge.foundation`
 
-* `deployment_target` - (Optional) The configuration for the Load Balancer placement. Includes availability, zones, deployment_size, and storage_policy.
+* `deployment_target` - (Optional) The configuration for the Load Balancer placement. Includes `availability`, `zones`, `deployment_size`, and `storage_policy`.
 * `interface` - (Optional) Configuration for the Load Balancer network interfaces. Includes personas and network.
 * `network_services` - (Optional) Configuration for the Load Balancer network services.
 * * `dns` - (Optional) The DNS configuration.
@@ -479,7 +481,7 @@ The edge block configures the load balancer settings.
 <a id="nestedblock--backing"></a>
 ### Nested schema for `backing`
 
-* `network` - (Optional) The Managed Object ID of the Network object. Conflicts with segments.
+* `network` - (Optional) The Managed Object ID of the Network object. Conflicts with `segments`.
 * `segments` - (Optional) The backing network segment. Conflicts with network.
 
 <a id="nestedblock--ip-management"></a>
@@ -488,7 +490,7 @@ The edge block configures the load balancer settings.
 * `dhcp_enabled` - (Optional) Whether to use DHCP or not.
 * `gateway_address` - (Optional) The IP address of the network gateway.
 * `ip_assignment` - (Optional) IP assignment configuration.
-* `assignee` - (Optional) The type of the assignee. Allowed values: POD, NODE, SERVICE.
+* `assignee` - (Optional) The type of the assignee. Allowed values: `POD`, `NODE`, `SERVICE`.
 * `range` - (Optional) The available IP addresses that can be consumed by Supervisor to run the cluster. See [ip_range](#nestedblock--ip-range").
 
 <a id="nestedblock--ip-range"></a>
@@ -506,9 +508,9 @@ The edge block configures the load balancer settings.
 <a id="nestedblock--proxy"></a>
 ### Nested schema for `proxy`
 
-* `settings_source` - (Required) The source of the proxy settings. Allowed values: VC_INHERITED, CLUSTER_CONFIGURED, NONE.
-* `http_config` - (Optional) HTTP proxy configuration. Can be used if CLUSTER_CONFIGURED.
-* `https_config` - (Optional) HTTPS proxy configuration. Can be used if CLUSTER_CONFIGURED.
+* `settings_source` - (Required) The source of the proxy settings. Allowed values: `VC_INHERITED`, `CLUSTER_CONFIGURED`, `NONE`.
+* `http_config` - (Optional) HTTP proxy configuration. Can be used if `CLUSTER_CONFIGURED`.
+* `https_config` - (Optional) HTTPS proxy configuration. Can be used if `CLUSTER_CONFIGURED`.
 * `tls_root_ca_bundle` - (Optional) Proxy TLS root CA bundle which will be used to verify the proxy's certificates.
 * `no_proxy_config` - (Optional) List of addresses that should be accessed directly.
 

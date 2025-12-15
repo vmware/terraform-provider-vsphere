@@ -3,7 +3,7 @@ subcategory: "Workload Management"
 page_title: "VMware vSphere: namespace"
 sidebar_current: "docs-vsphere-resource-vsphere-namespace"
 description: |-
-  Provides a VMware Namespace resource.
+  Provides a vSphere Namespace resource.
 ---
 
 # vsphere_namespace
@@ -15,7 +15,7 @@ Provides a resource for configuring vSphere Namespaces.
 ### Create a namespace
 
 ```hcl
-resource vsphere_namespace "namespace" {
+resource vsphere_namespace "example" {
   name       = "example-namespace"
   supervisor = "ff69d7fb-4ad4-44a2-8d91-8b3bede80eaa"
 
@@ -35,6 +35,7 @@ resource vsphere_namespace "namespace" {
 ```
 
 ## Argument Reference
+
 The following arguments are supported:
 
 * `name` - (Required) The name of the vSphere namespace.

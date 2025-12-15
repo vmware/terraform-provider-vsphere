@@ -28,6 +28,7 @@ const (
 	subresourceTypeDisk             = "disk"
 	subresourceTypeNetworkInterface = "network_interface"
 	subresourceTypeCdrom            = "cdrom"
+	subresourceTypeVideoCard        = "video_card"
 )
 
 const (

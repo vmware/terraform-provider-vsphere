@@ -187,6 +187,46 @@ func TestAccResourceVSphereVirtualMachine_fromSparseVmdk(t *testing.T) {
 	})
 }
 
+func TestAccResourceVSphereVirtualMachine_videoCardCreate(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceVSphereVirtualMachineConfigVideoCardCreate(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccResourceVSphereVirtualMachineCheckExists(true),
+					resource.TestCheckResourceAttr("vsphere_virtual_machine.vm", "video_card.0.num_displays", "2"),
+					resource.TestCheckResourceAttr("vsphere_virtual_machine.vm", "video_card.0.total_video_memory", "128"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccResourceVSphereVirtualMachine_videoCardClone(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceVSphereVirtualMachineConfigVideoCardClone(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestMatchResourceAttr("vsphere_virtual_machine.clonevm", "moid", regexp.MustCompile("^vm-")),
+					resource.TestCheckResourceAttr("vsphere_virtual_machine.clonevm", "video_card.0.num_displays", "2"),
+					resource.TestCheckResourceAttr("vsphere_virtual_machine.clonevm", "video_card.0.total_video_memory", "128"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccResourceVSphereVirtualMachine_vtpmCreate(t *testing.T) {
 	t.Skipf("requires key management server to run")
 	resource.Test(t, resource.TestCase{
@@ -280,8 +320,6 @@ func TestAccResourceVSphereVirtualMachine_vtpmClone(t *testing.T) {
 					testAccResourceVSphereVirtualMachineCheckExists(true),
 					resource.TestMatchResourceAttr("vsphere_virtual_machine.vm", "moid", regexp.MustCompile("^vm-")),
 					resource.TestMatchResourceAttr("vsphere_virtual_machine.vm2", "moid", regexp.MustCompile("^vm-")),
-					testAccResourceVSphereVirtualMachineVtpm("vm", true),
-					testAccResourceVSphereVirtualMachineVtpm("vm2", false),
 				),
 			},
 		},
@@ -2919,6 +2957,38 @@ func TestAccResourceVSphereVirtualMachine_nvmeController(t *testing.T) {
 	})
 }
 
+func TestAccResourceVSphereVirtualMachine_cpuTopology(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			RunSweepers()
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceVSphereVirtualMachineConfigBareHardwareVersion(20),
+			},
+			{
+				// configure manually
+				Config: testAccResourceVSphereVirtualMachineConfigCPUTopology(2, 2),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("vsphere_virtual_machine.vm", "num_cores_per_socket", "2"),
+					resource.TestCheckResourceAttr("vsphere_virtual_machine.vm", "num_cores_per_numa_node", "2"),
+				),
+			},
+			{
+				// set to assigned at power on
+				Config: testAccResourceVSphereVirtualMachineConfigCPUTopology(0, 0),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("vsphere_virtual_machine.vm", "num_cores_per_socket", "0"),
+					resource.TestCheckResourceAttr("vsphere_virtual_machine.vm", "num_cores_per_numa_node", "0"),
+				),
+			},
+		},
+	})
+}
+
 func testAccResourceVSphereVirtualMachinePreCheck(t *testing.T) {
 	// Note that TF_VAR_VSPHERE_USE_LINKED_CLONE is also a variable and its presence
 	// speeds up tests greatly, but it's not a necessary variable, so we don't
@@ -3962,11 +4032,13 @@ resource "vsphere_virtual_machine" "vm" {
   resource_pool_id = vsphere_resource_pool.pool1.id
   datastore_id     = data.vsphere_datastore.rootds1.id
 
-  num_cpus         = 2
-  memory           = 2048
-  guest_id         = vsphere_virtual_machine.template.guest_id
-  hardware_version = %d
-  firmware         = "efi"
+  num_cpus                = 2
+  memory                  = 2048
+  guest_id                = vsphere_virtual_machine.template.guest_id
+  hardware_version        = %d
+  num_cores_per_socket    = 0
+  num_cores_per_numa_node = 0
+  firmware                = "efi"
 
   wait_for_guest_net_timeout = 0
 
@@ -4123,8 +4195,9 @@ resource "vsphere_virtual_machine" "vm" {
     template_uuid = vsphere_virtual_machine.srcvm.id
   }
 
-  vtpm {
-    version = "2.0"
+  video_card {
+    num_displays = 4
+    total_video_memory = 16
   }
 }
 
@@ -4221,6 +4294,107 @@ resource "vsphere_virtual_machine" "vm" {
     label = "disk0"
     size  = 1
     io_reservation = 1
+  }
+}
+`,
+
+		testAccResourceVSphereVirtualMachineConfigBase(),
+	)
+}
+
+func testAccResourceVSphereVirtualMachineConfigVideoCardCreate() string {
+	return fmt.Sprintf(`
+%s  // Mix and match config
+
+resource "vsphere_virtual_machine" "vm" {
+  name             = "testacc-test"
+  resource_pool_id = vsphere_resource_pool.pool1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
+
+  num_cpus = 2
+  memory   = 2048
+  guest_id = "other3xLinuxGuest"
+  firmware = "efi"
+
+  wait_for_guest_net_timeout = 0
+
+  network_interface {
+    network_id = data.vsphere_network.network1.id
+  }
+
+  disk {
+    label = "disk0"
+    size  = 1
+    io_reservation = 1
+  }
+
+  video_card {
+    num_displays = 2
+    total_video_memory = 128
+  }
+}
+`,
+
+		testAccResourceVSphereVirtualMachineConfigBase(),
+	)
+}
+
+func testAccResourceVSphereVirtualMachineConfigVideoCardClone() string {
+	return fmt.Sprintf(`
+%s  // Mix and match config
+
+resource "vsphere_virtual_machine" "srcvm" {
+  name             = "testacc-test-template"
+  resource_pool_id = vsphere_resource_pool.pool1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
+
+  num_cpus = 2
+  memory   = 2048
+  guest_id = "other3xLinuxGuest"
+  firmware = "efi"
+
+  wait_for_guest_net_timeout = 0
+
+  network_interface {
+    network_id = data.vsphere_network.network1.id
+  }
+
+  disk {
+    label = "disk0"
+    size  = 1
+    io_reservation = 1
+  }
+}
+
+resource "vsphere_virtual_machine" "clonevm" {
+  name             = "testacc-test"
+  resource_pool_id = vsphere_resource_pool.pool1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
+
+  num_cpus = 2
+  memory   = 2048
+  guest_id = "other3xLinuxGuest"
+  firmware = "efi"
+
+  wait_for_guest_net_timeout = 0
+
+  network_interface {
+    network_id = data.vsphere_network.network1.id
+  }
+
+  disk {
+    label = "disk0"
+    size  = 1
+    io_reservation = 1
+  }
+
+  video_card {
+    num_displays = 2
+    total_video_memory = 128
+  }
+
+  clone {
+    template_uuid = vsphere_virtual_machine.srcvm.id
   }
 }
 `,
@@ -8489,6 +8663,45 @@ resource "vsphere_virtual_machine" "vm2" {
 `, testAccResourceVSphereVirtualMachineConfigBase(),
 		os.Getenv("TF_VAR_VSPHERE_TEST_OVF"),
 		vmName,
+	)
+}
+
+func testAccResourceVSphereVirtualMachineConfigCPUTopology(coresPerSocket, numaNodes int) string {
+	return fmt.Sprintf(`
+
+%s  // Mix and match config
+
+resource "vsphere_virtual_machine" "vm" {
+  name             = "testacc-test"
+  resource_pool_id = vsphere_resource_pool.pool1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
+
+  num_cpus                = 2
+  num_cores_per_socket    = %d
+  num_cores_per_numa_node = %d
+  memory                  = 2048
+  guest_id                = "other3xLinuxGuest"
+  firmware                = "efi"
+
+  hardware_version = 20
+
+  wait_for_guest_net_timeout = 0
+
+  network_interface {
+    network_id = data.vsphere_network.network1.id
+  }
+
+  disk {
+    label          = "disk0"
+    size           = 1
+    io_reservation = 1
+  }
+}
+`,
+
+		testAccResourceVSphereVirtualMachineConfigBase(),
+		coresPerSocket,
+		numaNodes,
 	)
 }
 

@@ -246,6 +246,13 @@ func resourceVSphereVirtualMachine() *schema.Resource {
 			MaxItems:    2,
 			Elem:        &schema.Resource{Schema: virtualdevice.CdromSubresourceSchema()},
 		},
+		"video_card": {
+			Type:        schema.TypeList,
+			Optional:    true,
+			Description: "A specification for a video card device on this virtual machine.",
+			MaxItems:    1,
+			Elem:        &schema.Resource{Schema: virtualdevice.VideoCardSubresourceSchema()},
+		},
 		"pci_device_id": {
 			Type:         schema.TypeSet,
 			Optional:     true,
@@ -588,6 +595,10 @@ func resourceVSphereVirtualMachineRead(d *schema.ResourceData, meta interface{})
 	}
 	// CDROM
 	if err := virtualdevice.CdromRefreshOperation(d, client, devices); err != nil {
+		return err
+	}
+	// Video Card
+	if err := virtualdevice.VideoCardRefreshOperation(d, client, devices); err != nil {
 		return err
 	}
 
@@ -1752,6 +1763,17 @@ func resourceVSphereVirtualMachinePostDeployChanges(d *schema.ResourceData, meta
 		)
 	}
 	cfgSpec.DeviceChange = virtualdevice.AppendDeviceChangeSpec(cfgSpec.DeviceChange, delta...)
+	// Video card
+	devices, delta, err = virtualdevice.VideoCardPostCloneOperation(d, client, devices)
+	if err != nil {
+		return resourceVSphereVirtualMachineRollbackCreate(
+			d,
+			meta,
+			vm,
+			fmt.Errorf("error processing video card device changes post-clone: %s", err),
+		)
+	}
+	cfgSpec.DeviceChange = virtualdevice.AppendDeviceChangeSpec(cfgSpec.DeviceChange, delta...)
 	// PCI passthrough devices
 	devices, delta, err = virtualdevice.PciPassthroughPostCloneOperation(d, client, devices)
 	if err != nil {
@@ -2069,6 +2091,12 @@ func applyVirtualDevices(d *schema.ResourceData, c *govmomi.Client, l object.Vir
 	spec = virtualdevice.AppendDeviceChangeSpec(spec, delta...)
 	// CDROM
 	l, delta, err = virtualdevice.CdromApplyOperation(d, c, l)
+	if err != nil {
+		return nil, err
+	}
+	spec = virtualdevice.AppendDeviceChangeSpec(spec, delta...)
+	// Video Card
+	l, delta, err = virtualdevice.VideoCardApplyOperation(d, c, l)
 	if err != nil {
 		return nil, err
 	}

@@ -19,8 +19,8 @@ this provider.
 
 This release is supported with:
 
+- VMware vSphere 9.x
 - VMware vSphere 8.x
-- VMware vSphere 7.x
 
 Refer to the [Broadcom Product Lifecycle][product-lifecycle].
 
@@ -151,6 +151,14 @@ The session format used to save VIM SOAP sessions is the same used
 with [`vmware/govc`][docs-govc]. If you use `govc` as part of your provisioning
 process, Terraform will use the saved session if present and if
 `persist_session` is enabled.
+
+#### Concurrent Session Limits
+
+The provider does not close any sessions when its process is terminated.
+If session persistence is not configured you may reach the limits for concurrent sessions in vCenter. 
+This will cause the provider to crash due to its inability to communicate with vCenter.
+
+~> **NOTE:** Consult the product documentation for your version of vCenter for the applicable limits on concurrent sessions.
 
 ### Debugging Options
 

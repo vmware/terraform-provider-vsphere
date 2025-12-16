@@ -254,6 +254,12 @@ func schemaVirtualMachineConfigSpec() map[string]*schema.Schema {
 			Default:     1,
 			Description: "The number of cores to distribute amongst the CPUs in this virtual machine. If specified, the value supplied to num_cpus must be evenly divisible by this value.",
 		},
+		"num_cores_per_numa_node": {
+			Type:         schema.TypeInt,
+			Optional:     true,
+			RequiredWith: []string{"hardware_version"},
+			Description:  "The number of cores to distribute amongst the CPUs NUMA nodes. If specified, the value supplied to num_cpus must be evenly divisible by this value.",
+		},
 		"cpu_hot_add_enabled": {
 			Type:        schema.TypeBool,
 			Optional:    true,
@@ -510,6 +516,27 @@ func expandToolsConfigInfo(d *schema.ResourceData, client *govmomi.Client) *type
 		obj.SyncTimeWithHost = structure.GetBool(d, "sync_time_with_host_periodically")
 	}
 	return obj
+}
+
+func flattenCPUTopologyOptions(d *schema.ResourceData, obj *types.VirtualMachineConfigInfo) error {
+	if obj.Hardware.AutoCoresPerSocket != nil && *obj.Hardware.AutoCoresPerSocket {
+		_ = d.Set("num_cores_per_socket", 0)
+	} else if obj.Hardware.NumCoresPerSocket != nil {
+		_ = d.Set("num_cores_per_socket", obj.Hardware.NumCoresPerSocket)
+	} else {
+		return fmt.Errorf("[DEBUG] could not determine value for 'num_cores_per_socket'")
+	}
+	if obj.NumaInfo != nil {
+		if obj.NumaInfo.AutoCoresPerNumaNode != nil && *obj.NumaInfo.AutoCoresPerNumaNode {
+			_ = d.Set("num_cores_per_numa_node", 0)
+		} else if obj.NumaInfo.CoresPerNumaNode != nil {
+			_ = d.Set("num_cores_per_numa_node", *obj.NumaInfo.CoresPerNumaNode)
+		} else {
+			return fmt.Errorf("[DEBUG] could not determine value for 'num_cores_per_numa_node'")
+		}
+	}
+
+	return nil
 }
 
 // flattenToolsConfigInfo reads various fields from a
@@ -979,7 +1006,8 @@ func expandVirtualMachineConfigSpec(d *schema.ResourceData, client *govmomi.Clie
 		Tools:                        expandToolsConfigInfo(d, client),
 		Flags:                        expandVirtualMachineFlagInfo(d, client),
 		NumCPUs:                      expandCPUCountConfig(d),
-		NumCoresPerSocket:            int32(getWithRestart(d, "num_cores_per_socket").(int)),
+		NumCoresPerSocket:            getCoresPerSocket(d),
+		VirtualNuma:                  getVirtualNuma(d),
 		MemoryMB:                     expandMemorySizeConfig(d),
 		MemoryHotAddEnabled:          getBoolWithRestart(d, "memory_hot_add_enabled"),
 		CpuHotAddEnabled:             getBoolWithRestart(d, "cpu_hot_add_enabled"),
@@ -1012,7 +1040,9 @@ func flattenVirtualMachineConfigInfo(d *schema.ResourceData, obj *types.VirtualM
 	_ = d.Set("alternate_guest_name", obj.AlternateGuestName)
 	_ = d.Set("annotation", obj.Annotation)
 	_ = d.Set("num_cpus", obj.Hardware.NumCPU)
-	_ = d.Set("num_cores_per_socket", obj.Hardware.NumCoresPerSocket)
+	if err := flattenCPUTopologyOptions(d, obj); err != nil {
+		return err
+	}
 	_ = d.Set("memory", obj.Hardware.MemoryMB)
 	_ = d.Set("memory_hot_add_enabled", obj.MemoryHotAddEnabled)
 
@@ -1121,4 +1151,22 @@ func getMemoryReservationLockedToMax(d *schema.ResourceData) *bool {
 	}
 
 	return nil
+}
+
+func getCoresPerSocket(d *schema.ResourceData) *int32 {
+	return structure.Int32Ptr(int32(getWithRestart(d, "num_cores_per_socket").(int)))
+}
+
+func getVirtualNuma(d *schema.ResourceData) *types.VirtualMachineVirtualNuma {
+	hwVersion := d.Get("hardware_version").(int)
+	// NUMA configuration is supported for HW version 20 and above
+	if hwVersion < 20 {
+		return nil
+	}
+
+	numNodes := int32(getWithRestart(d, "num_cores_per_numa_node").(int))
+
+	return &types.VirtualMachineVirtualNuma{
+		CoresPerNumaNode: &numNodes,
+	}
 }

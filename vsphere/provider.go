@@ -132,12 +132,14 @@ func Provider() *schema.Provider {
 			"vsphere_host_port_group":                          resourceVSphereHostPortGroup(),
 			"vsphere_host_virtual_switch":                      resourceVSphereHostVirtualSwitch(),
 			"vsphere_license":                                  resourceVSphereLicense(),
+			"vsphere_namespace":                                resourceVSphereNamespace(),
 			"vsphere_nas_datastore":                            resourceVSphereNasDatastore(),
 			"vsphere_offline_software_depot":                   resourceVsphereOfflineSoftwareDepot(),
 			"vsphere_resource_pool":                            resourceVSphereResourcePool(),
 			"vsphere_role":                                     resourceVsphereRole(),
 			"vsphere_storage_drs_vm_override":                  resourceVSphereStorageDrsVMOverride(),
 			"vsphere_supervisor":                               resourceVsphereSupervisor(),
+			"vsphere_supervisor_v2":                            resourceVsphereSupervisorV2(),
 			"vsphere_tag":                                      resourceVSphereTag(),
 			"vsphere_tag_category":                             resourceVSphereTagCategory(),
 			"vsphere_vapp_container":                           resourceVSphereVAppContainer(),
@@ -149,6 +151,7 @@ func Provider() *schema.Provider {
 			"vsphere_vm_storage_policy":                        resourceVMStoragePolicy(),
 			"vsphere_vmfs_datastore":                           resourceVSphereVmfsDatastore(),
 			"vsphere_vnic":                                     resourceVsphereNic(),
+			"vsphere_zone":                                     resourceVSphereZone(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -173,6 +176,7 @@ func Provider() *schema.Provider {
 			"vsphere_host_thumbprint":            dataSourceVSphereHostThumbprint(),
 			"vsphere_host_vgpu_profile":          dataSourceVSphereHostVGpuProfile(),
 			"vsphere_license":                    dataSourceVSphereLicense(),
+			"vsphere_namespace":                  dataSourceVSphereNamespace(),
 			"vsphere_network":                    dataSourceVSphereNetwork(),
 			"vsphere_ovf_vm_template":            dataSourceVSphereOvfVMTemplate(),
 			"vsphere_resource_pool":              dataSourceVSphereResourcePool(),
@@ -183,6 +187,7 @@ func Provider() *schema.Provider {
 			"vsphere_vapp_container":             dataSourceVSphereVAppContainer(),
 			"vsphere_virtual_machine":            dataSourceVSphereVirtualMachine(),
 			"vsphere_vmfs_disks":                 dataSourceVSphereVmfsDisks(),
+			"vsphere_zone":                       dataSourceVSphereZone(),
 		},
 
 		ConfigureFunc: providerConfigure,

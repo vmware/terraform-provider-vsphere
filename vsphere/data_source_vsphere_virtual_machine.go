@@ -156,6 +156,42 @@ func dataSourceVSphereVirtualMachine() *schema.Resource {
 				},
 			},
 		},
+		"video_card": {
+			Type:     schema.TypeList,
+			Computed: true,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"num_displays": {
+						Type:        schema.TypeInt,
+						Computed:    true,
+						Description: "Number of supported displays",
+					},
+					"total_video_memory": {
+						Type:        schema.TypeInt,
+						Computed:    true,
+						Description: "Video RAM size in megabytes",
+					},
+					"graphics_3d": {
+						Type:     schema.TypeList,
+						Computed: true,
+						Elem: &schema.Resource{
+							Schema: map[string]*schema.Schema{
+								"renderer": {
+									Type:        schema.TypeString,
+									Computed:    true,
+									Description: "Indicates how the virtual device renders 3D graphics",
+								},
+								"memory": {
+									Type:        schema.TypeInt,
+									Computed:    true,
+									Description: "The amount of dedicated graphics memory in megabytes",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 		"default_ip_address": {
 			Type:        schema.TypeString,
 			Computed:    true,
@@ -281,6 +317,10 @@ func dataSourceVSphereVirtualMachineRead(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return fmt.Errorf("error reading network interfaces: %s", err)
 	}
+	videoCard, err := virtualdevice.ReadVideoCardForDataSource(props.Config.Hardware.Device)
+	if err != nil {
+		return fmt.Errorf("error reading video card: %s", err)
+	}
 	if err := d.Set("disks", disks); err != nil {
 		return fmt.Errorf("error setting disk sizes: %s", err)
 	}
@@ -289,6 +329,9 @@ func dataSourceVSphereVirtualMachineRead(d *schema.ResourceData, meta interface{
 	}
 	if err := d.Set("network_interfaces", networkInterfaces); err != nil {
 		return fmt.Errorf("error setting network interfaces: %s", err)
+	}
+	if err := d.Set("video_card", videoCard); err != nil {
+		return fmt.Errorf("error setting video card: %s", err)
 	}
 	if props.Guest != nil {
 		if err := buildAndSelectGuestIPs(d, *props.Guest); err != nil {

@@ -41,6 +41,6 @@ The following arguments are supported:
 * `name` - (Required) The name of the vSphere namespace.
 * `supervisor` - (Required) The identifier of the vSphere Supervisor managing the namespace.
 * `vm_service` - (Optional) The configuration for VM Service in the vSphere Namespace.
-* * `content_libraries` - (Optional) The list of content libraries to associate with the VM Service.
-* * `vm_classes` - (Optional) The list of VM Classes to associate with the VM Service.
+  * `content_libraries` - (Optional) The list of content libraries to associate with the VM Service.
+  * `vm_classes` - (Optional) The list of VM Classes to associate with the VM Service.
 * `storage_policies` - (Optional) The list of storage policies that will be available in the vSphere Namespace.

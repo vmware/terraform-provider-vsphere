@@ -10,11 +10,11 @@ description: |-
 
 Provides a resource for configuring vSphere Supervisor.
 
-~> **NOTE:** Some attributes are only available in vSphere 9, consult the product documentation if you want to use this with vSphere 8.
+~> **NOTE:** Some attributes are only available in vSphere 9. Consult the product documentation if you want to use this with vSphere 8.
 
-~> **NOTE:** Update and Import operations are not supported yet and will be added in a future release.
+~> **NOTE:** Update and import operations are not yet supported and are planned for a future release.
 
-To configure a single-zone Supervisor you must set the `cluster` attribute.
+To configure a single-zone Supervisor you must set the `cluster` attribute. 
 Its value should be the Managed Object identifier of the compute cluster you wish to deploy on.
 This identifier corresponds to the `id` attribute of `d/compute_cluster` and `r/compute_cluster`.
 
@@ -36,7 +36,8 @@ resource "vsphere_supervisor_v2" "supervisor" {
 ```
 
 To configure a multi-zone Supervisor you must set the `zones` attribute.
-A standard stretched Supervisor is deployed on 3 vSphere zones and their identifiers can be obtained from
+
+A standard stretched Supervisor is deployed on three vSphere zones and their identifiers can be obtained from
 `d/vsphere_zone` or `r/vsphere_zone`.
 
 ```hcl
@@ -63,9 +64,10 @@ resource "vsphere_supervisor_v2" "supervisor" {
 }
 ```
 
-The two deployment modes are not interchangeable - you cannot stretch a single-zone deployment into a three-zone one or shrink
+The two deployment modes are not interchangeable – you cannot stretch a single-zone deployment into a three-zone one or shrink
 a three-zone Supervisor into a single-zone. The `cluster` and `zones` attribute are marked as conflicting and
 the provider will not allow you to specify both at the same time.
+
 Apart from these two attributes the rest of the schema for this resource is identical for both modes.
 
 The resource requires you to provide control plane and workload configurations as mandatory nested blocks
@@ -77,7 +79,7 @@ provide the network type of your workload network, it is assumed based on the ne
 
 ## Example Usages
 
-### Enable Supervisor on a single Compute Cluster
+### Enable Supervisor on a Single Compute Cluster
 
 ```hcl
 
@@ -100,7 +102,7 @@ resource "vsphere_supervisor_v2" "supervisor" {
 
       services {
         ntp {
-          servers = ["ntp1.mycompany.local"]
+          servers = ["ntp1.example.com"]
         }
       }
     }
@@ -227,7 +229,7 @@ resource "vsphere_supervisor_v2" "supervisor" {
 }
 ```
 
-### Enable Supervisor on 3 vSphere Zones
+### Enable Supervisor on Three vSphere Zones
 
 ```hcl
 resource "vsphere_supervisor_v2" "supervisor" {
@@ -249,7 +251,7 @@ resource "vsphere_supervisor_v2" "supervisor" {
 
       services {
         ntp {
-          servers = ["ntp1.mycompany.local"]
+          servers = ["ntp1.example.com"]
         }
       }
     }
@@ -355,11 +357,11 @@ The `control_plane` block configures the management layer of the Supervisor.
 * `network` - (Optional) The network identifier for the management network.
 * `floating_ip` - (Optional) Floating IP address.
 * `services` - (Optional) Network services (_e.g._, DNS, NTP) configuration.
-* * `dns` - (Optional) The DNS configuration.
-* * * `servers` - (Required) The list of DNS servers.
-* * * `search_domains` - (Required) The list of search domains.
-* * `ntp` - (Optional) The NTP configuration.
-* * * `servers` - (Required) The list of NTP servers.
+  * `dns` - (Optional) The DNS configuration.
+    * `servers` - (Required) The list of DNS servers.
+    * `search_domains` - (Required) The list of search domains.
+  * `ntp` - (Optional) The NTP configuration.
+    * `servers` - (Required) The list of NTP servers.
 * `ip_management` - (Optional) IP Management configuration. See [ip_management](#nestedblock--ip-management).
 * `proxy` - (Optional) Proxy server configuration. See [proxy](#nestedblock--proxy).
 
@@ -382,11 +384,11 @@ The workloads block configures the workload network, storage, and image registry
 * `default_private_cidr` - (Required) Specifies CIDR blocks from which private subnets are allocated. See [cidr](#nestedblock--cidr).
 * `network` - (Optional) A unique identifier for the workload network.
 * `services` - (Optional) Network services (_e.g._, DNS, NTP) configuration.
-* * `dns` - (Optional) The DNS configuration.
-* * * `servers` - (Required) The list of DNS servers.
-* * * `search_domains` - (Required) The list of search domains.
-* * `ntp` - (Optional) The NTP configuration.
-* * * `servers` - (Required) The list of NTP servers.
+  * `dns` - (Optional) The DNS configuration.
+    * `servers` - (Required) The list of DNS servers.
+    * `search_domains` - (Required) The list of search domains.
+  * `ntp` - (Optional) The NTP configuration.
+    * `servers` - (Required) The list of NTP servers.
 * `ip_management` - (Optional) IP Management configuration. See [ip-management](#nestedblock--ip-management).
 * `vsphere` - (Optional) Configuration for vSphere network backing. Conflicts with `nsx` and `nsx_vpc`.
 * `nsx` - (Optional) Configuration for NSX backing. Conflicts with `vsphere` and `nsx_vpc`.
@@ -413,21 +415,21 @@ The edge block configures the load balancer settings.
 * `deployment_target` - (Optional) The configuration for the Load Balancer placement. Includes `availability`, `zones`, `deployment_size`, and `storage_policy`.
 * `interface` - (Optional) Configuration for the Load Balancer network interfaces. Includes personas and network.
 * `network_services` - (Optional) Configuration for the Load Balancer network services.
-* * `dns` - (Optional) The DNS configuration.
-* * * `servers` - (Required) The list of DNS servers.
-* * * `search_domains` - (Required) The list of search domains.
-* * `ntp` - (Optional) The NTP configuration.
-* * * `servers` - (Required) The list of NTP servers.
-* * `syslog` - (Optional) Remote log forwarding configuration.
-* * * `endpoint` - (Optional) FQDN or IP address of the remote syslog server.
-* * * `ca_cert` - (Optional) Certificate authority certificate in PEM format.
+  * `dns` - (Optional) The DNS configuration.
+    * `servers` - (Required) The list of DNS servers.
+    * `search_domains` - (Required) The list of search domains.
+  * `ntp` - (Optional) The NTP configuration.
+    * `servers` - (Required) The list of NTP servers.
+  * `syslog` - (Optional) Remote log forwarding configuration.
+    * `endpoint` - (Optional) FQDN or IP address of the remote syslog server.
+    * `ca_cert` - (Optional) Certificate authority certificate in PEM format.
 
 <a id="nestedblock--workloads-edge-haproxy"></a>
 ### Nested schema for `workloads.edge.haproxy`
 
 * `server` - (Required) The address for the data plane API server.
-* * `host` - (Required) The IP address of the host.
-* * `port` - (Required) The port of the host.
+  * `host` - (Required) The IP address of the host.
+  * `port` - (Required) The port of the host.
 * `username` - (Required) Username.
 * `password` - (Required) Password.
 * `ca_chain` - (Required) The certificate authority chain.
@@ -465,9 +467,9 @@ The edge block configures the load balancer settings.
 * `repository` - (Required) The default container image repository to use when the Kubernetes Pod configuration does not specify it.
 * `kubernetes_content_library` - (Required) The identifier of the Content Library which holds the VM Images for vSphere Kubernetes Service.
 * `content_library` - (Required) Content library associated with the Supervisor.
-* * `content_library` - (Required) Content library identifier.
-* * `supervisor_services` - (Optional) A list of Supervisor Service IDs that are currently making use of the Content Library.
-* * `resource_naming_strategy` - (Optional) The resource naming strategy that is used to generate the Kubernetes resource names for images from this Content Library.
+  * `content_library` - (Required) Content library identifier.
+  * `supervisor_services` - (Optional) A list of Supervisor Service IDs that are currently making use of the Content Library.
+  * `resource_naming_strategy` - (Optional) The resource naming strategy that is used to generate the Kubernetes resource names for images from this Content Library.
 
 <a id="nestedblock--workloads-storage"></a>
 ### Nested schema for `workloads.storage`

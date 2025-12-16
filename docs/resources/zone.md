@@ -11,7 +11,7 @@ description: |-
 The `vsphere_zone` resource can be used to create a vSphere Zone and associate it with one or more
 compute clusters.
 
-**NOTE:** vSphere Zones are available in vSphere 8. This resource requires vSphere 8 and later.
+~> **NOTE:**vSphere Zones are available in vSphere 8. This resource requires vSphere 8 and later.
 
 ## Example Usage
 
@@ -24,7 +24,7 @@ resource "vsphere_zone" "zone1" {
 }
 ```
 
-### Create a zone and associate it with a compute cluster
+### Create a Zone and Associate it with a Compute Cluster
 
 ```hcl
 data "vsphere_datacenter" "datacenter" {
@@ -49,7 +49,7 @@ The following arguments are supported:
 
 * `name` - The display name of the vSphere Zone. Matches the identifier of the resource.
 * `description` - (Optional) The plain text description of the vSphere Zone.
-* `cluster_ids` - (Optional) The identifiers of the compute clusters (e.g. `domain-c123`) to associate with this vSphere Zone.
+* `cluster_ids` - (Optional) The identifiers of the compute clusters (_e.g._, `domain-c123`) to associate with this vSphere Zone.
 
 ## Attribute Reference
 

@@ -10,7 +10,8 @@ description: |-
 
 Provides a resource for configuring Workload Management.
 
-> **NOTE:** This resource is deprecated and will be removed in a future major version of the provider. Use `vsphere_supervisor_v2` instead.
+~> **NOTE:** This resource is deprecated and will be removed in a future major version of the provider. Use `vsphere_supervisor_v2` instead.
+
 ## Example Usages
 
 ### Enable Workload Management on a Compute Cluster
@@ -75,16 +76,16 @@ resource "vsphere_supervisor" "supervisor" {
 * `cluster` - The identifier of the compute cluster.
 * `storage_policy` - The name of the storage policy.
 * `management_network` - The configuration for the management network which the control plane VMs will be connected to.
-* * `network` - ID of the network. (e.g. a distributed port group).
-* * `starting_address` - Starting address of the management network range.
-* * `subnet_mask` - Subnet mask.
-* * `gateway` - Gateway IP address.
-* * `address_count` - Number of addresses to allocate. Starts from `starting_address`
+  * `network` - ID of the network. (_e.g._, a distributed port group).
+  * `starting_address` - Starting address of the management network range.
+  * `subnet_mask` - Subnet mask.
+  * `gateway` - Gateway IP address.
+  * `address_count` - Number of addresses to allocate. Starts from `starting_address`
 * `content_library` - The identifier of the subscribed content library.
-* `main_dns` - The list of addresses of the primary DNS servers.
-* `worker_dns` - The list of addresses of the DNS servers to use for the worker nodes.
-* `main_ntp` - The list of addresses of the primary NTP servers.
-* `worker_ntp` - The list of addresses of the NTP servers to use for the worker nodes.
+* `main_dns` - The list of addresses for the primary DNS servers.
+* `worker_dns` - The list of addresses for the DNS servers to use for the worker nodes.
+* `main_ntp` - The list of addresses for the primary NTP servers.
+* `worker_ntp` - The list of addresses for the NTP servers to use for the worker nodes.
 * `edge_cluster` - The identifier of the NSX Edge Cluster.
 * `dvs_uuid` - The UUID of the distributed switch.
 * `sizing_hint` - The size of the Kubernetes API server.

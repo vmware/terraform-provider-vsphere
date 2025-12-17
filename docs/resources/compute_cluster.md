@@ -555,6 +555,12 @@ After vLCM is enabled on a cluster it is not possible to disable it.
     * `key` - The identifier of the component
     * `version` - The version of the component
 
+### EVC Settings
+
+CPU-level EVC is configurable via the provider.
+
+* `evc_mode` - Enhanced vMotion Compatibility mode. Removing the value for this attribute disables EVC.
+
 ## Attribute Reference
 
 The following attributes are exported:

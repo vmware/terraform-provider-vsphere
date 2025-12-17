@@ -207,6 +207,27 @@ func TestAccResourceVSphereVirtualMachine_videoCardCreate(t *testing.T) {
 	})
 }
 
+func TestAccResourceVSphereVirtualMachine_evc(t *testing.T) {
+	testAccSkipUnstable(t)
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			RunSweepers()
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceVSphereVirtualMachineConfigEvc(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccResourceVSphereVirtualMachineCheckExists(true),
+					resource.TestMatchResourceAttr("vsphere_virtual_machine.vm", "moid", regexp.MustCompile("^vm-")),
+				),
+			},
+		},
+	})
+}
+
 func TestAccResourceVSphereVirtualMachine_videoCardClone(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -4395,6 +4416,41 @@ resource "vsphere_virtual_machine" "clonevm" {
 
   clone {
     template_uuid = vsphere_virtual_machine.srcvm.id
+  }
+}
+`,
+
+		testAccResourceVSphereVirtualMachineConfigBase(),
+	)
+}
+
+func testAccResourceVSphereVirtualMachineConfigEvc() string {
+	return fmt.Sprintf(`
+
+
+%s  // Mix and match config
+
+resource "vsphere_virtual_machine" "vm" {
+  name             = "testacc-test"
+  resource_pool_id = vsphere_resource_pool.pool1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
+
+  num_cpus = 2
+  memory   = 2048
+  guest_id = "other3xLinuxGuest"
+  firmware = "efi"
+  evc_mode = "intel-skylake"
+
+  wait_for_guest_net_timeout = 0
+
+  network_interface {
+    network_id = data.vsphere_network.network1.id
+  }
+
+  disk {
+    label = "disk0"
+    size  = 1
+    io_reservation = 1
   }
 }
 `,

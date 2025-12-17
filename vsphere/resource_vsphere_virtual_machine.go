@@ -19,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/object"
+	"github.com/vmware/govmomi/property"
 	"github.com/vmware/govmomi/vapi/vcenter"
 	"github.com/vmware/govmomi/vim25/types"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/contentlibrary"
@@ -834,6 +835,10 @@ func resourceVSphereVirtualMachineUpdate(d *schema.ResourceData, meta interface{
 			return err
 		}
 
+		if err = applyEvcMode(d, meta.(*Client).vimClient, vm); err != nil {
+			return nil
+		}
+
 		// Upgrade the VM's hardware version if needed.
 		err = virtualmachine.SetHardwareVersion(vm, d.Get("hardware_version").(int))
 		if err != nil {
@@ -1325,6 +1330,10 @@ func resourceVSphereVirtualMachineCreateBare(d *schema.ResourceData, meta interf
 		vm, err = resourceVSphereVirtualMachineCreateBareStandard(d, meta, fo, spec, pool, hs)
 	}
 	if err != nil {
+		return nil, err
+	}
+
+	if err = applyEvcMode(d, meta.(*Client).vimClient, vm); err != nil {
 		return nil, err
 	}
 
@@ -2117,6 +2126,60 @@ func applyVirtualDevices(d *schema.ResourceData, c *govmomi.Client, l object.Vir
 	log.Printf("[DEBUG] %s: Final device list: %s", resourceVSphereVirtualMachineIDString(d), virtualdevice.DeviceListString(l))
 	log.Printf("[DEBUG] %s: Final device change spec: %s", resourceVSphereVirtualMachineIDString(d), virtualdevice.DeviceChangeString(spec))
 	return spec, nil
+}
+
+func applyEvcMode(d *schema.ResourceData, c *govmomi.Client, vm *object.VirtualMachine) error {
+	o, n := d.GetChange("evc_mode")
+	oldMode := o.(string)
+	newMode := n.(string)
+
+	if oldMode == newMode {
+		return nil
+	}
+
+	mask, err := getFeatureMask(c, newMode)
+	if err != nil {
+		return err
+	}
+
+	return virtualmachine.ApplyEvc(vm, mask)
+}
+
+func getFeatureMask(client *govmomi.Client, evcMode string) ([]types.HostFeatureMask, error) {
+	// The EVC mode-to-feature mapping is available in the Capability property on the ServiceInstance.
+	// We need to query it via the property collector.
+	pc := client.PropertyCollector()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*1)
+	defer cancel()
+
+	si := types.ManagedObjectReference{Type: "ServiceInstance", Value: "ServiceInstance"}
+	var result []types.HostFeatureMask
+
+	return result, property.Wait(ctx, pc, si, []string{"capability"}, func(pc []types.PropertyChange) bool {
+		for _, c := range pc {
+			if capability, ok := c.Val.(types.Capability); ok {
+				m, err := getEvcModeByKey(capability.SupportedEVCMode, evcMode)
+				if err != nil {
+					return false
+				}
+
+				result = m.FeatureMask
+				return true
+			}
+		}
+
+		return false
+	})
+}
+
+func getEvcModeByKey(modes []types.EVCMode, key string) (*types.EVCMode, error) {
+	for _, m := range modes {
+		if m.Key == key {
+			return &m, nil
+		}
+	}
+
+	return nil, fmt.Errorf("no EVC mode found for key %s", key)
 }
 
 func getNewDisks(delta []types.BaseVirtualDeviceConfigSpec) []types.BaseVirtualDeviceConfigSpec {

@@ -532,6 +532,12 @@ func resourceVSphereComputeCluster() *schema.Resource {
 				Description:   "Must be set if cluster enrollment is managed from host resource.",
 				ConflictsWith: []string{"host_system_ids"},
 			},
+			// EVC
+			"evc_mode": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Enhanced vMotion Compatibility mode.",
+			},
 			// VSAN
 			"vsan_enabled": {
 				Type:        schema.TypeBool,
@@ -736,6 +742,11 @@ func resourceVSphereComputeClusterCreate(d *schema.ResourceData, meta interface{
 		return err
 	}
 
+	// Apply EVC mode
+	if err := resourceVSphereComputeClusterApplyEvc(d, meta, cluster); err != nil {
+		return err
+	}
+
 	// All done!
 	log.Printf("[DEBUG] %s: Create finished successfully", resourceVSphereComputeClusterIDString(d))
 	return resourceVSphereComputeClusterRead(d, meta)
@@ -812,6 +823,10 @@ func resourceVSphereComputeClusterUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	if err := resourceVSphereComputeClusterApplyHostImage(d, meta, cluster); err != nil {
+		return err
+	}
+
+	if err := resourceVSphereComputeClusterApplyEvc(d, meta, cluster); err != nil {
 		return err
 	}
 
@@ -1201,6 +1216,28 @@ func resourceVSphereComputeClusterApplyHostImage(
 
 	_, err = tasks.NewManager(client).WaitForCompletion(context.Background(), taskID)
 	return err
+}
+
+func resourceVSphereComputeClusterApplyEvc(
+	d *schema.ResourceData,
+	_ interface{},
+	cluster *object.ClusterComputeResource,
+) error {
+	o, n := d.GetChange("evc_mode")
+	os := o.(string)
+	ns := n.(string)
+
+	if os == ns {
+		return nil
+	}
+
+	if ns != "" {
+		return clustercomputeresource.ConfigureEvc(cluster, ns)
+	} else if os != "" {
+		return clustercomputeresource.DisableEvc(cluster)
+	}
+
+	return nil
 }
 
 func resourceVsphereComputeClusterEnableSoftwareManagement(d *schema.ResourceData, client *rest.Client) error {
@@ -1608,6 +1645,11 @@ func resourceVSphereComputeClusterFlattenData(
 			hostList = append(hostList, host.Value)
 		}
 		_ = d.Set("host_system_ids", hostList)
+	}
+
+	// EVC
+	if summary, ok := props.Summary.(*types.ClusterComputeResourceSummary); ok {
+		_ = d.Set("evc_mode", summary.CurrentEVCModeKey)
 	}
 
 	// VSAN

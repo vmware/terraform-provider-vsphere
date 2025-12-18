@@ -755,7 +755,7 @@ func resourceVSphereVirtualMachineUpdate(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("error fetching VM properties: %s", err)
 	}
 
-	spec, changed, err := expandVirtualMachineConfigSpecChanged(d, client, vprops.Config)
+	spec, configChanged, err := expandVirtualMachineConfigSpecChanged(d, client, vprops.Config)
 	if err != nil {
 		return fmt.Errorf("error in virtual machine configuration: %s", err)
 	}
@@ -771,7 +771,14 @@ func resourceVSphereVirtualMachineUpdate(d *schema.ResourceData, meta interface{
 	if tv > cv {
 		_ = d.Set("reboot_required", true)
 	}
-	if changed || len(spec.DeviceChange) > 0 {
+
+	var evcMode string
+	var evcChanged bool
+	if evcMode, evcChanged = getEvcMode(d); evcChanged {
+		_ = d.Set("reboot_required", true)
+	}
+
+	if configChanged || evcChanged || len(spec.DeviceChange) > 0 {
 		// Check to see if we need to shutdown the VM for this process.
 		if d.Get("reboot_required").(bool) && vprops.Runtime.PowerState != types.VirtualMachinePowerStatePoweredOff {
 			// Attempt a graceful shutdown of this process. We wrap this in a VM helper.
@@ -835,8 +842,10 @@ func resourceVSphereVirtualMachineUpdate(d *schema.ResourceData, meta interface{
 			return err
 		}
 
-		if err = applyEvcMode(d, meta.(*Client).vimClient, vm); err != nil {
-			return nil
+		if evcChanged {
+			if err = applyEvcMode(meta.(*Client).vimClient, vm, evcMode); err != nil {
+				return nil
+			}
 		}
 
 		// Upgrade the VM's hardware version if needed.
@@ -1333,8 +1342,10 @@ func resourceVSphereVirtualMachineCreateBare(d *schema.ResourceData, meta interf
 		return nil, err
 	}
 
-	if err = applyEvcMode(d, meta.(*Client).vimClient, vm); err != nil {
-		return nil, err
+	if evcMode, evcChanged := getEvcMode(d); evcChanged {
+		if err = applyEvcMode(meta.(*Client).vimClient, vm, evcMode); err != nil {
+			return nil, err
+		}
 	}
 
 	// VM is created. Set the ID now before proceeding, in case the rest of the
@@ -1820,6 +1831,14 @@ func resourceVSphereVirtualMachinePostDeployChanges(d *schema.ResourceData, meta
 		)
 	}
 
+	var evcMode string
+	var evcChanged bool
+	if evcMode, evcChanged = getEvcMode(d); evcChanged {
+		if err = applyEvcMode(meta.(*Client).vimClient, vm, evcMode); err != nil {
+			return err
+		}
+	}
+
 	vmprops, err := virtualmachine.Properties(vm)
 	if err != nil {
 		return err
@@ -2128,16 +2147,16 @@ func applyVirtualDevices(d *schema.ResourceData, c *govmomi.Client, l object.Vir
 	return spec, nil
 }
 
-func applyEvcMode(d *schema.ResourceData, c *govmomi.Client, vm *object.VirtualMachine) error {
+func getEvcMode(d *schema.ResourceData) (string, bool) {
 	o, n := d.GetChange("evc_mode")
-	oldMode := o.(string)
-	newMode := n.(string)
+	oldEvcMode := o.(string)
+	newEvcMode := n.(string)
 
-	if oldMode == newMode {
-		return nil
-	}
+	return newEvcMode, oldEvcMode != newEvcMode
+}
 
-	mask, err := getFeatureMask(c, newMode)
+func applyEvcMode(c *govmomi.Client, vm *object.VirtualMachine, mode string) error {
+	mask, err := getFeatureMask(c, mode)
 	if err != nil {
 		return err
 	}
@@ -2153,17 +2172,17 @@ func getFeatureMask(client *govmomi.Client, evcMode string) ([]types.HostFeature
 	defer cancel()
 
 	si := types.ManagedObjectReference{Type: "ServiceInstance", Value: "ServiceInstance"}
-	var result []types.HostFeatureMask
+	// Use an empty slice by default. This is what we need to disable EVC if no mode is provided.
+	result := make([]types.HostFeatureMask, 0)
 
 	return result, property.Wait(ctx, pc, si, []string{"capability"}, func(pc []types.PropertyChange) bool {
 		for _, c := range pc {
 			if capability, ok := c.Val.(types.Capability); ok {
-				m, err := getEvcModeByKey(capability.SupportedEVCMode, evcMode)
-				if err != nil {
-					return false
+				m := getEvcModeByKey(capability.SupportedEVCMode, evcMode)
+				if m != nil {
+					result = m.FeatureMask
 				}
 
-				result = m.FeatureMask
 				return true
 			}
 		}
@@ -2172,14 +2191,14 @@ func getFeatureMask(client *govmomi.Client, evcMode string) ([]types.HostFeature
 	})
 }
 
-func getEvcModeByKey(modes []types.EVCMode, key string) (*types.EVCMode, error) {
+func getEvcModeByKey(modes []types.EVCMode, key string) *types.EVCMode {
 	for _, m := range modes {
 		if m.Key == key {
-			return &m, nil
+			return &m
 		}
 	}
 
-	return nil, fmt.Errorf("no EVC mode found for key %s", key)
+	return nil
 }
 
 func getNewDisks(delta []types.BaseVirtualDeviceConfigSpec) []types.BaseVirtualDeviceConfigSpec {

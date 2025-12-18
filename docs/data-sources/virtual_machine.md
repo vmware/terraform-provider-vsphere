@@ -168,6 +168,7 @@ The following attributes are exported:
 * `guest_ip_addresses` - A list of IP addresses as reported by VMware Tools.
 * `instance_uuid` - The instance UUID of the virtual machine or template.
 * `vtpm` - Indicates whether a virtual Trusted Platform Module (TPM) device is present on the virtual machine.
+* `evc_mode` - Enhanced vMotion Compatibility mode.
 
 ~> **NOTE:** Keep in mind when using the results of `scsi_type` and
 `network_interface_types`, that the `vsphere_virtual_machine` resource only

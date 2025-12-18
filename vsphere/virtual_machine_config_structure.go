@@ -235,6 +235,13 @@ func schemaVirtualMachineConfigSpec() map[string]*schema.Schema {
 			ValidateFunc: validation.StringInSlice(virtualMachineLatencySensitivityAllowedValues, false),
 		},
 
+		// EVC mode
+		"evc_mode": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Description: "Enhanced vMotion Compatibility mode.",
+		},
+
 		// VirtualMachineConfigSpec
 		"name": {
 			Type:         schema.TypeString,

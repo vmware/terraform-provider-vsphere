@@ -818,6 +818,8 @@ The options are:
 
 * `latency_sensitivity` - (Optional) Controls the scheduling delay of the virtual machine. Use a higher sensitivity for applications that require lower latency, such as VOIP, media player applications, or applications that require frequent access to mouse or keyboard devices. One of `low`, `normal`, `medium`, or `high`.
 
+* `evc_mode` - (Optional) Enhanced vMotion Compatibility mode. Removing the value for this attribute disables EVC.
+
 ~> **NOTE:** On higher sensitivities, you may need to adjust the [`memory_reservation`](#memory_reservation) to the full amount of memory provisioned for the virtual machine.
 
 * `migrate_wait_timeout` - (Optional) The amount of time, in minutes, to wait for a virtual machine migration to complete before failing. Default: `10` minutes. See the section on [virtual machine migration](#virtual-machine-migration) for more information.

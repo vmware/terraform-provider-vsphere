@@ -877,6 +877,28 @@ func Destroy(vm *object.VirtualMachine) error {
 	return task.WaitEx(tctx)
 }
 
+// ApplyEvc wraps the call to ApplyEvcModeVM_Task and waits for the task to complete.
+func ApplyEvc(
+	vm *object.VirtualMachine,
+	mask []types.HostFeatureMask,
+) error {
+	ctx, cancel := context.WithTimeout(context.Background(), provider.DefaultAPITimeout)
+	defer cancel()
+
+	req := types.ApplyEvcModeVM_Task{
+		This: vm.Reference(),
+		Mask: mask,
+	}
+
+	res, err := methods.ApplyEvcModeVM_Task(ctx, vm.Client(), &req)
+	if err != nil {
+		return err
+	}
+
+	t := object.NewTask(vm.Client(), res.Returnval)
+	return t.WaitEx(ctx)
+}
+
 // MOIDForUUIDResult is a struct that holds a virtual machine UUID -> MOID
 // association, designed to be used as a helper for mass returning the results
 // of translating multiple UUIDs to managed object IDs for various virtual

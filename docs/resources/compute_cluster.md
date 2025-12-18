@@ -555,6 +555,52 @@ After vLCM is enabled on a cluster it is not possible to disable it.
     * `key` - The identifier of the component
     * `version` - The version of the component
 
+### EVC Settings
+
+CPU-level EVC is configurable via the provider.
+
+* `evc_mode` - Enhanced vMotion Compatibility mode. Removing the value for this attribute disables EVC.
+
+This is a list of all supported EVC modes in vSphere 9. Refer to the product documentation for your version to find the actual applicable list.
+
+| EVC Mode                              | Key                   |
+|:--------------------------------------|:----------------------|
+| Intel® "Merom" Generation             | intel-merom           |
+| Intel® "Penryn" Generation            | intel-penryn          |
+| Intel® "Nehalem" Generation           | intel-nehalem         |
+| Intel® "Westmere" Generation          | intel-westmere        |
+| Intel® "Sandy Bridge" Generation      | intel-sandybridge     |
+| Intel® "Ivy Bridge" Generation        | intel-ivybridge       |
+| Intel® "Haswell" Generation           | intel-haswell         |
+| Intel® "Broadwell" Generation         | intel-broadwell       |
+| Intel® "Skylake" Generation           | intel-skylake         |
+| Intel® "Cascade Lake" Generation      | intel-cascadelake     |
+| Intel® "Ice Lake" Generation          | intel-icelake         |
+| Intel® "Sapphire Rapids" Generation   | intel-sapphirerapids  |
+| Intel® "Granite Rapids" Generation    | intel-graniterapids   |
+| AMD Opteron™ Generation 1             | amd-rev-e             |
+| AMD Opteron™ Generation 2             | amd-rev-f             |
+| AMD Opteron™ Gen. 3 (no 3DNow!™)      | amd-greyhound-no3dnow |
+| AMD Opteron™ Generation 3             | amd-greyhound         |
+| AMD Opteron™ Generation 4             | amd-bulldozer         |
+| AMD Opteron™ "Piledriver" Generation  | amd-piledriver        |
+| AMD Opteron™ "Steamroller" Generation | amd-steamroller       |
+| AMD Zen Generation                    | amd-zen               |
+| AMD Zen 2 Generation                  | amd-zen2              |
+| AMD Zen 3 Generation                  | amd-zen3              |
+| AMD Zen 4 Generation                  | amd-zen4              |
+| AMD Zen 5 Generation                  | amd-zen5              |
+
+You can obtain the list of modes from a vCenter by reading its `ServiceInstance`.
+Here is an example with PowerCLI.
+
+```
+# Get a reference to the ServiceInstance
+$serviceInstance = Get-View ServiceInstance
+# Read the SupportedEVCMode capability and print the label and key pairs
+$serviceInstance.Capability.SupportedEVCMode | Select { $_.Label && $_.Key }
+```
+
 ## Attribute Reference
 
 The following attributes are exported:

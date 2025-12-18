@@ -27,7 +27,6 @@ const (
 )
 
 func TestAccResourceVSphereComputeCluster_basic(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -58,6 +57,25 @@ func TestAccResourceVSphereComputeCluster_basic(t *testing.T) {
 				Config:                  testAccResourceVSphereComputeClusterConfigBasic(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccResourceVSphereComputeClusterCheckExists(true),
+				),
+			},
+		},
+	})
+}
+
+func TestAccResourceVSphereComputeCluster_evc(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceVSphereComputeClusterConfigEvc(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccResourceVSphereComputeClusterCheckExists(true),
+					resource.TestCheckResourceAttrSet("vsphere_compute_cluster.compute_cluster", "evc_mode"),
 				),
 			},
 		},
@@ -1293,6 +1311,21 @@ resource "vsphere_compute_cluster" "compute_cluster" {
 		testhelper.CombineConfigs(
 			testhelper.ConfigDataRootDC1(),
 			testhelper.ConfigDataRootHost3()))
+}
+
+func testAccResourceVSphereComputeClusterConfigEvc() string {
+	return fmt.Sprintf(`
+%s
+
+resource "vsphere_compute_cluster" "compute_cluster" {
+  name            = "testacc-compute-cluster"
+  datacenter_id   = "${data.vsphere_datacenter.rootdc1.id}"
+
+  evc_mode = "intel-skylake"
+}
+`,
+		testhelper.CombineConfigs(
+			testhelper.ConfigDataRootDC1()))
 }
 
 func testAccResourceVSphereComputeClusterConfigDRSHABasic() string {

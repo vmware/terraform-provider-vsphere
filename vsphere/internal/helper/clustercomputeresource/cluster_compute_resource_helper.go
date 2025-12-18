@@ -157,6 +157,56 @@ func Reconfigure(cluster *object.ClusterComputeResource, spec *types.ClusterConf
 	return computeresource.Reconfigure(cluster, spec)
 }
 
+func ConfigureEvc(
+	cluster *object.ClusterComputeResource,
+	mode string,
+) error {
+	ctx, cancel := context.WithTimeout(context.Background(), provider.DefaultAPITimeout)
+	defer cancel()
+
+	evcMan, err := methods.EvcManager(ctx, cluster.Client(), &types.EvcManager{This: cluster.Reference()})
+	if err != nil {
+		return err
+	}
+
+	req := types.ConfigureEvcMode_Task{
+		This:       *evcMan.Returnval,
+		EvcModeKey: mode,
+	}
+
+	res, err := methods.ConfigureEvcMode_Task(ctx, cluster.Client(), &req)
+	if err != nil {
+		return err
+	}
+
+	t := object.NewTask(cluster.Client(), res.Returnval)
+	return t.WaitEx(ctx)
+}
+
+func DisableEvc(
+	cluster *object.ClusterComputeResource,
+) error {
+	ctx, cancel := context.WithTimeout(context.Background(), provider.DefaultAPITimeout)
+	defer cancel()
+
+	evcMan, err := methods.EvcManager(ctx, cluster.Client(), &types.EvcManager{This: cluster.Reference()})
+	if err != nil {
+		return err
+	}
+
+	req := types.DisableEvcMode_Task{
+		This: *evcMan.Returnval,
+	}
+
+	res, err := methods.DisableEvcMode_Task(ctx, cluster.Client(), &req)
+	if err != nil {
+		return err
+	}
+
+	t := object.NewTask(cluster.Client(), res.Returnval)
+	return t.WaitEx(ctx)
+}
+
 // Delete destroys a ClusterComputeResource.
 func Delete(cluster *object.ClusterComputeResource) error {
 	log.Printf("[DEBUG] Deleting compute cluster %q", cluster.InventoryPath)

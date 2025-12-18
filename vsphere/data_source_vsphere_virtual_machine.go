@@ -305,6 +305,7 @@ func dataSourceVSphereVirtualMachineRead(d *schema.ResourceData, meta interface{
 	_ = d.Set("scsi_bus_sharing", virtualdevice.ReadSCSIBusSharing(props.Config.Hardware.Device, d.Get("scsi_controller_scan_count").(int)))
 	_ = d.Set("firmware", props.Config.Firmware)
 	_ = d.Set("instance_uuid", props.Config.InstanceUuid)
+	_ = d.Set("evc_mode", props.Runtime.MinRequiredEVCModeKey)
 	disks, err := virtualdevice.ReadDiskAttrsForDataSource(props.Config.Hardware.Device, d)
 	if err != nil {
 		return fmt.Errorf("error reading disk sizes: %s", err)

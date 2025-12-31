@@ -1147,7 +1147,7 @@ The options are:
 
 * `path` - (Optional) The path to the ISO file. Required for using a datastore ISO. Conflicts with `client_device`.
 
-~> **NOTE:** Either `client_device` (for a remote backed CD-ROM) or `datastore_id` and `path` (for a datastore ISO backed CD-ROM) are required to .
+~> **NOTE:** Either `client_device` (for a remote backed CD-ROM) or `datastore_id` and `path` (for a datastore ISO backed CD-ROM) are required options depending on the type of CD-ROM you intend to attach.
 
 ~> **NOTE:** Some CD-ROM drive types are not supported by this resource, such as pass-through devices. If these drives are present in a cloned template, or added outside of the provider, the desired state will be corrected to the defined device, or removed if no `cdrom` block is present.
 

@@ -3010,6 +3010,42 @@ func TestAccResourceVSphereVirtualMachine_cpuTopology(t *testing.T) {
 	})
 }
 
+func TestAccResourceVSphereVirtualMachine_vAppExternalPort(t *testing.T) {
+	// Prerequisites for this test:
+	// * Create a segment and a segment port on NSX-T.
+	// * Assign TF_VAR_VSPHERE_PG_NAME the value of the segment name
+	// * Assign TF_VAR_VSPHERE_EXT_PORT_ID the attachment id of the segment port
+	// * TF_VAR_VSPHERE_OVF_URL should reference some lightweight OVF URL
+	testAccSkipUnstable(t)
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			RunSweepers()
+			testAccPreCheck(t)
+			testAccCheckEnvVariables(t, []string{
+				"TF_VAR_VSPHERE_DATACENTER",
+				"TF_VAR_VSPHERE_ESXI1",
+				"TF_VAR_VSPHERE_ESXI2",
+				"TF_VAR_VSPHERE_NFS_DS_NAME",
+				"TF_VAR_VSPHERE_CLUSTER",
+				"TF_VAR_VSPHERE_PG_NAME",
+				"TF_VAR_VSPHERE_OVF_URL",
+				"TF_VAR_VSPHERE_EXT_PORT_ID"})
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceVSphereVirtualMachineVAppExternalPort(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccResourceVSphereVirtualMachineCheckExists(true),
+					resource.TestCheckResourceAttrSet("vsphere_virtual_machine.vm", "network_interface.0.network_id"),
+					resource.TestCheckResourceAttrSet("vsphere_virtual_machine.vm", "network_interface.0.external_port_id"),
+				),
+			},
+		},
+	})
+}
+
 func testAccResourceVSphereVirtualMachinePreCheck(t *testing.T) {
 	// Note that TF_VAR_VSPHERE_USE_LINKED_CLONE is also a variable and its presence
 	// speeds up tests greatly, but it's not a necessary variable, so we don't
@@ -8758,6 +8794,34 @@ resource "vsphere_virtual_machine" "vm" {
 		testAccResourceVSphereVirtualMachineConfigBase(),
 		coresPerSocket,
 		numaNodes,
+	)
+}
+
+func testAccResourceVSphereVirtualMachineVAppExternalPort() string {
+	return fmt.Sprintf(`
+%s  // Mix and match config
+
+resource "vsphere_virtual_machine" "vm" {
+  name             = "testacc-test"
+  datacenter_id    = data.vsphere_datacenter.rootdc1.id
+  resource_pool_id = vsphere_resource_pool.pool1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
+
+  wait_for_guest_net_timeout = 0
+
+  ovf_deploy {
+    remote_ovf_url = "%s"
+  }
+
+  network_interface {
+    network_id       = data.vsphere_network.network1.id
+    external_port_id = "%s"
+  }
+}
+`,
+		testAccResourceVSphereVirtualMachineConfigBase(),
+		os.Getenv("TF_VAR_VSPHERE_OVF_URL"),
+		os.Getenv("TF_VAR_VSPHERE_EXT_PORT_ID"),
 	)
 }
 

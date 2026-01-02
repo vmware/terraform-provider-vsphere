@@ -1027,6 +1027,8 @@ The options are:
 
 * `ovf_mapping` - (Optional) Specifies which NIC in an OVF/OVA the `network_interface` should be associated. Only applies at creation when deploying from an OVF/OVA.
 
+* `external_port_id` - (Optional) The external port id to be bound to the VM port.
+
 ### Video Card Options
 
 The virtual video card is managed by adding a `video_card` block.

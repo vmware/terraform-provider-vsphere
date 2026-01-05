@@ -5,11 +5,10 @@
 package vsphere
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"path"
-	"context"
-	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -19,8 +18,11 @@ import (
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/structure"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/virtualmachine"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/virtualdevice"
+
+	"github.com/vmware/govmomi/property"
+	"github.com/vmware/govmomi/vapi/tags"
 	"github.com/vmware/govmomi/vim25/mo"
-    "github.com/vmware/govmomi/vapi/tags"
+	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/customattribute"
 )
 
 func dataSourceVSphereVirtualMachine() *schema.Resource {
@@ -257,8 +259,8 @@ func dataSourceVSphereVirtualMachine() *schema.Resource {
 func dataSourceVSphereVirtualMachineRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*Client).vimClient
 	providerClient := meta.(*Client)
-    restClient := providerClient.restClient
-    ctx := context.Background()
+	restClient := providerClient.restClient
+	ctx := context.Background()
 	uuid := d.Get("uuid").(string)
 	moid := d.Get("moid").(string)
 	name := d.Get("name").(string)
@@ -365,40 +367,26 @@ func dataSourceVSphereVirtualMachineRead(d *schema.ResourceData, meta interface{
 		}
 	}
 	_ = d.Set("vtpm", isVTPMPresent)
-	
-	tagManager := tags.NewManager(restClient)
-	tagIDs, err := tagManager.ListAttachedTags(ctx, vm.Reference())
-	if err != nil {
-		return err
-	}
-	tagValues := make([]string, 0, len(tagIDs))
-	for _, tagID := range tagIDs {
-		tag, err := tagManager.GetTag(ctx, tagID)
-		if err != nil {
-			return err
-		}
-		tagValues = append(tagValues, fmt.Sprintf("%s", tag.ID))
-	}
-	if err := d.Set("tags", tagValues); err != nil {
+
+	var moVM mo.VirtualMachine
+	pc := property.DefaultCollector(client.Client)
+
+	if err := pc.RetrieveOne(
+		ctx,
+		vm.Reference(),
+		[]string{"customValue"},
+		&moVM,
+	); err != nil {
 		return err
 	}
 
-	var vmMo mo.VirtualMachine
-	err = vm.Properties(ctx, vm.Reference(), []string{"customValue"}, &vmMo)
-	if err != nil {
-		return err
+	customattribute.ReadFromResource(&moVM.ManagedEntity, d)
+
+	tagManager := tags.NewManager(restClient)
+	if err := readTagsForResource(tagManager, vm, d); err != nil {
+		return fmt.Errorf("error reading tags for VM: %s", err)
 	}
-	customAttrs := make(map[string]string)
-	for _, base := range vmMo.CustomValue {
-		v, ok := base.(*types.CustomFieldStringValue)
-		if !ok {
-			continue
-		}
-		customAttrs[strconv.Itoa(int(v.Key))] = v.Value
-	}
-	if err := d.Set("custom_attributes", customAttrs); err != nil {
-		return err
-	}
+
 	log.Printf("[DEBUG] VM search for %q completed successfully (UUID %q)", name, props.Config.Uuid)
 	return nil
 }

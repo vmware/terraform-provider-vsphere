@@ -1167,7 +1167,7 @@ func getCoresPerSocket(d *schema.ResourceData) *int32 {
 func getVirtualNuma(d *schema.ResourceData) *types.VirtualMachineVirtualNuma {
 	hwVersion := d.Get("hardware_version").(int)
 	// NUMA configuration is supported for HW version 20 and above
-	if hwVersion < 20 {
+	if hwVersion < 20 || !d.HasChange("num_cores_per_numa_node") {
 		return nil
 	}
 

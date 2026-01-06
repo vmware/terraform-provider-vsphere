@@ -77,7 +77,6 @@ func TestAccDataSourceVSphereResourcePool_withParentId(t *testing.T) {
 }
 
 func TestAccDataSourceVSphereResourcePool_withParentIdAndNamePathError(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -89,14 +88,12 @@ func TestAccDataSourceVSphereResourcePool_withParentIdAndNamePathError(t *testin
 			{
 				Config:      testAccDataSourceVSphereResourcePoolConfigWithParentAndNamePath(),
 				ExpectError: regexp.MustCompile("argument 'name' cannot be a path when 'parent_resource_pool_id' is specified"),
-				PlanOnly:    true,
 			},
 		},
 	})
 }
 
 func TestAccDataSourceVSphereResourcePool_withParentIdAndMissingNameError(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -108,14 +105,12 @@ func TestAccDataSourceVSphereResourcePool_withParentIdAndMissingNameError(t *tes
 			{
 				Config:      testAccDataSourceVSphereResourcePoolConfigWithParentAndMissingName(),
 				ExpectError: regexp.MustCompile("argument 'name' is required when 'parent_resource_pool_id' is specified"),
-				PlanOnly:    true,
 			},
 		},
 	})
 }
 
 func TestAccDataSourceVSphereResourcePool_withInvalidParentIdError(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -133,7 +128,6 @@ func TestAccDataSourceVSphereResourcePool_withInvalidParentIdError(t *testing.T)
 }
 
 func TestAccDataSourceVSphereResourcePool_withParentIdAndNotFoundNameError(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -151,6 +145,7 @@ func TestAccDataSourceVSphereResourcePool_withParentIdAndNotFoundNameError(t *te
 }
 
 func TestAccDataSourceVSphereResourcePool_defaultResourcePoolForESXi(t *testing.T) {
+	// Not running ESX tests
 	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -171,7 +166,6 @@ func TestAccDataSourceVSphereResourcePool_defaultResourcePoolForESXi(t *testing.
 }
 
 func TestAccDataSourceVSphereResourcePool_emptyNameOnVCenterShouldError(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -283,7 +277,7 @@ func testAccDataSourceVSphereResourcePoolConfigWithParentAndMissingName() string
 %s
 
 data "vsphere_resource_pool" "parent_pool" {
-  name          = data.vsphere_compute_cluster.rootcompute_cluster1.name + "/Resources"
+  name          = "${data.vsphere_compute_cluster.rootcompute_cluster1.name}/Resources"
   datacenter_id = data.vsphere_datacenter.rootdc1.id
 }
 
@@ -321,7 +315,7 @@ func testAccDataSourceVSphereResourcePoolConfigWithParentAndNotFoundName() strin
 %s
 
 data "vsphere_resource_pool" "parent_pool" {
-  name          = data.vsphere_compute_cluster.rootcompute_cluster1.name + "/Resources"
+  name          = "${data.vsphere_compute_cluster.rootcompute_cluster1.name}/Resources"
   datacenter_id = data.vsphere_datacenter.rootdc1.id
 }
 

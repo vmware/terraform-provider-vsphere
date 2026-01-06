@@ -8390,7 +8390,7 @@ resource "vsphere_virtual_machine" "vm" {
 
 
 `, testAccResourceVSphereVirtualMachineConfigBase(),
-		testhelper.ContentLibraryFiles,
+		testhelper.TestOvf,
 	)
 }
 

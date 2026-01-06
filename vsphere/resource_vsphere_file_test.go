@@ -355,7 +355,7 @@ func testAccCheckVSphereFileDestroy(s *terraform.State) error {
 
 		_, err = ds.Stat(context.TODO(), rs.Primary.Attributes["destination_file"])
 		if err != nil {
-			var notFoundError *object.DatastoreNoSuchFileError
+			var notFoundError object.DatastoreNoSuchFileError
 			switch {
 			case errors.As(err, &notFoundError):
 				return nil

@@ -239,7 +239,7 @@ resource "vsphere_virtual_machine" "vm" {
 
   disk {
     label = "disk0"
-    size  = 2
+    size  = 1
     io_reservation = 1
   }
 }

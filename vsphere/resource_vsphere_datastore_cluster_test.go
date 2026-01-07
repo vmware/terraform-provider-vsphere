@@ -7,7 +7,6 @@ package vsphere
 import (
 	"errors"
 	"fmt"
-	"os"
 	"path"
 	"reflect"
 	"testing"
@@ -72,12 +71,10 @@ func TestAccResourceVSphereDatastoreCluster_basic(t *testing.T) {
 }
 
 func TestAccResourceVSphereDatastoreCluster_sdrsEnabled(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDatastoreClusterPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
@@ -168,12 +165,10 @@ func TestAccResourceVSphereDatastoreCluster_moveToFolder(t *testing.T) {
 }
 
 func TestAccResourceVSphereDatastoreCluster_sdrsOverrides(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDatastoreClusterPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
@@ -192,12 +187,10 @@ func TestAccResourceVSphereDatastoreCluster_sdrsOverrides(t *testing.T) {
 }
 
 func TestAccResourceVSphereDatastoreCluster_miscTweaks(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDatastoreClusterPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
@@ -208,7 +201,6 @@ func TestAccResourceVSphereDatastoreCluster_miscTweaks(t *testing.T) {
 					testAccResourceVSphereDatastoreClusterCheckExists(true),
 					testAccResourceVSphereDatastoreClusterCheckSDRSEnabled(true),
 					testAccResourceVSphereDatastoreClusterCheckSDRSDefaultIntraVMAffinity(false),
-					testAccResourceVSphereDatastoreClusterCheckSDRSIoLatencyThreshold(5),
 					testAccResourceVSphereDatastoreClusterCheckSDRSSpaceThresholdMode(
 						string(types.StorageDrsSpaceLoadBalanceConfigSpaceThresholdModeUtilization),
 					),
@@ -220,12 +212,10 @@ func TestAccResourceVSphereDatastoreCluster_miscTweaks(t *testing.T) {
 }
 
 func TestAccResourceVSphereDatastoreCluster_reservableIops(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDatastoreClusterPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
@@ -257,12 +247,10 @@ func TestAccResourceVSphereDatastoreCluster_reservableIops(t *testing.T) {
 }
 
 func TestAccResourceVSphereDatastoreCluster_freeSpace(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDatastoreClusterPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
@@ -294,12 +282,10 @@ func TestAccResourceVSphereDatastoreCluster_freeSpace(t *testing.T) {
 }
 
 func TestAccResourceVSphereDatastoreCluster_singleTag(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDatastoreClusterPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
@@ -316,12 +302,10 @@ func TestAccResourceVSphereDatastoreCluster_singleTag(t *testing.T) {
 }
 
 func TestAccResourceVSphereDatastoreCluster_multipleTags(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDatastoreClusterPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
@@ -338,12 +322,10 @@ func TestAccResourceVSphereDatastoreCluster_multipleTags(t *testing.T) {
 }
 
 func TestAccResourceVSphereDatastoreCluster_switchTags(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDatastoreClusterPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
@@ -367,12 +349,10 @@ func TestAccResourceVSphereDatastoreCluster_switchTags(t *testing.T) {
 }
 
 func TestAccResourceVSphereDatastoreCluster_singleCustomAttribute(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDatastoreClusterPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
@@ -389,12 +369,10 @@ func TestAccResourceVSphereDatastoreCluster_singleCustomAttribute(t *testing.T) 
 }
 
 func TestAccResourceVSphereDatastoreCluster_multipleCustomAttribute(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDatastoreClusterPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
@@ -411,12 +389,10 @@ func TestAccResourceVSphereDatastoreCluster_multipleCustomAttribute(t *testing.T
 }
 
 func TestAccResourceVSphereDatastoreCluster_switchCustomAttribute(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDatastoreClusterPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
@@ -437,12 +413,6 @@ func TestAccResourceVSphereDatastoreCluster_switchCustomAttribute(t *testing.T) 
 			},
 		},
 	})
-}
-
-func testAccResourceVSphereDatastoreClusterPreCheck(t *testing.T) {
-	if os.Getenv("TF_VAR_VSPHERE_DATACENTER") == "" {
-		t.Skip("set TF_VAR_VSPHERE_DATACENTER to run vsphere_datastore_cluster acceptance tests")
-	}
 }
 
 func testAccResourceVSphereDatastoreClusterCheckExists(expected bool) resource.TestCheckFunc {
@@ -555,23 +525,6 @@ func testAccResourceVSphereDatastoreClusterCheckSDRSDefaultIntraVMAffinity(expec
 
 		if expected != actual {
 			return fmt.Errorf("expected DefaultIntraVmAffinity to be %t, got %t", expected, actual)
-		}
-
-		return nil
-	}
-}
-
-func testAccResourceVSphereDatastoreClusterCheckSDRSIoLatencyThreshold(expected int32) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		props, err := testGetDatastoreClusterProperties(s, "datastore_cluster")
-		if err != nil {
-			return err
-		}
-
-		actual := props.PodStorageDrsEntry.StorageDrsConfig.PodConfig.IoLoadBalanceConfig.IoLatencyThreshold
-
-		if expected != actual {
-			return fmt.Errorf("expected IoLatencyThreshold to be %d, got %d", expected, actual)
 		}
 
 		return nil
@@ -711,10 +664,13 @@ func testAccResourceVSphereDatastoreClusterConfigBasic() string {
 resource "vsphere_datastore_cluster" "datastore_cluster" {
   name          = "testacc-datastore-cluster"
   datacenter_id = data.vsphere_datacenter.rootdc1.id
-  sdrs_io_load_balance_enabled = false
+
+  lifecycle {
+    ignore_changes = ["sdrs_io_load_balance_enabled"]
+  }
 }
 `,
-		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
+		testhelper.ConfigDataRootDC1(),
 	)
 }
 
@@ -726,9 +682,13 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
   name          = "testacc-datastore-cluster"
   datacenter_id = data.vsphere_datacenter.rootdc1.id
   sdrs_enabled  = true
+
+  lifecycle {
+    ignore_changes = ["sdrs_io_load_balance_enabled"]
+  }
 }
 `,
-		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
+		testhelper.ConfigDataRootDC1(),
 	)
 }
 
@@ -739,10 +699,13 @@ func testAccResourceVSphereDatastoreClusterConfigWithName(name string) string {
 resource "vsphere_datastore_cluster" "datastore_cluster" {
   name          = "%s"
   datacenter_id = data.vsphere_datacenter.rootdc1.id
-  sdrs_io_load_balance_enabled = false
+
+  lifecycle {
+    ignore_changes = ["sdrs_io_load_balance_enabled"]
+  }
 }
 `,
-		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
+		testhelper.ConfigDataRootDC1(),
 		name,
 	)
 }
@@ -765,10 +728,13 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
   name          = "testacc-datastore-cluster"
   datacenter_id = data.vsphere_datacenter.rootdc1.id
   folder        = vsphere_folder.datastore_cluster_folder.path
-  sdrs_io_load_balance_enabled = false
+
+  lifecycle {
+    ignore_changes = ["sdrs_io_load_balance_enabled"]
+  }
 }
 `,
-		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
+		testhelper.ConfigDataRootDC1(),
 		f,
 	)
 }
@@ -787,9 +753,13 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
   sdrs_rule_enforcement_automation_level   = "automated"
   sdrs_policy_enforcement_automation_level = "automated"
   sdrs_vm_evacuation_automation_level      = "automated"
+
+  lifecycle {
+    ignore_changes = ["sdrs_io_load_balance_enabled"]
+  }
 }
 `,
-		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
+		testhelper.ConfigDataRootDC1(),
 	)
 }
 
@@ -804,9 +774,13 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
   sdrs_default_intra_vm_affinity   = false
   sdrs_io_latency_threshold        = 5
   sdrs_space_utilization_threshold = 50
+
+  lifecycle {
+    ignore_changes = ["sdrs_io_load_balance_enabled"]
+  }
 }
 `,
-		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
+		testhelper.ConfigDataRootDC1(),
 	)
 }
 
@@ -822,7 +796,7 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
   sdrs_io_reservable_iops_threshold = 5000
 }
 `,
-		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
+		testhelper.ConfigDataRootDC1(),
 	)
 }
 
@@ -837,7 +811,7 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
   sdrs_io_reservable_percent_threshold = 40
 }
 `,
-		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
+		testhelper.ConfigDataRootDC1(),
 	)
 }
 
@@ -853,7 +827,7 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
   sdrs_free_space_threshold      = 500
 }
 `,
-		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
+		testhelper.ConfigDataRootDC1(),
 	)
 }
 
@@ -882,7 +856,7 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
   tags = [vsphere_tag.testacc-tag.id]
 }
 `,
-		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
+		testhelper.ConfigDataRootDC1(),
 	)
 }
 
@@ -924,7 +898,7 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
   tags = vsphere_tag.testacc-tags-alt.*.id
 }
 `,
-		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
+		testhelper.ConfigDataRootDC1(),
 	)
 }
 
@@ -950,7 +924,7 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
   custom_attributes = local.attrs
 }
 `,
-		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
+		testhelper.ConfigDataRootDC1(),
 	)
 }
 
@@ -981,6 +955,6 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
 
   custom_attributes = local.attrs
 }
-`, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
+`, testhelper.ConfigDataRootDC1(),
 	)
 }

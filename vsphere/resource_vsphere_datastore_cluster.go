@@ -776,7 +776,7 @@ func flattenStorageDrsAutomationConfig(d *schema.ResourceData, obj *types.Storag
 // a StorageDrsIoLoadBalanceConfig.
 func expandStorageDrsIoLoadBalanceConfig(d *schema.ResourceData, version viapi.VSphereVersion) *types.StorageDrsIoLoadBalanceConfig {
 	// Maximum Supported Version: 9.0.0
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 9}) {
+	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 9, Minor: 0}) {
 		return nil
 	}
 
@@ -794,7 +794,7 @@ func expandStorageDrsIoLoadBalanceConfig(d *schema.ResourceData, version viapi.V
 
 func getStorageDrsIoLoadBalanceEnabled(d *schema.ResourceData, version viapi.VSphereVersion) *bool {
 	// Maximum Supported Version: 9.0.0
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 9}) {
+	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 9, Minor: 0}) {
 		return nil
 	}
 
@@ -809,7 +809,7 @@ func flattenStorageDrsIoLoadBalanceConfig(
 	version viapi.VSphereVersion,
 ) error {
 	// Maximum Supported Version: 9.0.0
-	if version.Older(viapi.VSphereVersion{Product: version.Product, Major: 9}) {
+	if version.Older(viapi.VSphereVersion{Product: version.Product, Major: 9, Minor: 0}) {
 		attrs := map[string]interface{}{
 			"sdrs_io_latency_threshold":        obj.IoLatencyThreshold,
 			"sdrs_io_load_imbalance_threshold": obj.IoLoadImbalanceThreshold,

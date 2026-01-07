@@ -103,7 +103,7 @@ resource "vsphere_custom_attribute" "testacc-attribute" {
 
 locals {
   dc_attrs = {
-    vsphere_custom_attribute.testacc-attribute.id = "value"
+    "${vsphere_custom_attribute.testacc-attribute.id}" = "value"
   }
 }
 
@@ -125,8 +125,8 @@ resource "vsphere_custom_attribute" "testacc-attribute-2" {
 
 locals {
   dc_attrs = {
-    vsphere_custom_attribute.testacc-attribute.id   = "value"
-    vsphere_custom_attribute.testacc-attribute-2.id = "value-2"
+    "${vsphere_custom_attribute.testacc-attribute.id}"   = "value"
+    "${vsphere_custom_attribute.testacc-attribute-2.id}" = "value-2"
   }
 }
 
@@ -246,7 +246,6 @@ func TestAccResourceVSphereDatacenter_modifyTags(t *testing.T) {
 }
 
 func TestAccResourceVSphereDatacenter_singleCustomAttribute(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -270,7 +269,6 @@ func TestAccResourceVSphereDatacenter_singleCustomAttribute(t *testing.T) {
 }
 
 func TestAccResourceVSphereDatacenter_modifyCustomAttribute(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()

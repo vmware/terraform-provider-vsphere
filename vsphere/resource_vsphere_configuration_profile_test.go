@@ -62,25 +62,24 @@ resource "vsphere_host" "host4" {
 }
 
 resource "vsphere_compute_cluster" "cluster1" {
-  name            = "cluster1"
-  datacenter_id   = data.vsphere_datacenter.rootdc1.id
-  host_system_ids = [vsphere_host.host4.id]
-  
+  name                      = "cluster1"
+  datacenter_id             = data.vsphere_datacenter.rootdc1.id
+  host_system_ids           = [vsphere_host.host4.id]
   force_evacuate_on_destroy = true
 }
 
 resource "vsphere_compute_cluster" "cluster2" {
-  name            = "cluster2"
-  datacenter_id   = data.vsphere_datacenter.rootdc1.id
+  name          = "cluster2"
+  datacenter_id = data.vsphere_datacenter.rootdc1.id
 }
 
 resource "vsphere_configuration_profile" "profile1" {
   reference_host_id = vsphere_host.host4.id
-  cluster_id = vsphere_compute_cluster.cluster1.id
+  cluster_id        = vsphere_compute_cluster.cluster1.id
 }
 
 resource "vsphere_configuration_profile" "profile2" {
-  cluster_id = vsphere_compute_cluster.cluster2.id
+  cluster_id    = vsphere_compute_cluster.cluster2.id
   configuration = vsphere_configuration_profile.profile1.configuration
 }
 `,

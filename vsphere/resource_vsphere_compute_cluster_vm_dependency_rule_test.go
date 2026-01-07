@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"reflect"
 	"testing"
 
@@ -22,12 +21,10 @@ import (
 )
 
 func TestAccResourceVSphereComputeClusterVMDependencyRule_basic(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereComputeClusterVMDependencyRulePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereComputeClusterVMDependencyRuleExists(false),
@@ -91,12 +88,10 @@ func TestAccResourceVSphereComputeClusterVMDependencyRule_basic(t *testing.T) {
 }
 
 func TestAccResourceVSphereComputeClusterVMDependencyRule_altGroup(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereComputeClusterVMDependencyRulePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereComputeClusterVMDependencyRuleExists(false),
@@ -119,12 +114,10 @@ func TestAccResourceVSphereComputeClusterVMDependencyRule_altGroup(t *testing.T)
 }
 
 func TestAccResourceVSphereComputeClusterVMDependencyRule_updateEnabled(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereComputeClusterVMDependencyRulePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereComputeClusterVMDependencyRuleExists(false),
@@ -160,12 +153,10 @@ func TestAccResourceVSphereComputeClusterVMDependencyRule_updateEnabled(t *testi
 }
 
 func TestAccResourceVSphereComputeClusterVMDependencyRule_updateGroup(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereComputeClusterVMDependencyRulePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereComputeClusterVMDependencyRuleExists(false),
@@ -198,24 +189,6 @@ func TestAccResourceVSphereComputeClusterVMDependencyRule_updateGroup(t *testing
 			},
 		},
 	})
-}
-
-func testAccResourceVSphereComputeClusterVMDependencyRulePreCheck(t *testing.T) {
-	if os.Getenv("TF_VAR_VSPHERE_DATACENTER") == "" {
-		t.Skip("set TF_VAR_VSPHERE_DATACENTER to run vsphere_compute_cluster_vm_dependency_rule acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_ESXI1") == "" {
-		t.Skip("set TF_VAR_VSPHERE_ESXI1 to run vsphere_compute_cluster_vm_dependency_rule acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_ESXI2") == "" {
-		t.Skip("set TF_VAR_VSPHERE_ESXI2 to run vsphere_compute_cluster_vm_dependency_rule acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_NFS_DS_NAME") == "" {
-		t.Skip("set TF_VAR_VSPHERE_NFS_DS_NAME to run vsphere_compute_cluster_vm_dependency_rule acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_PG_NAME") == "" {
-		t.Skip("set TF_VAR_VSPHERE_PG_NAME to run vsphere_compute_cluster_vm_dependency_rule acceptance tests")
-	}
 }
 
 func testAccResourceVSphereComputeClusterVMDependencyRuleExists(expected bool) resource.TestCheckFunc {
@@ -296,42 +269,44 @@ func testAccResourceVSphereComputeClusterVMDependencyRuleConfigBasic() string {
 resource "vsphere_virtual_machine" "vm" {
   name             = "testacc-test"
   resource_pool_id = data.vsphere_compute_cluster.rootcompute_cluster1.resource_pool_id
-  datastore_id     = vsphere_nas_datastore.ds1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
 
   num_cpus = 2
   memory   = 2048
   guest_id = "other3xLinuxGuest"
 
-  wait_for_guest_net_timeout = -1
+  wait_for_guest_net_timeout = 0
 
   network_interface {
     network_id = data.vsphere_network.network1.id
   }
 
   disk {
-    label = "disk0"
-    size  = 20
+    label          = "disk0"
+    size           = 1
+    io_reservation = 1
   }
 }
 
 resource "vsphere_virtual_machine" "dependent_vm" {
   name             = "terraform-test-dependency"
   resource_pool_id = data.vsphere_compute_cluster.rootcompute_cluster1.resource_pool_id
-  datastore_id     = vsphere_nas_datastore.ds1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
 
   num_cpus = 2
   memory   = 2048
   guest_id = "other3xLinuxGuest"
 
-  wait_for_guest_net_timeout = -1
+  wait_for_guest_net_timeout = 0
 
   network_interface {
     network_id = data.vsphere_network.network1.id
   }
 
   disk {
-    label = "disk0"
-    size  = 20
+    label          = "disk0"
+    size           = 1
+    io_reservation = 1
   }
 }
 
@@ -355,14 +330,9 @@ resource "vsphere_compute_cluster_vm_dependency_rule" "cluster_vm_dependency_rul
 }
 `, testhelper.CombineConfigs(
 		testhelper.ConfigDataRootDC1(),
-		testhelper.ConfigDataRootHost1(),
-		testhelper.ConfigDataRootHost2(),
 		testhelper.ConfigDataRootComputeCluster1(),
-		testhelper.ConfigResResourcePool1(),
 		testhelper.ConfigDataRootPortGroup1(),
-		testhelper.ConfigDataRootDS1(),
-		testhelper.ConfigDataRootVMNet(),
-		testhelper.ConfigResDS1()),
+		testhelper.ConfigDataRootDS1()),
 	)
 }
 
@@ -373,63 +343,66 @@ func testAccResourceVSphereComputeClusterVMDependencyRuleConfigAltGroup() string
 resource "vsphere_virtual_machine" "vm" {
   name             = "testacc-test"
   resource_pool_id = data.vsphere_compute_cluster.rootcompute_cluster1.resource_pool_id
-  datastore_id     = vsphere_nas_datastore.ds1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
 
   num_cpus = 2
   memory   = 2048
   guest_id = "other3xLinuxGuest"
 
-  wait_for_guest_net_timeout = -1
+  wait_for_guest_net_timeout = 0
 
   network_interface {
     network_id = data.vsphere_network.network1.id
   }
 
   disk {
-    label = "disk0"
-    size  = 20
+    label          = "disk0"
+    size           = 1
+    io_reservation = 1
   }
 }
 
 resource "vsphere_virtual_machine" "dependent_vm" {
   name             = "terraform-test-dependency"
   resource_pool_id = data.vsphere_compute_cluster.rootcompute_cluster1.resource_pool_id
-  datastore_id     = vsphere_nas_datastore.ds1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
 
   num_cpus = 2
   memory   = 2048
   guest_id = "other3xLinuxGuest"
 
-  wait_for_guest_net_timeout = -1
+  wait_for_guest_net_timeout = 0
 
   network_interface {
     network_id = data.vsphere_network.network1.id
   }
 
   disk {
-    label = "disk0"
-    size  = 20
+    label          = "disk0"
+    size           = 1
+    io_reservation = 1
   }
 }
 
 resource "vsphere_virtual_machine" "second_dependent_vm" {
   name             = "terraform-test-dependency2"
   resource_pool_id = data.vsphere_compute_cluster.rootcompute_cluster1.resource_pool_id
-  datastore_id     = vsphere_nas_datastore.ds1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
 
   num_cpus = 2
   memory   = 2048
   guest_id = "other3xLinuxGuest"
 
-  wait_for_guest_net_timeout = -1
+  wait_for_guest_net_timeout = 0
 
   network_interface {
     network_id = data.vsphere_network.network1.id
   }
 
   disk {
-    label = "disk0"
-    size  = 20
+    label          = "disk0"
+    size           = 1
+    io_reservation = 1
   }
 }
 
@@ -457,7 +430,11 @@ resource "vsphere_compute_cluster_vm_dependency_rule" "cluster_vm_dependency_rul
   dependency_vm_group_name = vsphere_compute_cluster_vm_group.second_dependent_vm_group.name
   vm_group_name            = vsphere_compute_cluster_vm_group.cluster_vm_group.name
 }
-`, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootHost1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigResDS1(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigResResourcePool1(), testhelper.ConfigDataRootPortGroup1()),
+`, testhelper.CombineConfigs(
+		testhelper.ConfigDataRootDC1(),
+		testhelper.ConfigDataRootDS1(),
+		testhelper.ConfigDataRootComputeCluster1(),
+		testhelper.ConfigDataRootPortGroup1()),
 	)
 }
 
@@ -468,42 +445,44 @@ func testAccResourceVSphereComputeClusterVMDependencyRuleConfigDisabled() string
 resource "vsphere_virtual_machine" "vm" {
   name             = "testacc-test"
   resource_pool_id = data.vsphere_compute_cluster.rootcompute_cluster1.resource_pool_id
-  datastore_id     = vsphere_nas_datastore.ds1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
 
   num_cpus = 2
   memory   = 2048
   guest_id = "other3xLinuxGuest"
 
-  wait_for_guest_net_timeout = -1
+  wait_for_guest_net_timeout = 0
 
   network_interface {
     network_id = data.vsphere_network.network1.id
   }
 
   disk {
-    label = "disk0"
-    size  = 20
+    label          = "disk0"
+    size           = 1
+    io_reservation = 1
   }
 }
 
 resource "vsphere_virtual_machine" "dependent_vm" {
   name             = "terraform-test-dependency"
   resource_pool_id = data.vsphere_compute_cluster.rootcompute_cluster1.resource_pool_id
-  datastore_id     = vsphere_nas_datastore.ds1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
 
   num_cpus = 2
   memory   = 2048
   guest_id = "other3xLinuxGuest"
 
-  wait_for_guest_net_timeout = -1
+  wait_for_guest_net_timeout = 0
 
   network_interface {
     network_id = data.vsphere_network.network1.id
   }
 
   disk {
-    label = "disk0"
-    size  = 20
+    label          = "disk0"
+    size           = 1
+    io_reservation = 1
   }
 }
 
@@ -526,12 +505,10 @@ resource "vsphere_compute_cluster_vm_dependency_rule" "cluster_vm_dependency_rul
   vm_group_name            = vsphere_compute_cluster_vm_group.cluster_vm_group.name
   enabled                  = false
 }
-`, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(),
-		testhelper.ConfigDataRootHost1(),
-		testhelper.ConfigDataRootHost2(),
-		testhelper.ConfigResDS1(),
+`, testhelper.CombineConfigs(
+		testhelper.ConfigDataRootDC1(),
+		testhelper.ConfigDataRootDS1(),
 		testhelper.ConfigDataRootComputeCluster1(),
-		testhelper.ConfigResResourcePool1(),
 		testhelper.ConfigDataRootPortGroup1()),
 	)
 }

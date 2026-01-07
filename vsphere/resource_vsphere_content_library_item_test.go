@@ -18,12 +18,10 @@ import (
 )
 
 func TestAccResourceVSphereContentLibraryItem_localOva(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereContentLibraryItemPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereContentLibraryItemCheckExists(false),
@@ -42,11 +40,11 @@ func TestAccResourceVSphereContentLibraryItem_localOva(t *testing.T) {
 						"vsphere_content_library_item.item", "name", regexp.MustCompile("testacc-item"),
 					),
 					resource.TestMatchResourceAttr(
-						"vsphere_content_library_item.item", "type", regexp.MustCompile("ovf"),
+						"vsphere_content_library_item.item", "type", regexp.MustCompile("ova"),
 					),
 					testAccResourceVSphereContentLibraryItemDescription(regexp.MustCompile("TestAcc Description")),
 					testAccResourceVSphereContentLibraryItemName(regexp.MustCompile("testacc-item")),
-					testAccResourceVSphereContentLibraryItemType(regexp.MustCompile("ovf")),
+					testAccResourceVSphereContentLibraryItemType(regexp.MustCompile("ova")),
 					testAccResourceVSphereContentLibraryItemDestroyFile("./testdata/test.ova"),
 				),
 			},
@@ -55,12 +53,12 @@ func TestAccResourceVSphereContentLibraryItem_localOva(t *testing.T) {
 }
 
 func TestAccResourceVSphereContentLibraryItem_remoteOvf(t *testing.T) {
+	// Disabled because it requires vCenter to trust the remote server hosting the OVF
 	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereContentLibraryItemPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereContentLibraryItemCheckExists(false),
@@ -99,12 +97,10 @@ func TestAccResourceVSphereContentLibraryItem_remoteOvf(t *testing.T) {
 }
 
 func TestAccResourceVSphereContentLibraryItem_remoteOva(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereContentLibraryItemPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereContentLibraryItemCheckExists(false),
@@ -179,18 +175,9 @@ func testAccResourceVSphereContentLibraryItemDestroyFile(file string) resource.T
 	}
 }
 
-func testAccResourceVSphereContentLibraryItemPreCheck(t *testing.T) {
-	if os.Getenv("TF_VAR_VSPHERE_DATACENTER") == "" {
-		t.Skip("set TF_VAR_VSPHERE_DATACENTER to run vsphere_content_library acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_NFS_DS_NAME") == "" {
-		t.Skip("set TF_VAR_VSPHERE_NFS_DS_NAME to run vsphere_content_library acceptance tests")
-	}
-}
-
 func testAccResourceVSphereContentLibraryItemDescription(expected *regexp.Regexp) resource.TestCheckFunc {
-	return func(_ *terraform.State) error {
-		library, err := testGetContentLibraryItem(nil, "item")
+	return func(s *terraform.State) error {
+		library, err := testGetContentLibraryItem(s, "item")
 		if err != nil {
 			return err
 		}
@@ -202,8 +189,8 @@ func testAccResourceVSphereContentLibraryItemDescription(expected *regexp.Regexp
 }
 
 func testAccResourceVSphereContentLibraryItemName(expected *regexp.Regexp) resource.TestCheckFunc {
-	return func(_ *terraform.State) error {
-		library, err := testGetContentLibraryItem(nil, "item")
+	return func(s *terraform.State) error {
+		library, err := testGetContentLibraryItem(s, "item")
 		if err != nil {
 			return err
 		}
@@ -215,8 +202,8 @@ func testAccResourceVSphereContentLibraryItemName(expected *regexp.Regexp) resou
 }
 
 func testAccResourceVSphereContentLibraryItemType(expected *regexp.Regexp) resource.TestCheckFunc {
-	return func(_ *terraform.State) error {
-		library, err := testGetContentLibraryItem(nil, "item")
+	return func(s *terraform.State) error {
+		library, err := testGetContentLibraryItem(s, "item")
 		if err != nil {
 			return err
 		}
@@ -241,7 +228,7 @@ resource "vsphere_content_library_item" "item" {
   name        = "testacc-item"
   description = "TestAcc Description"
   library_id  = vsphere_content_library.library.id
-  type        = "ovf"
+  type        = "ova"
   file_url    = "./testdata/test.ova"
 }
 `, testaccresourcevspherecontentlibraryitemconfigBase(),
@@ -270,7 +257,7 @@ resource "vsphere_content_library_item" "item" {
   file_url    = var.file
 }
 `, testaccresourcevspherecontentlibraryitemconfigBase(),
-		os.Getenv("TF_VAR_VSPHERE_TEST_OVF"),
+		testhelper.TestOvf,
 	)
 }
 
@@ -301,12 +288,12 @@ resource "vsphere_content_library_item" "item" {
 }
 
 func testaccresourcevspherecontentlibraryitemconfigBase() string {
-	return testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootDS1(), testhelper.ConfigDataRootHost1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigResDS1(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigResResourcePool1(), testhelper.ConfigDataRootPortGroup1())
+	return testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootDS1(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigResResourcePool1(), testhelper.ConfigDataRootPortGroup1())
 }
 
 func testAccResourceVSphereContentLibraryItemCheckExists(expected bool) resource.TestCheckFunc {
-	return func(_ *terraform.State) error {
-		_, err := testGetContentLibraryItem(nil, "item")
+	return func(s *terraform.State) error {
+		_, err := testGetContentLibraryItem(s, "item")
 		if err != nil {
 			missingState, _ := regexp.MatchString("not found in state", err.Error())
 			missingVSphere, _ := regexp.MatchString("404 Not Found", err.Error())

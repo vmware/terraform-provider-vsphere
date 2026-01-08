@@ -1075,7 +1075,7 @@ func (c *pciApplyConfig) modifyVirtualPciDevices(devList *schema.Set, op types.V
 }
 
 // PciPassthroughApplyOperation checks for changes in a virtual machine's
-// PCI passthrough devices and creates config specs to apply apply to the
+// PCI passthrough devices and creates config specs to apply to the
 // virtual machine.
 func PciPassthroughApplyOperation(d *schema.ResourceData, c *govmomi.Client, l object.VirtualDeviceList) (object.VirtualDeviceList, []types.BaseVirtualDeviceConfigSpec, error) {
 	old, newValue := d.GetChange("pci_device_id")

@@ -90,7 +90,6 @@ func TestAccResourceVSphereTagCategory_addType(t *testing.T) {
 }
 
 func TestAccResourceVSphereTagCategory_removeTypeShouldError(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -114,7 +113,6 @@ func TestAccResourceVSphereTagCategory_removeTypeShouldError(t *testing.T) {
 }
 
 func TestAccResourceVSphereTagCategory_invalidTypeShouldError(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -132,7 +130,6 @@ func TestAccResourceVSphereTagCategory_invalidTypeShouldError(t *testing.T) {
 }
 
 func TestAccResourceVSphereTagCategory_rename(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -159,7 +156,6 @@ func TestAccResourceVSphereTagCategory_rename(t *testing.T) {
 }
 
 func TestAccResourceVSphereTagCategory_singleCardinality(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -180,7 +176,6 @@ func TestAccResourceVSphereTagCategory_singleCardinality(t *testing.T) {
 }
 
 func TestAccResourceVSphereTagCategory_multiCardinality(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()

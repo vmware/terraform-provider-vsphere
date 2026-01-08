@@ -7,7 +7,6 @@ package vsphere
 import (
 	"errors"
 	"fmt"
-	"os"
 	"path"
 	"reflect"
 	"testing"
@@ -21,8 +20,8 @@ import (
 )
 
 const (
-	testAccResourceVSphereDistributedVirtualSwitchUpperVersion = "8.0.0"
-	testAccResourceVSphereDistributedVirtualSwitchLowerVersion = "7.0.0"
+	testAccResourceVSphereDistributedVirtualSwitchUpperVersion = "9.0.0"
+	testAccResourceVSphereDistributedVirtualSwitchLowerVersion = "8.0.0"
 )
 
 func TestAccResourceVSphereDistributedVirtualSwitch_basic(t *testing.T) {
@@ -106,12 +105,10 @@ func TestAccResourceVSphereDistributedVirtualSwitch_removeNIC(t *testing.T) {
 }
 
 func TestAccResourceVSphereDistributedVirtualSwitch_standbyWithExplicitFailoverOrder(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDistributedVirtualSwitchPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
@@ -120,9 +117,9 @@ func TestAccResourceVSphereDistributedVirtualSwitch_standbyWithExplicitFailoverO
 				Config: testAccResourceVSphereDistributedVirtualSwitchConfigStandbyLink(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccResourceVSphereDistributedVirtualSwitchExists(true),
-					testAccResourceVSphereDistributedVirtualSwitchHasUplinks([]string{testhelper.HostNic0, testhelper.HostNic1}),
-					testAccResourceVSphereDistributedVirtualSwitchHasActiveUplinks([]string{testhelper.HostNic0}),
-					testAccResourceVSphereDistributedVirtualSwitchHasStandbyUplinks([]string{testhelper.HostNic1}),
+					testAccResourceVSphereDistributedVirtualSwitchHasUplinks([]string{testhelper.HostNic1, testhelper.HostNic2}),
+					testAccResourceVSphereDistributedVirtualSwitchHasActiveUplinks([]string{testhelper.HostNic1}),
+					testAccResourceVSphereDistributedVirtualSwitchHasStandbyUplinks([]string{testhelper.HostNic2}),
 				),
 			},
 		},
@@ -130,12 +127,10 @@ func TestAccResourceVSphereDistributedVirtualSwitch_standbyWithExplicitFailoverO
 }
 
 func TestAccResourceVSphereDistributedVirtualSwitch_basicToStandbyWithFailover(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDistributedVirtualSwitchPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
@@ -150,9 +145,9 @@ func TestAccResourceVSphereDistributedVirtualSwitch_basicToStandbyWithFailover(t
 				Config: testAccResourceVSphereDistributedVirtualSwitchConfigStandbyLink(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccResourceVSphereDistributedVirtualSwitchExists(true),
-					testAccResourceVSphereDistributedVirtualSwitchHasUplinks([]string{testhelper.HostNic0, testhelper.HostNic1}),
-					testAccResourceVSphereDistributedVirtualSwitchHasActiveUplinks([]string{testhelper.HostNic0}),
-					testAccResourceVSphereDistributedVirtualSwitchHasStandbyUplinks([]string{testhelper.HostNic1}),
+					testAccResourceVSphereDistributedVirtualSwitchHasUplinks([]string{testhelper.HostNic1, testhelper.HostNic2}),
+					testAccResourceVSphereDistributedVirtualSwitchHasActiveUplinks([]string{testhelper.HostNic1}),
+					testAccResourceVSphereDistributedVirtualSwitchHasStandbyUplinks([]string{testhelper.HostNic2}),
 				),
 			},
 		},
@@ -210,12 +205,10 @@ func TestAccResourceVSphereDistributedVirtualSwitch_networkResourceControl(t *te
 }
 
 func TestAccResourceVSphereDistributedVirtualSwitch_explicitUplinks(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDistributedVirtualSwitchPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
@@ -224,7 +217,7 @@ func TestAccResourceVSphereDistributedVirtualSwitch_explicitUplinks(t *testing.T
 				Config: testAccResourceVSphereDistributedVirtualSwitchConfigUplinks(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccResourceVSphereDistributedVirtualSwitchExists(true),
-					testAccResourceVSphereDistributedVirtualSwitchHasUplinks([]string{testhelper.HostNic0, testhelper.HostNic1}),
+					testAccResourceVSphereDistributedVirtualSwitchHasUplinks([]string{testhelper.HostNic1, testhelper.HostNic2}),
 				),
 			},
 		},
@@ -232,12 +225,10 @@ func TestAccResourceVSphereDistributedVirtualSwitch_explicitUplinks(t *testing.T
 }
 
 func TestAccResourceVSphereDistributedVirtualSwitch_modifyUplinks(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDistributedVirtualSwitchPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
@@ -262,8 +253,8 @@ func TestAccResourceVSphereDistributedVirtualSwitch_modifyUplinks(t *testing.T) 
 					testAccResourceVSphereDistributedVirtualSwitchExists(true),
 					testAccResourceVSphereDistributedVirtualSwitchHasUplinks(
 						[]string{
-							testhelper.HostNic0,
 							testhelper.HostNic1,
+							testhelper.HostNic2,
 						},
 					),
 				),
@@ -273,12 +264,10 @@ func TestAccResourceVSphereDistributedVirtualSwitch_modifyUplinks(t *testing.T) 
 }
 
 func TestAccResourceVSphereDistributedVirtualSwitch_inFolder(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDistributedVirtualSwitchPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
@@ -295,12 +284,10 @@ func TestAccResourceVSphereDistributedVirtualSwitch_inFolder(t *testing.T) {
 }
 
 func TestAccResourceVSphereDistributedVirtualSwitch_singleTag(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDistributedVirtualSwitchPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
@@ -317,12 +304,10 @@ func TestAccResourceVSphereDistributedVirtualSwitch_singleTag(t *testing.T) {
 }
 
 func TestAccResourceVSphereDistributedVirtualSwitch_modifyTags(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDistributedVirtualSwitchPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
@@ -346,12 +331,10 @@ func TestAccResourceVSphereDistributedVirtualSwitch_modifyTags(t *testing.T) {
 }
 
 func TestAccResourceVSphereDistributedVirtualSwitch_netflow(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDistributedVirtualSwitchPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
@@ -368,12 +351,10 @@ func TestAccResourceVSphereDistributedVirtualSwitch_netflow(t *testing.T) {
 }
 
 func TestAccResourceVSphereDistributedVirtualSwitch_vlanRanges(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDistributedVirtualSwitchPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
@@ -391,12 +372,10 @@ func TestAccResourceVSphereDistributedVirtualSwitch_vlanRanges(t *testing.T) {
 }
 
 func TestAccResourceVSphereDistributedVirtualSwitch_singleCustomAttribute(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDistributedVirtualSwitchPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
@@ -413,12 +392,10 @@ func TestAccResourceVSphereDistributedVirtualSwitch_singleCustomAttribute(t *tes
 }
 
 func TestAccResourceVSphereDistributedVirtualSwitch_multiCustomAttribute(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDistributedVirtualSwitchPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
@@ -439,12 +416,6 @@ func TestAccResourceVSphereDistributedVirtualSwitch_multiCustomAttribute(t *test
 			},
 		},
 	})
-}
-
-func testAccResourceVSphereDistributedVirtualSwitchPreCheck(t *testing.T) {
-	if os.Getenv("TF_VAR_VSPHERE_NFS_DS_NAME") == "" {
-		t.Skip("set TF_VAR_VSPHERE_NFS_DS_NAME to run vsphere_host_virtual_switch acceptance tests")
-	}
 }
 
 func testAccResourceVSphereDistributedVirtualSwitchExists(expected bool) resource.TestCheckFunc {
@@ -558,7 +529,7 @@ func testAccResourceVSphereDistributedVirtualSwitchHasNetflow() resource.TestChe
 		CollectorPort:       9000,
 		ObservationDomainId: 1000,
 		ActiveFlowTimeout:   90,
-		IdleFlowTimeout:     20,
+		IdleFlowTimeout:     15,
 		SamplingRate:        10,
 		InternalFlowsOnly:   true,
 	}
@@ -807,8 +778,8 @@ resource "vsphere_distributed_virtual_switch" "dvs" {
 			testhelper.ConfigDataRootPortGroup1(),
 			testhelper.ConfigDataRootHost1(),
 			testhelper.ConfigDataRootHost2()),
-		testhelper.HostNic0,
 		testhelper.HostNic1,
+		testhelper.HostNic2,
 	)
 }
 
@@ -846,8 +817,8 @@ resource "vsphere_distributed_virtual_switch" "dvs" {
 			testhelper.ConfigDataRootDC1(),
 			testhelper.ConfigDataRootHost1(),
 			testhelper.ConfigDataRootHost2()),
-		testhelper.HostNic0,
 		testhelper.HostNic1,
+		testhelper.HostNic2,
 	)
 }
 
@@ -966,7 +937,7 @@ resource "vsphere_distributed_virtual_switch" "dvs" {
   netflow_active_flow_timeout   = 90
   netflow_collector_ip_address  = "10.0.0.10"
   netflow_collector_port        = 9000
-  netflow_idle_flow_timeout     = 20
+  netflow_idle_flow_timeout     = 15
   netflow_internal_flows_only   = true
   netflow_observation_domain_id = 1000
   netflow_sampling_rate         = 10

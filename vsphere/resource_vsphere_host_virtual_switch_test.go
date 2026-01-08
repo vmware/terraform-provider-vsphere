@@ -52,12 +52,10 @@ func TestAccResourceVSphereHostVirtualSwitch_basic(t *testing.T) {
 }
 
 func TestAccResourceVSphereHostVirtualSwitch_removeNIC(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereHostVirtualSwitchPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereHostVirtualSwitchExists(false),
@@ -79,12 +77,10 @@ func TestAccResourceVSphereHostVirtualSwitch_removeNIC(t *testing.T) {
 }
 
 func TestAccResourceVSphereHostVirtualSwitch_noNICs(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereHostVirtualSwitchPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereHostVirtualSwitchExists(false),
@@ -101,12 +97,10 @@ func TestAccResourceVSphereHostVirtualSwitch_noNICs(t *testing.T) {
 }
 
 func TestAccResourceVSphereHostVirtualSwitch_badActiveNICList(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereHostVirtualSwitchPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereHostVirtualSwitchExists(false),
@@ -121,12 +115,10 @@ func TestAccResourceVSphereHostVirtualSwitch_badActiveNICList(t *testing.T) {
 }
 
 func TestAccResourceVSphereHostVirtualSwitch_badStandbyNICList(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereHostVirtualSwitchPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereHostVirtualSwitchExists(false),
@@ -141,12 +133,10 @@ func TestAccResourceVSphereHostVirtualSwitch_badStandbyNICList(t *testing.T) {
 }
 
 func TestAccResourceVSphereHostVirtualSwitch_removeAllNICs(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereHostVirtualSwitchPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereHostVirtualSwitchExists(false),
@@ -166,12 +156,6 @@ func TestAccResourceVSphereHostVirtualSwitch_removeAllNICs(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccResourceVSphereHostVirtualSwitchPreCheck(t *testing.T) {
-	if os.Getenv("TF_VAR_VSPHERE_NFS_DS_NAME") == "" {
-		t.Skip("set TF_VAR_VSPHERE_NFS_DS_NAME to run vsphere_host_virtual_switch acceptance tests")
-	}
 }
 
 func testAccResourceVSphereHostVirtualSwitchExists(expected bool) resource.TestCheckFunc {
@@ -288,9 +272,9 @@ resource "vsphere_host_virtual_switch" "switch" {
 
   active_nics = [var.host_nic0]
 }
-`, testhelper.HostNic0,
+`, testhelper.HostNic1,
 		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
-		os.Getenv("TF_VAR_VSPHERE_ESXI1"))
+		os.Getenv("TF_VAR_VSPHERE_ESXI3"))
 }
 
 func testAccResourceVSphereHostVirtualSwitchConfigNoNIC() string {
@@ -317,7 +301,7 @@ resource "vsphere_host_virtual_switch" "switch" {
 }
 `, os.Getenv("TF_VAR_VSPHERE_ESXI_TRUNK_NIC"),
 		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
-		os.Getenv("TF_VAR_VSPHERE_ESXI1"))
+		os.Getenv("TF_VAR_VSPHERE_ESXI3"))
 }
 
 func testAccResourceVSphereHostVirtualSwitchConfigBadActive() string {
@@ -344,7 +328,7 @@ resource "vsphere_host_virtual_switch" "switch" {
 }
 `, testhelper.HostNic1,
 		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
-		os.Getenv("TF_VAR_VSPHERE_ESXI1"))
+		os.Getenv("TF_VAR_VSPHERE_ESXI3"))
 }
 
 func testAccResourceVSphereHostVirtualSwitchConfigBadStandby() string {
@@ -371,5 +355,5 @@ resource "vsphere_host_virtual_switch" "switch" {
 }
 `, testhelper.HostNic1,
 		testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1()),
-		os.Getenv("TF_VAR_VSPHERE_ESXI1"))
+		os.Getenv("TF_VAR_VSPHERE_ESXI3"))
 }

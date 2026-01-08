@@ -129,7 +129,6 @@ func TestAccResourceVSphereFile_uploadWithCreateDirectories(t *testing.T) {
 
 // TestAccResourceVSphereFile_basicUploadAndCopy verifies uploading and copying files.
 func TestAccResourceVSphereFile_basicUploadAndCopy(t *testing.T) {
-	testAccSkipUnstable(t)
 	testFileData := []byte("test file data")
 	sourceFile := "/tmp/tf_test.txt"
 	uploadResourceName := "myfileupload"
@@ -152,7 +151,6 @@ func TestAccResourceVSphereFile_basicUploadAndCopy(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccCheckEnvVariables(t, []string{"TF_VAR_VSPHERE_DATACENTER", "TF_VAR_VSPHERE_NFS_DS_NAME"})
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVSphereFileDestroy,
@@ -187,7 +185,6 @@ func TestAccResourceVSphereFile_basicUploadAndCopy(t *testing.T) {
 
 // TestAccResourceVSphereFile_renamePostCreation verifies the renaming of a resource during creation and update phases.
 func TestAccResourceVSphereFile_renamePostCreation(t *testing.T) {
-	testAccSkipUnstable(t)
 	testFileData := []byte("test file data")
 	testFile := "/tmp/tf_test.txt"
 	err := os.WriteFile(testFile, testFileData, 0600)
@@ -208,7 +205,6 @@ func TestAccResourceVSphereFile_renamePostCreation(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccCheckEnvVariables(t, []string{"TF_VAR_VSPHERE_DATACENTER", "TF_VAR_VSPHERE_NFS_DS_NAME"})
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVSphereFileDestroy,
@@ -250,7 +246,6 @@ func TestAccResourceVSphereFile_renamePostCreation(t *testing.T) {
 
 // TestAccResourceVSphereFile_uploadAndCopyAndUpdate verifies uploading, copying, and updating files.
 func TestAccResourceVSphereFile_uploadAndCopyAndUpdate(t *testing.T) {
-	testAccSkipUnstable(t)
 	testFileData := []byte("test file data")
 	sourceFile := "/tmp/tf_test.txt"
 	uploadResourceName := "myfileupload"
@@ -274,7 +269,6 @@ func TestAccResourceVSphereFile_uploadAndCopyAndUpdate(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccCheckEnvVariables(t, []string{"TF_VAR_VSPHERE_DATACENTER", "TF_VAR_VSPHERE_NFS_DS_NAME"})
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckVSphereFileDestroy,
@@ -398,7 +392,7 @@ func testAccCheckVSphereFileExists(n string, df string, exists bool) resource.Te
 
 		_, err = ds.Stat(context.TODO(), df)
 		if err != nil {
-			var notFoundError *object.DatastoreNoSuchFileError
+			var notFoundError object.DatastoreNoSuchFileError
 			switch {
 			case errors.As(err, &notFoundError):
 				if exists {

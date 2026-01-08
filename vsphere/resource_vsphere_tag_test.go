@@ -67,7 +67,6 @@ func TestAccResourceVSphereTag_basic(t *testing.T) {
 }
 
 func TestAccResourceVSphereTag_changeName(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -94,7 +93,6 @@ func TestAccResourceVSphereTag_changeName(t *testing.T) {
 }
 
 func TestAccResourceVSphereTag_changeDescription(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -121,7 +119,6 @@ func TestAccResourceVSphereTag_changeDescription(t *testing.T) {
 }
 
 func TestAccResourceVSphereTag_detachAllTags(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()

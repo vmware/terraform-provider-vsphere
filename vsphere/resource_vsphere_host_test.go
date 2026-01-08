@@ -31,12 +31,10 @@ var fallbackNtpServers = []string{
 }
 
 func TestAccResourceVSphereHost_basic(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccCheckEnvVariables(t, []string{"ESX_HOSTNAME", "ESX_USERNAME", "ESX_PASSWORD"})
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccVSphereHostDestroy,
@@ -44,24 +42,31 @@ func TestAccResourceVSphereHost_basic(t *testing.T) {
 			{
 				Config: testAccVSphereHostConfig(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccVSphereHostExists("vsphere_host.h1"),
+					testAccVSphereHostExists("vsphere_host.host4"),
 				),
 			},
 			{
-				ResourceName: "vsphere_host.h1",
+				ResourceName: "vsphere_host.host4",
 				Config:       testaccvspherehostconfigImport(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccVSphereHostExists("vsphere_host.h1"),
+					testAccVSphereHostExists("vsphere_host.host4"),
 				),
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"services",
+					"force",
+					"hostname",
+					"password",
+					"thumbprint",
+					"username",
+				},
 			},
 		},
 	})
 }
 
 func TestAccResourceVSphereHost_rootFolder(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -73,7 +78,7 @@ func TestAccResourceVSphereHost_rootFolder(t *testing.T) {
 			{
 				Config: testaccvspherehostconfigRootfolder(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccVSphereHostExists("vsphere_host.h1"),
+					testAccVSphereHostExists("vsphere_host.host4"),
 				),
 			},
 		},
@@ -86,7 +91,6 @@ func TestAccResourceVSphereHost_connection(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccCheckEnvVariables(t, []string{"ESX_HOSTNAME", "ESX_USERNAME", "ESX_PASSWORD"})
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccVSphereHostDestroy,
@@ -110,12 +114,10 @@ func TestAccResourceVSphereHost_connection(t *testing.T) {
 }
 
 func TestAccResourceVSphereHost_maintenance(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccCheckEnvVariables(t, []string{"ESX_HOSTNAME", "ESX_USERNAME", "ESX_PASSWORD"})
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccVSphereHostDestroy,
@@ -123,15 +125,15 @@ func TestAccResourceVSphereHost_maintenance(t *testing.T) {
 			{
 				Config: testaccvspherehostconfigMaintenance(true),
 				Check: resource.ComposeTestCheckFunc(
-					testAccVSphereHostExists("vsphere_host.h1"),
-					testAccVSphereHostMaintenanceState("vsphere_host.h1", true),
+					testAccVSphereHostExists("vsphere_host.host4"),
+					testAccVSphereHostMaintenanceState("vsphere_host.host4", true),
 				),
 			},
 			{
 				Config: testaccvspherehostconfigMaintenance(false),
 				Check: resource.ComposeTestCheckFunc(
-					testAccVSphereHostExists("vsphere_host.h1"),
-					testAccVSphereHostMaintenanceState("vsphere_host.h1", false),
+					testAccVSphereHostExists("vsphere_host.host4"),
+					testAccVSphereHostMaintenanceState("vsphere_host.host4", false),
 				),
 			},
 		},
@@ -139,12 +141,10 @@ func TestAccResourceVSphereHost_maintenance(t *testing.T) {
 }
 
 func TestAccResourceVSphereHost_lockdown(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccCheckEnvVariables(t, []string{"ESX_HOSTNAME", "ESX_USERNAME", "ESX_PASSWORD"})
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccVSphereHostDestroy,
@@ -152,22 +152,22 @@ func TestAccResourceVSphereHost_lockdown(t *testing.T) {
 			{
 				Config: testaccvspherehostconfigLockdown("strict"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccVSphereHostExists("vsphere_host.h1"),
-					testAccVSphereHostLockdownState("vsphere_host.h1", "strict"),
+					testAccVSphereHostExists("vsphere_host.host4"),
+					testAccVSphereHostLockdownState("vsphere_host.host4", "strict"),
 				),
 			},
 			{
 				Config: testaccvspherehostconfigLockdown("normal"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccVSphereHostExists("vsphere_host.h1"),
-					testAccVSphereHostLockdownState("vsphere_host.h1", "normal"),
+					testAccVSphereHostExists("vsphere_host.host4"),
+					testAccVSphereHostLockdownState("vsphere_host.host4", "normal"),
 				),
 			},
 			{
 				Config: testaccvspherehostconfigLockdown("disabled"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccVSphereHostExists("vsphere_host.h1"),
-					testAccVSphereHostLockdownState("vsphere_host.h1", "disabled"),
+					testAccVSphereHostExists("vsphere_host.host4"),
+					testAccVSphereHostLockdownState("vsphere_host.host4", "disabled"),
 				),
 			},
 		},
@@ -175,19 +175,17 @@ func TestAccResourceVSphereHost_lockdown(t *testing.T) {
 }
 
 func TestAccResourceVSphereHost_lockdown_invalid(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccCheckEnvVariables(t, []string{"ESX_HOSTNAME", "ESX_USERNAME", "ESX_PASSWORD"})
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccVSphereHostDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config:      testaccvspherehostconfigLockdown("invalidvalue"),
-				ExpectError: regexp.MustCompile(`be one of \[disabled normal strict\], got invalidvalue`),
+				ExpectError: regexp.MustCompile(`to be one of \["disabled" "normal" "strict"\], got invalidvalue`),
 			},
 		},
 	})
@@ -511,43 +509,62 @@ func testAccVSphereHostConfig() string {
 	return fmt.Sprintf(`
 	%s
 
-	resource "vsphere_compute_cluster" "c1" {
-	  name = "%s"
-	  datacenter_id = data.vsphere_datacenter.rootdc1.id
+	locals {
+	  esx4_hostname = "%s"
+	  esx4_password = "%s"
 	}
 
-	resource "vsphere_host" "h1" {
-	  # Useful only for connection
-	  hostname = "%s"
-	  username = "%s"
-	  password = "%s"
-	  thumbprint = data.vsphere_host_thumbprint.id
+	data "vsphere_host_thumbprint" "thumbprint" {
+	  address = local.esx4_hostname
+	  insecure = true
+	}
 
-	  # Makes sense to update
-	  license = "%s"
+	resource "vsphere_compute_cluster" "c1" {
+	  name          = "%s"
+	  datacenter_id = data.vsphere_datacenter.rootdc1.id
+
+	  lifecycle {
+		ignore_changes = ["host_system_ids"]
+	  }
+	}
+
+	resource "vsphere_host" "host4" {
+	  hostname   = local.esx4_hostname
+	  username   = "root"
+	  password   = local.esx4_password
+	  thumbprint = data.vsphere_host_thumbprint.thumbprint.id
+
 	  cluster = vsphere_compute_cluster.c1.id
+
+	  lifecycle {
+		ignore_changes = ["services"]
+	  }
 	}
 	`, testhelper.ConfigDataRootDC1(),
+		os.Getenv("TF_VAR_VSPHERE_ESXI4"),
+		os.Getenv("TF_VAR_VSPHERE_ESXI4_PASSWORD"),
 		"TestCluster",
-		os.Getenv("ESX_HOSTNAME"),
-		os.Getenv("ESX_USERNAME"),
-		os.Getenv("ESX_PASSWORD"),
-		os.Getenv("TF_VAR_VSPHERE_LICENSE"))
+	)
 }
 
 func testaccvspherehostconfigRootfolder() string {
 	return fmt.Sprintf(`
 	%s
 
+	locals {
+	  esx4_hostname = "%s"
+	  esx4_password = "%s"
+	}
+
 	data "vsphere_host_thumbprint" "thumbprint1" {
-	  address = "%s"
+	  address = local.esx4_hostname
 	  insecure = true
 	}
 
-	resource "vsphere_host" "h1" {
-	  hostname = "%s"
+	resource "vsphere_host" "host4" {
+	  hostname = local.esx4_hostname
 	  username = "root"
-	  password = "%s"
+	  password = local.esx4_password
 	  thumbprint = data.vsphere_host_thumbprint.thumbprint1.id
 
 	  datacenter = data.vsphere_datacenter.rootdc1.id
@@ -558,8 +575,7 @@ func testaccvspherehostconfigRootfolder() string {
 
 	}
 	`, testhelper.ConfigDataRootDC1(),
-		os.Getenv("TF_VAR_VSPHERE_ESXI4"), // for thumbprint retrieval
-		os.Getenv("TF_VAR_VSPHERE_ESXI4"), // for connection config
+		os.Getenv("TF_VAR_VSPHERE_ESXI4"),
 		os.Getenv("TF_VAR_VSPHERE_ESXI4_PASSWORD"))
 }
 
@@ -587,28 +603,34 @@ func testaccvspherehostconfigImport() string {
 	return fmt.Sprintf(`
 	%s
 
+	locals {
+	  esx4_hostname = "%s"
+	  esx4_password = "%s"
+	}
+
+	data "vsphere_host_thumbprint" "thumbprint" {
+	  address = local.esx4_hostname
+	  insecure = true
+	}
+
 	resource "vsphere_compute_cluster" "c1" {
 	  name = "%s"
 	  datacenter_id = data.vsphere_datacenter.rootdc1.id
 	}
 
-	resource "vsphere_host" "h1" {
-	  # Useful only for connection
-	  hostname = "%s"
-	  username = "%s"
-	  password = "%s"
+	resource "vsphere_host" "host4" {
+	  hostname   = local.esx4_hostname
+	  username   = "root"
+	  password   = local.esx4_password
 	  thumbprint = data.vsphere_host_thumbprint.id
 
-	  # Makes sense to update
-	  license = "%s"
 	  cluster = vsphere_compute_cluster.c1.id
 	}
 	`, testhelper.ConfigDataRootDC1(),
+		os.Getenv("TF_VAR_VSPHERE_ESXI4"),
+		os.Getenv("TF_VAR_VSPHERE_ESXI4_PASSWORD"),
 		"TestCluster",
-		os.Getenv("ESX_HOSTNAME"),
-		os.Getenv("ESX_USERNAME"),
-		os.Getenv("ESX_PASSWORD"),
-		os.Getenv("TF_VAR_VSPHERE_LICENSE"))
+	)
 }
 
 func testaccvspherehostconfigConnection(connection bool) string {
@@ -643,28 +665,42 @@ func testaccvspherehostconfigMaintenance(maintenance bool) string {
 	return fmt.Sprintf(`
 	%s
 
+	locals {
+	  esx4_hostname = "%s"
+	  esx4_password = "%s"
+	}
+
+	data "vsphere_host_thumbprint" "thumbprint" {
+	  address = local.esx4_hostname
+	  insecure = true
+	}
+
 	resource "vsphere_compute_cluster" "c1" {
 	  name = "%s"
 	  datacenter_id = data.vsphere_datacenter.rootdc1.id
+
+	  lifecycle {
+		ignore_changes = ["host_system_ids"]
+	  }
 	}
 
-	resource "vsphere_host" "h1" {
-	  hostname = "%s"
-	  username = "%s"
-	  password = "%s"
-	  thumbprint = data.vsphere_host_thumbprint.id
+	resource "vsphere_host" "host4" {
+	  hostname = local.esx4_hostname
+	  username = "root"
+	  password = local.esx4_password
+	  thumbprint = data.vsphere_host_thumbprint.thumbprint.id
 
-	  license = "%s"
-	  connected = "true"
 	  maintenance = "%s"
 	  cluster = vsphere_compute_cluster.c1.id
+
+	  lifecycle {
+		ignore_changes = ["services"]
+	  }
 	}
 	`, testhelper.ConfigDataRootDC1(),
+		os.Getenv("TF_VAR_VSPHERE_ESXI4"),
+		os.Getenv("TF_VAR_VSPHERE_ESXI4_PASSWORD"),
 		"TestCluster",
-		os.Getenv("ESX_HOSTNAME"),
-		os.Getenv("ESX_USERNAME"),
-		os.Getenv("ESX_PASSWORD"),
-		os.Getenv("TF_VAR_VSPHERE_LICENSE"),
 		strconv.FormatBool(maintenance))
 }
 
@@ -672,29 +708,44 @@ func testaccvspherehostconfigLockdown(lockdown string) string {
 	return fmt.Sprintf(`
 	%s
 
+	locals {
+	  esx4_hostname = "%s"
+	  esx4_password = "%s"
+	}
+
+	data "vsphere_host_thumbprint" "thumbprint" {
+	  address = local.esx4_hostname
+	  insecure = true
+	}
+
 	resource "vsphere_compute_cluster" "c1" {
 	  name = "%s"
 	  datacenter_id = data.vsphere_datacenter.rootdc1.id
+
+	  lifecycle {
+		ignore_changes = ["host_system_ids"]
+	  }
 	}
 
-	resource "vsphere_host" "h1" {
-	  hostname = "%s"
-	  username = "%s"
-	  password = "%s"
-	  thumbprint = data.vsphere_host_thumbprint.id
+	resource "vsphere_host" "host4" {
+	  hostname = local.esx4_hostname
+	  username = "root"
+	  password = local.esx4_password
+	  thumbprint = data.vsphere_host_thumbprint.thumbprint.id
 
-	  license = "%s"
 	  connected = "true"
 	  maintenance = "false"
 	  lockdown = "%s"
 	  cluster = vsphere_compute_cluster.c1.id
+
+	  lifecycle {
+		ignore_changes = ["services"]
+	  }
 	}
 	`, testhelper.ConfigDataRootDC1(),
+		os.Getenv("TF_VAR_VSPHERE_ESXI4"),
+		os.Getenv("TF_VAR_VSPHERE_ESXI4_PASSWORD"),
 		"TestCluster",
-		os.Getenv("ESX_HOSTNAME"),
-		os.Getenv("ESX_USERNAME"),
-		os.Getenv("ESX_PASSWORD"),
-		os.Getenv("TF_VAR_VSPHERE_LICENSE"),
 		lockdown)
 }
 

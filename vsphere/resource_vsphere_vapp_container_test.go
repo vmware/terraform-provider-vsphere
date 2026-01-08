@@ -74,12 +74,10 @@ func TestAccResourceVSphereVAppContainer_basic(t *testing.T) {
 }
 
 func TestAccResourceVSphereVAppContainer_childImport(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVAppContainerPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVAppContainerCheckExistsInner("child", false),
@@ -115,12 +113,10 @@ func TestAccResourceVSphereVAppContainer_childImport(t *testing.T) {
 }
 
 func TestAccResourceVSphereVAppContainer_vmBasic(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVAppContainerPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVAppContainerCheckExists(false),
@@ -137,12 +133,10 @@ func TestAccResourceVSphereVAppContainer_vmBasic(t *testing.T) {
 }
 
 func TestAccResourceVSphereVAppContainer_vmMoveIntoVApp(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVAppContainerPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVAppContainerCheckExists(false),
@@ -170,7 +164,6 @@ func TestAccResourceVSphereVAppContainer_vmSDRS(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVAppContainerPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVAppContainerCheckExists(false),
@@ -192,7 +185,6 @@ func TestAccResourceVSphereVAppContainer_vmClone(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVAppContainerPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVAppContainerCheckExists(false),
@@ -214,7 +206,6 @@ func TestAccResourceVSphereVAppContainer_vmCloneSDRS(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVAppContainerPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVAppContainerCheckExists(false),
@@ -236,7 +227,6 @@ func TestAccResourceVSphereVAppContainer_vmMoveIntoVAppSDRS(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVAppContainerPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVAppContainerCheckExists(false),
@@ -257,24 +247,6 @@ func TestAccResourceVSphereVAppContainer_vmMoveIntoVAppSDRS(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccResourceVSphereVAppContainerPreCheck(t *testing.T) {
-	if os.Getenv("TF_VAR_VSPHERE_DATACENTER") == "" {
-		t.Skip("set TF_VAR_VSPHERE_DATACENTER to run vsphere_vapp_container acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_CLUSTER") == "" {
-		t.Skip("set TF_VAR_VSPHERE_CLUSTER to run vsphere_vapp_container acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_PG_NAME") == "" {
-		t.Skip("set TF_VAR_VSPHERE_PG_NAME to run vsphere_vapp_container acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_NFS_DS_NAME") == "" {
-		t.Skip("set TF_VAR_VSPHERE_NFS_DS_NAME to run vsphere_vapp_container acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_TEMPLATE") == "" {
-		t.Skip("set TF_VAR_VSPHERE_TEMPLATE to run vsphere_vapp_container acceptance tests")
-	}
 }
 
 func testAccResourceVSphereVAppContainerCheckExists(expected bool) resource.TestCheckFunc {
@@ -694,7 +666,7 @@ resource "vsphere_virtual_machine" "vm" {
 }
 `, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(),
 		testhelper.ConfigDataRootComputeCluster1(),
-		testhelper.ConfigResDS1(),
+		testhelper.ConfigDataRootDS1(),
 		testhelper.ConfigDataRootDS1(),
 		testhelper.ConfigDataRootHost1(),
 		testhelper.ConfigDataRootVMNet(),
@@ -769,7 +741,7 @@ resource "vsphere_virtual_machine" "vm" {
 `, testhelper.CombineConfigs(
 		testhelper.ConfigDataRootDC1(),
 		testhelper.ConfigDataRootHost1(),
-		testhelper.ConfigResDS1(),
+		testhelper.ConfigDataRootDS1(),
 		testhelper.ConfigDataRootComputeCluster1(),
 		testhelper.ConfigResResourcePool1(),
 		testhelper.ConfigDataRootPortGroup1()),
@@ -802,7 +774,7 @@ resource "vsphere_vapp_container" "vapp_container" {
 resource "vsphere_virtual_machine" "vm" {
   name             = "terraform-virtual-machine-test"
   resource_pool_id = vsphere_vapp_container.vapp_container.id
-  datastore_id     = vsphere_nas_datastore.ds1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
 
   num_cpus                   = 2
   memory                     = 2048
@@ -810,15 +782,16 @@ resource "vsphere_virtual_machine" "vm" {
   wait_for_guest_net_timeout = -1
 
   disk {
-    label = "disk0"
-    size  = "1"
+    label          = "disk0"
+    size           = 1
+    io_reservation = 1
   }
 
   network_interface {
     network_id = data.vsphere_network.network1.id
   }
 }
-`, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootHost1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigResDS1(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigResResourcePool1(), testhelper.ConfigDataRootPortGroup1()),
+`, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootHost1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigDataRootDS1(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigResResourcePool1(), testhelper.ConfigDataRootPortGroup1()),
 	)
 }
 
@@ -846,7 +819,7 @@ resource "vsphere_vapp_container" "vapp_container" {
 resource "vsphere_virtual_machine" "vm" {
   name             = "terraform-virtual-machine-test"
   resource_pool_id = vsphere_resource_pool.parent_resource_pool.id
-  datastore_id     = vsphere_nas_datastore.ds1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
 
   num_cpus                   = 2
   memory                     = 2048
@@ -854,15 +827,16 @@ resource "vsphere_virtual_machine" "vm" {
   wait_for_guest_net_timeout = -1
 
   disk {
-    label = "disk0"
-    size  = "1"
+    label          = "disk0"
+    size           = 1
+    io_reservation = 1
   }
 
   network_interface {
     network_id = data.vsphere_network.network1.id
   }
 }
-`, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootHost1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigResDS1(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigResResourcePool1(), testhelper.ConfigDataRootPortGroup1()),
+`, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootHost1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigDataRootDS1(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigResResourcePool1(), testhelper.ConfigDataRootPortGroup1()),
 	)
 }
 

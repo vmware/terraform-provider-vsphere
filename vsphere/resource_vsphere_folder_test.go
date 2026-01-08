@@ -165,7 +165,6 @@ func TestAccResourceVSphereFolder_datacenterFolder(t *testing.T) {
 }
 
 func TestAccResourceVSphereFolder_rename(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -263,7 +262,6 @@ func TestAccResourceVSphereFolder_moveToSubfolder(t *testing.T) {
 }
 
 func TestAccResourceVSphereFolder_tags(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -286,7 +284,6 @@ func TestAccResourceVSphereFolder_tags(t *testing.T) {
 }
 
 func TestAccResourceVSphereFolder_modifyTags(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -318,7 +315,6 @@ func TestAccResourceVSphereFolder_modifyTags(t *testing.T) {
 }
 
 func TestAccResourceVSphereFolder_modifyTagsMultiStage(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -356,7 +352,6 @@ func TestAccResourceVSphereFolder_modifyTagsMultiStage(t *testing.T) {
 }
 
 func TestAccResourceVSphereFolder_customAttributes(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -379,7 +374,6 @@ func TestAccResourceVSphereFolder_customAttributes(t *testing.T) {
 }
 
 func TestAccResourceVSphereFolder_modifyCustomAttributes(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -411,7 +405,6 @@ func TestAccResourceVSphereFolder_modifyCustomAttributes(t *testing.T) {
 }
 
 func TestAccResourceVSphereFolder_removeAllCustomAttributes(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -445,7 +438,6 @@ func TestAccResourceVSphereFolder_removeAllCustomAttributes(t *testing.T) {
 func TestAccResourceVSphereFolder_preventDeleteIfNotEmpty(t *testing.T) {
 	var s *terraform.State
 
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -887,7 +879,7 @@ resource "vsphere_custom_attribute" "testacc-attribute" {
 
 locals {
   folder_attrs = {
-    vsphere_custom_attribute.testacc-attribute.id = "value"
+    "${vsphere_custom_attribute.testacc-attribute.id}" = "value"
   }
 }
 
@@ -927,8 +919,8 @@ resource "vsphere_custom_attribute" "testacc-attribute-2" {
 
 locals {
   folder_attrs = {
-    vsphere_custom_attribute.testacc-attribute.id   = "value"
-    vsphere_custom_attribute.testacc-attribute-2.id = "value-2"
+    "${vsphere_custom_attribute.testacc-attribute.id}"   = "value"
+    "${vsphere_custom_attribute.testacc-attribute-2.id}" = "value-2"
   }
 }
 

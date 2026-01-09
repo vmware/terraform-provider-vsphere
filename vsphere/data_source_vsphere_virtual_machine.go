@@ -5,6 +5,7 @@
 package vsphere
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"path"
@@ -17,6 +18,11 @@ import (
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/structure"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/virtualmachine"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/virtualdevice"
+
+	"github.com/vmware/govmomi/property"
+	"github.com/vmware/govmomi/vapi/tags"
+	"github.com/vmware/govmomi/vim25/mo"
+	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/customattribute"
 )
 
 func dataSourceVSphereVirtualMachine() *schema.Resource {
@@ -213,6 +219,16 @@ func dataSourceVSphereVirtualMachine() *schema.Resource {
 			Computed:    true,
 			Description: "Indicates whether a virtual Trusted Platform Module (TPM) device is present on the virtual machine.",
 		},
+		"tags": {
+			Type:     schema.TypeList,
+			Computed: true,
+			Elem:     &schema.Schema{Type: schema.TypeString},
+		},
+		"custom_attributes": {
+			Type:     schema.TypeMap,
+			Computed: true,
+			Elem:     &schema.Schema{Type: schema.TypeString},
+		},
 	}
 
 	// Merge the VirtualMachineConfig structure so that we can include the number of
@@ -242,6 +258,9 @@ func dataSourceVSphereVirtualMachine() *schema.Resource {
 
 func dataSourceVSphereVirtualMachineRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*Client).vimClient
+	providerClient := meta.(*Client)
+	restClient := providerClient.restClient
+	ctx := context.Background()
 	uuid := d.Get("uuid").(string)
 	moid := d.Get("moid").(string)
 	name := d.Get("name").(string)
@@ -348,6 +367,25 @@ func dataSourceVSphereVirtualMachineRead(d *schema.ResourceData, meta interface{
 		}
 	}
 	_ = d.Set("vtpm", isVTPMPresent)
+
+	var moVM mo.VirtualMachine
+	pc := property.DefaultCollector(client.Client)
+
+	if err := pc.RetrieveOne(
+		ctx,
+		vm.Reference(),
+		[]string{"customValue"},
+		&moVM,
+	); err != nil {
+		return err
+	}
+
+	customattribute.ReadFromResource(&moVM.ManagedEntity, d)
+
+	tagManager := tags.NewManager(restClient)
+	if err := readTagsForResource(tagManager, vm, d); err != nil {
+		return fmt.Errorf("error reading tags for VM: %s", err)
+	}
 
 	log.Printf("[DEBUG] VM search for %q completed successfully (UUID %q)", name, props.Config.Uuid)
 	return nil

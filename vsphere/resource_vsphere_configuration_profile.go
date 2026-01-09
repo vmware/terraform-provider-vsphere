@@ -69,49 +69,61 @@ func resourceVSphereConfigurationProfileCreate(ctx context.Context, d *schema.Re
 	tm := tasks.NewManager(client)
 
 	tflog.Debug(ctx, fmt.Sprintf("running eligibility checks on cluster: %s", clusterID))
-	if taskID, err := m.CheckEligibility(clusterID); err != nil {
-		return diag.FromErr(fmt.Errorf("failed to run eligibility check: %s", err))
-	} else if _, err := tm.WaitForCompletion(ctx, taskID); err != nil {
+
+	statusInfo, err := m.GetClusterConfigurationStatus(clusterID)
+	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	if referenceHostID != "" {
-		tflog.Debug(ctx, fmt.Sprintf("importing configuration from reference host: %s", referenceHostID))
-		if taskID, err := m.ImportFromReferenceHost(clusterID, referenceHostID); err != nil {
-			return diag.FromErr(fmt.Errorf("failed to import configuration from reference host: %s", err))
+	if statusInfo.Status == "NOT_STARTED" {
+		if taskID, err := m.CheckEligibility(clusterID); err != nil {
+			return diag.FromErr(fmt.Errorf("failed to run eligibility check: %s", err))
 		} else if _, err := tm.WaitForCompletion(ctx, taskID); err != nil {
 			return diag.FromErr(err)
 		}
-	} else {
-		tflog.Debug(ctx, "using configuration json")
-		spec := enablement.FileSpec{Config: config}
-		if _, err := m.ImportFromFile(clusterID, spec); err != nil {
-			return diag.FromErr(fmt.Errorf("failed to import configuration: %s", err))
+
+		if referenceHostID != "" {
+			tflog.Debug(ctx, fmt.Sprintf("importing configuration from reference host: %s", referenceHostID))
+			if taskID, err := m.ImportFromReferenceHost(clusterID, referenceHostID); err != nil {
+				return diag.FromErr(fmt.Errorf("failed to import configuration from reference host: %s", err))
+			} else if _, err := tm.WaitForCompletion(ctx, taskID); err != nil {
+				return diag.FromErr(err)
+			}
+		} else {
+			tflog.Debug(ctx, "using configuration json")
+			spec := enablement.FileSpec{Config: config}
+			if _, err := m.ImportFromFile(clusterID, spec); err != nil {
+				return diag.FromErr(fmt.Errorf("failed to import configuration: %s", err))
+			}
 		}
+
+		tflog.Debug(ctx, "validating imported configuration")
+		if taskID, err := m.ValidateConfiguration(clusterID); err != nil {
+			return diag.FromErr(fmt.Errorf("failed to validate configuration: %s", err))
+		} else if _, err := tm.WaitForCompletion(ctx, taskID); err != nil {
+			return diag.FromErr(err)
+		}
+
+		tflog.Debug(ctx, fmt.Sprintf("running pre-checks on cluster: %s", clusterID))
+		if taskID, err := m.RunPrecheck(clusterID); err != nil {
+			return diag.FromErr(fmt.Errorf("failed to run precheck: %s", err))
+		} else if _, err := tm.WaitForCompletion(ctx, taskID); err != nil {
+			return diag.FromErr(err)
+		}
+
+		tflog.Debug(ctx, fmt.Sprintf("transitioning cluster %s to configuration profiles", clusterID))
+		if taskID, err := m.EnableClusterConfiguration(clusterID); err != nil {
+			return diag.FromErr(fmt.Errorf("failed to enable cluster configuration: %s", err))
+		} else if _, err := tm.WaitForCompletion(ctx, taskID); err != nil {
+			return diag.FromErr(err)
+		}
+
+		return resourceVSphereConfigurationProfileRead(ctx, d, meta)
 	}
 
-	tflog.Debug(ctx, "validating imported configuration")
-	if taskID, err := m.ValidateConfiguration(clusterID); err != nil {
-		return diag.FromErr(fmt.Errorf("failed to validate configuration: %s", err))
-	} else if _, err := tm.WaitForCompletion(ctx, taskID); err != nil {
-		return diag.FromErr(err)
-	}
-
-	tflog.Debug(ctx, fmt.Sprintf("running pre-checks on cluster: %s", clusterID))
-	if taskID, err := m.RunPrecheck(clusterID); err != nil {
-		return diag.FromErr(fmt.Errorf("failed to run precheck: %s", err))
-	} else if _, err := tm.WaitForCompletion(ctx, taskID); err != nil {
-		return diag.FromErr(err)
-	}
-
-	tflog.Debug(ctx, fmt.Sprintf("transitioning cluster %s to configuration profiles", clusterID))
-	if taskID, err := m.EnableClusterConfiguration(clusterID); err != nil {
-		return diag.FromErr(fmt.Errorf("failed to enable cluster configuration: %s", err))
-	} else if _, err := tm.WaitForCompletion(ctx, taskID); err != nil {
-		return diag.FromErr(err)
-	}
-
-	return resourceVSphereConfigurationProfileRead(ctx, d, meta)
+	// The target cluster is already using configuration profiles
+	// Defer to the update routine
+	return resourceVSphereConfigurationProfileUpdate(ctx, d, meta)
 }
 
 func resourceVSphereConfigurationProfileRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -144,19 +156,31 @@ func resourceVSphereConfigurationProfileUpdate(ctx context.Context, d *schema.Re
 
 	var createSpec drafts.CreateSpec
 
-	if d.HasChange("reference_host_id") {
-		referenceHostID := d.Get("reference_host_id").(string)
-		tflog.Debug(ctx, fmt.Sprintf("updating cluster configuration using reference host: %s", referenceHostID))
-		createSpec.ReferenceHost = referenceHostID
-	} else {
+	if configuration := d.Get("configuration"); configuration != "" {
 		tflog.Debug(ctx, "updating cluster configuration")
-		createSpec.Config = d.Get("configuration").(string)
+		createSpec.Config = configuration.(string)
 	}
 
 	tflog.Debug(ctx, "creating a new draft")
 	draftID, err := m.CreateDraft(clusterID, createSpec)
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("failed to create draft: %s", err))
+	}
+
+	if referenceHostID := d.Get("reference_host_id"); referenceHostID != "" {
+		tflog.Debug(ctx, fmt.Sprintf("updating cluster configuration using reference host: %s", referenceHostID.(string)))
+		importSpec := drafts.ImportSpec{
+			Host: referenceHostID.(string),
+		}
+
+		taskID, err := m.ImportFromHost(clusterID, draftID, importSpec)
+		if err != nil {
+			return diag.FromErr(fmt.Errorf("failed to import configuration: %s", err))
+		}
+
+		if _, err := tasks.NewManager(client).WaitForCompletion(ctx, taskID); err != nil {
+			return diag.FromErr(fmt.Errorf("failed to import configuration: %s", err))
+		}
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("running pre-checks for draft: %s", draftID))

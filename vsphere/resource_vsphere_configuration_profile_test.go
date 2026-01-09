@@ -14,8 +14,6 @@ import (
 )
 
 func TestAccResourceVSphereConfigProfile(t *testing.T) {
-	// Run this test manually, do not include in automated testing
-	t.Skipf("Skipped due to cleanup problems - https://github.com/vmware/terraform-provider-vsphere/issues/2543")
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -26,10 +24,10 @@ func TestAccResourceVSphereConfigProfile(t *testing.T) {
 			{
 				Config: testAccResourceVSphereConfigProfileConfig(),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet("vsphere_config_profile.profile1", "configuration"),
-					resource.TestCheckResourceAttrSet("vsphere_config_profile.profile1", "schema"),
-					resource.TestCheckResourceAttrSet("vsphere_config_profile.profile2", "configuration"),
-					resource.TestCheckResourceAttrSet("vsphere_config_profile.profile2", "schema"),
+					resource.TestCheckResourceAttrSet("vsphere_configuration_profile.profile1", "configuration"),
+					resource.TestCheckResourceAttrSet("vsphere_configuration_profile.profile1", "schema"),
+					resource.TestCheckResourceAttrSet("vsphere_configuration_profile.profile2", "configuration"),
+					resource.TestCheckResourceAttrSet("vsphere_configuration_profile.profile2", "schema"),
 				),
 			},
 		},
@@ -40,28 +38,35 @@ func testAccResourceVSphereConfigProfileConfig() string {
 	return fmt.Sprintf(`
 %s
 
+locals {
+  esx4_hostname = "%s"
+  esx4_password = "%s"
+}
+
 data "vsphere_host_thumbprint" "thumbprint" {
-  address  = "%s"
+  address  = local.esx4_hostname
   insecure = true
 }
 
-resource "vsphere_host" "h1" {
-  hostname = "%s"
-  username = "root"
-  password = "%s"
+resource "vsphere_host" "host4" {
+  hostname   = local.esx4_hostname
+  username   = "root"
+  password   = local.esx4_password
   thumbprint = data.vsphere_host_thumbprint.thumbprint.id
 
   datacenter = data.vsphere_datacenter.rootdc1.id
 
   lifecycle {
-    ignore_changes = ["services"]
+    ignore_changes = ["services", "cluster"]
   }
 }
 
 resource "vsphere_compute_cluster" "cluster1" {
   name            = "cluster1"
   datacenter_id   = data.vsphere_datacenter.rootdc1.id
-  host_system_ids = [vsphere_host.h1.id]
+  host_system_ids = [vsphere_host.host4.id]
+  
+  force_evacuate_on_destroy = true
 }
 
 resource "vsphere_compute_cluster" "cluster2" {
@@ -70,17 +75,16 @@ resource "vsphere_compute_cluster" "cluster2" {
 }
 
 resource "vsphere_configuration_profile" "profile1" {
-  reference_host_id = vsphere_host.h1.id
+  reference_host_id = vsphere_host.host4.id
   cluster_id = vsphere_compute_cluster.cluster1.id
 }
 
 resource "vsphere_configuration_profile" "profile2" {
   cluster_id = vsphere_compute_cluster.cluster2.id
-  configuration = vsphere_config_profile.profile1.configuration
+  configuration = vsphere_configuration_profile.profile1.configuration
 }
 `,
 		testhelper.ConfigDataRootDC1(),
-		os.Getenv("TF_VAR_VSPHERE_ESXI4"),
 		os.Getenv("TF_VAR_VSPHERE_ESXI4"),
 		os.Getenv("TF_VAR_VSPHERE_ESXI4_PASSWORD"))
 }

@@ -826,6 +826,10 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
   sdrs_enabled                   = true
   sdrs_free_space_threshold_mode = "freeSpace"
   sdrs_free_space_threshold      = 500
+
+  lifecycle {
+    ignore_changes = ["sdrs_io_load_balance_enabled"]
+  }
 }
 `,
 		testhelper.ConfigDataRootDC1(),
@@ -855,6 +859,10 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
   datacenter_id = data.vsphere_datacenter.rootdc1.id
 
   tags = [vsphere_tag.testacc-tag.id]
+
+  lifecycle {
+    ignore_changes = ["sdrs_io_load_balance_enabled"]
+  }
 }
 `,
 		testhelper.ConfigDataRootDC1(),
@@ -897,6 +905,10 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
   datacenter_id = data.vsphere_datacenter.rootdc1.id
 
   tags = vsphere_tag.testacc-tags-alt.*.id
+
+  lifecycle {
+    ignore_changes = ["sdrs_io_load_balance_enabled"]
+  }
 }
 `,
 		testhelper.ConfigDataRootDC1(),
@@ -923,6 +935,10 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
   datacenter_id = data.vsphere_datacenter.rootdc1.id
 
   custom_attributes = local.attrs
+
+  lifecycle {
+    ignore_changes = ["sdrs_io_load_balance_enabled"]
+  }
 }
 `,
 		testhelper.ConfigDataRootDC1(),
@@ -945,8 +961,8 @@ resource "vsphere_custom_attribute" "testacc-attribute-2" {
 
 locals {
   attrs = {
-    vsphere_custom_attribute.testacc-attribute.id   = "value"
-    vsphere_custom_attribute.testacc-attribute-2.id = "value-2"
+    "${vsphere_custom_attribute.testacc-attribute.id}"   = "value"
+    "${vsphere_custom_attribute.testacc-attribute-2.id}" = "value-2"
   }
 }
 
@@ -955,6 +971,10 @@ resource "vsphere_datastore_cluster" "datastore_cluster" {
   datacenter_id = data.vsphere_datacenter.rootdc1.id
 
   custom_attributes = local.attrs
+
+  lifecycle {
+    ignore_changes = ["sdrs_io_load_balance_enabled"]
+  }
 }
 `, testhelper.ConfigDataRootDC1(),
 	)

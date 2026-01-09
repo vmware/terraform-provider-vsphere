@@ -161,6 +161,8 @@ func TestAccResourceVSphereComputeCluster_vsanDedupEnabled(t *testing.T) {
 }
 
 func TestAccResourceVSphereComputeCluster_vsanCompressionEnabled(t *testing.T) {
+	// Test is slow due to vSAN remediation
+	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -183,6 +185,8 @@ func TestAccResourceVSphereComputeCluster_vsanCompressionEnabled(t *testing.T) {
 }
 
 func TestAccResourceVSphereComputeCluster_vsanPerfEnabled(t *testing.T) {
+	// Test is slow due to vSAN remediation
+	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -204,6 +208,8 @@ func TestAccResourceVSphereComputeCluster_vsanPerfEnabled(t *testing.T) {
 }
 
 func TestAccResourceVSphereComputeCluster_vsanPerfVerboseEnabled(t *testing.T) {
+	// Test is slow due to vSAN remediation
+	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -226,6 +232,8 @@ func TestAccResourceVSphereComputeCluster_vsanPerfVerboseEnabled(t *testing.T) {
 }
 
 func TestAccResourceVSphereComputeCluster_vsanPerfVerboseDiagnosticEnabled(t *testing.T) {
+	// Test is slow due to vSAN remediation
+	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -249,6 +257,8 @@ func TestAccResourceVSphereComputeCluster_vsanPerfVerboseDiagnosticEnabled(t *te
 }
 
 func TestAccResourceVSphereComputeCluster_vsanUnmapEnabledwithVsanEnabled(t *testing.T) {
+	// Test is slow due to vSAN remediation
+	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -270,6 +280,8 @@ func TestAccResourceVSphereComputeCluster_vsanUnmapEnabledwithVsanEnabled(t *tes
 }
 
 func TestAccResourceVSphereComputeCluster_vsanUnmapDisabledwithVsanDisabled(t *testing.T) {
+	// Test is slow due to vSAN remediation
+	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()

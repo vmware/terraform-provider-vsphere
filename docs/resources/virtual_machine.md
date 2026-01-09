@@ -1007,6 +1007,51 @@ In the example above, the first interface is assigned to the `routable` network 
 
 On some Linux distributions, the first interface may be presented as `eth0` and the second may be presented as `eth1`.
 
+#### Using external network management plane
+
+A virtual machine's network interface can be bound to an external network management plane using `external_port_id` attribute. While using an external network management plane, such as NSX-T, the network management plane will allocate a port id for the VM, which will be placed automatically within the `external_port_id` attribute.
+When using a pre-allocated port on the network management plane, the external port attachment id should be assigned to the `external_port_id` to bind the network interface with the external port.
+
+**Example**:
+
+```hcl
+# Create a port on NSX-T using NSX-T provider resource. Set the port attachment to be referenced later by vSphere VM
+resource "nsxt_policy_segment_port" "port" {
+  display_name = "port"
+  segment_path = nsxt_policy_segment.segment.path
+  attachment {
+    id = "port-attachment"
+  }
+}
+
+# Locate the NSX-T segment's ID in vSphere 
+data "vsphere_network" "nsx_segment" {
+  datacenter_id = data.vsphere_datacenter.datacenter.id
+  name          = nsxt_policy_segment.segment.display_name
+}
+
+resource "vsphere_virtual_machine" "vm" {
+  name = "vm"
+
+  datacenter_id              = data.vsphere_datacenter.datacenter.id
+  resource_pool_id           = data.vsphere_compute_cluster.cluster.resource_pool_id
+  datastore_id               = data.vsphere_datastore.datastore.id
+  wait_for_guest_net_timeout = 0
+
+  ovf_deploy {
+    remote_ovf_url = "https://example.com/foo.ova"
+  }
+
+  network_interface {
+    # Reference the NSX-T segment ID in vSphere 
+    network_id = data.vsphere_network.nsx_segment.id
+
+    # Reference the user-configured attachment id, which will identify the NSX-T created port
+    external_port_id = nsxt_policy_segment_port.port.attachment[0].id
+  }
+}
+```
+
 The options are:
 
 * `network_id` - (Required) The [managed object reference ID][docs-about-morefs] of the network on which to connect the virtual machine network interface.
@@ -1026,6 +1071,8 @@ The options are:
 * `bandwidth_share_count` - (Optional) The share count for the network interface when the share level is `custom`. Ignored if `adapter_type` is set to `sriov`.
 
 * `ovf_mapping` - (Optional) Specifies which NIC in an OVF/OVA the `network_interface` should be associated. Only applies at creation when deploying from an OVF/OVA.
+
+* `external_port_id` - (Optional) The external port id to be bound to the VM port. This attribute will contain the port ID which was set by external network management plane. A user can choose to force a specific predefined port id which has been configured on the external network management plane. 
 
 ### Video Card Options
 

@@ -122,6 +122,12 @@ func NetworkInterfaceSubresourceSchema() map[string]*schema.Schema {
 			ForceNew:    true,
 			Description: "Mapping of network interface to OVF network.",
 		},
+		"external_port_id": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Computed:    true,
+			Description: "The external port id to be bound to the VM port.",
+		},
 	}
 	structure.MergeSchema(s, subresourceSchema())
 	return s
@@ -714,6 +720,7 @@ func ReadNetworkInterfaces(l object.VirtualDeviceList) ([]map[string]interface{}
 
 		m["adapter_type"] = virtualEthernetCardString(device.(types.BaseVirtualEthernetCard))
 		m["mac_address"] = ethernetCard.MacAddress
+		m["external_port_id"] = ethernetCard.ExternalId
 		m["network_id"] = networkID
 
 		out = append(out, m)
@@ -832,6 +839,11 @@ func (r *NetworkInterfaceSubresource) Create(l object.VirtualDeviceList) ([]type
 		card.MacAddress = r.Get("mac_address").(string)
 	}
 
+	externalID := r.Get("external_port_id").(string)
+	if externalID != "" {
+		card.ExternalId = externalID
+	}
+
 	if r.Get("adapter_type") != networkInterfaceSubresourceTypeSriov {
 		bandwidthLimit := structure.Int64Ptr(-1)
 		bandwidthReservation := structure.Int64Ptr(0)
@@ -940,6 +952,7 @@ func (r *NetworkInterfaceSubresource) Read(l object.VirtualDeviceList) error {
 	r.Set("network_id", netID)
 	r.Set("use_static_mac", card.AddressType == string(types.VirtualEthernetCardMacTypeManual))
 	r.Set("mac_address", card.MacAddress)
+	r.Set("external_port_id", card.ExternalId)
 
 	if r.Get("adapter_type") != networkInterfaceSubresourceTypeSriov {
 		if card.ResourceAllocation != nil {
@@ -1053,6 +1066,14 @@ func (r *NetworkInterfaceSubresource) Update(l object.VirtualDeviceList) ([]type
 		}
 		card.Backing = backing
 	}
+
+	oldExternalID, newExternalID := r.GetChange("external_port_id")
+	if oldExternalID.(string) != "" && newExternalID.(string) == "" {
+		// Once a VM has been attached to a pre-allocated port, it cannot be reattached to an ephemeral port,
+		// so only allow replacement with another pre-allocated port.
+		return nil, fmt.Errorf("cannot reset external_port_id to use an ephemeral port")
+	}
+	card.ExternalId = newExternalID.(string)
 
 	if r.Get("use_static_mac").(bool) {
 		card.AddressType = string(types.VirtualEthernetCardMacTypeManual)

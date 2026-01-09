@@ -212,6 +212,7 @@ func TestAccResourceVSphereDatastoreCluster_miscTweaks(t *testing.T) {
 }
 
 func TestAccResourceVSphereDatastoreCluster_reservableIops(t *testing.T) {
+	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()

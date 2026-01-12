@@ -83,6 +83,7 @@ func TestAccResourceVSphereComputeCluster_evc(t *testing.T) {
 }
 
 func TestAccResourceVSphereComputeCluster_haAdmissionControlPolicyDisabled(t *testing.T) {
+	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -103,6 +104,7 @@ func TestAccResourceVSphereComputeCluster_haAdmissionControlPolicyDisabled(t *te
 }
 
 func TestAccResourceVSphereComputeCluster_drsHAEnabled(t *testing.T) {
+	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -123,6 +125,7 @@ func TestAccResourceVSphereComputeCluster_drsHAEnabled(t *testing.T) {
 }
 
 func TestAccResourceVSphereComputeCluster_vlcm(t *testing.T) {
+	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()

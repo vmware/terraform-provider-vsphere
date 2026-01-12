@@ -159,6 +159,8 @@ github.com/vmware/govmomi v0.53.0-alpha.0.0.20251206181948-b345718843b2 h1:gDCsc
 github.com/vmware/govmomi v0.53.0-alpha.0.0.20251206181948-b345718843b2/go.mod h1:FM3GTg002dFFN7l2/hNS0YWC4f78HTw4kvgUwAE52cM=
 github.com/vmware/govmomi v0.53.0-alpha.0.0.20251209152000-ebd2c8e99582 h1:ty4aRq7LReX/WMh9vQKMuFFWdMoolcos4BumFXmevKg=
 github.com/vmware/govmomi v0.53.0-alpha.0.0.20251209152000-ebd2c8e99582/go.mod h1:gzou1RcSADxSSxa19ueHegcq2DKa+GfHm/r+r47hEqc=
+github.com/vmware/govmomi v0.53.0-alpha.0.0.20260109150950-4dddb9327a32 h1:QXacIVF9cdP/RN0S0yzww7WJqiL3mC+HCOP83nELF6M=
+github.com/vmware/govmomi v0.53.0-alpha.0.0.20260109150950-4dddb9327a32/go.mod h1:gzou1RcSADxSSxa19ueHegcq2DKa+GfHm/r+r47hEqc=
 github.com/xanzy/ssh-agent v0.3.3 h1:+/15pJfg/RsTxqYcX6fHqOXZwwMP+2VyYWJeWM2qQFM=
 github.com/xanzy/ssh-agent v0.3.3/go.mod h1:6dzNDKs0J9rVPHPhaGCukekBHKqfl+L3KghI1Bc68Uw=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=

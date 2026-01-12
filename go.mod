@@ -8,7 +8,7 @@ require (
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.38.1
 	github.com/hashicorp/terraform-plugin-testing v1.14.0
 	github.com/mitchellh/copystructure v1.2.0
-	github.com/vmware/govmomi v0.53.0-alpha.0.0.20251209152000-ebd2c8e99582
+	github.com/vmware/govmomi v0.53.0-alpha.0.0.20260109150950-4dddb9327a32
 )
 
 require (

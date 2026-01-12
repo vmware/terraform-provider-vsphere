@@ -926,7 +926,7 @@ resource "vsphere_custom_attribute" "testacc-attribute" {
 
 locals {
   attrs = {
-    vsphere_custom_attribute.testacc-attribute.id = "value"
+    "${vsphere_custom_attribute.testacc-attribute.id}" = "value"
   }
 }
 

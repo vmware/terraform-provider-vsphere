@@ -7,7 +7,6 @@ package vsphere
 import (
 	"errors"
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -47,12 +46,10 @@ func TestAccResourceVSphereVAppEntity_basic(t *testing.T) {
 }
 
 func TestAccResourceVSphereVAppEntity_nonDefault(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVAppEntityPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVAppEntityCheckExists("vapp_entity", false),
@@ -74,12 +71,10 @@ func TestAccResourceVSphereVAppEntity_nonDefault(t *testing.T) {
 }
 
 func TestAccResourceVSphereVAppEntity_update(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVAppEntityPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVAppEntityCheckExists("vapp_entity", false),
@@ -113,12 +108,10 @@ func TestAccResourceVSphereVAppEntity_update(t *testing.T) {
 }
 
 func TestAccResourceVSphereVAppEntity_multi(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVAppEntityPreCheck(t)
 		},
 		Providers: testAccProviders,
 		CheckDestroy: resource.ComposeTestCheckFunc(
@@ -150,12 +143,10 @@ func TestAccResourceVSphereVAppEntity_multi(t *testing.T) {
 }
 
 func TestAccResourceVSphereVAppEntity_multiUpdate(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVAppEntityPreCheck(t)
 		},
 		Providers: testAccProviders,
 		CheckDestroy: resource.ComposeTestCheckFunc(
@@ -202,24 +193,6 @@ func TestAccResourceVSphereVAppEntity_multiUpdate(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccResourceVSphereVAppEntityPreCheck(t *testing.T) {
-	if os.Getenv("TF_VAR_VSPHERE_DATACENTER") == "" {
-		t.Skip("set TF_VAR_VSPHERE_DATACENTER to run vsphere_vapp_entity acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_CLUSTER") == "" {
-		t.Skip("set TF_VAR_VSPHERE_CLUSTER to run vsphere_vapp_entity acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_ESXI2") == "" {
-		t.Skip("set TF_VAR_VSPHERE_ESXI2 to run vsphere_vapp_entity acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_PG_NAME") == "" {
-		t.Skip("set TF_VAR_VSPHERE_PG_NAME to run vsphere_vapp_entity acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_NFS_DS_NAME") == "" {
-		t.Skip("set TF_VAR_VSPHERE_NFS_DS_NAME to run vsphere_vapp_entity acceptance tests")
-	}
 }
 
 func testAccResourceVSphereVAppEntityCheckExists(name string, expected bool) resource.TestCheckFunc {
@@ -410,7 +383,7 @@ resource "vsphere_vapp_entity" "vapp_entity" {
 resource "vsphere_virtual_machine" "vm" {
   name             = "terraform-virtual-machine-test"
   resource_pool_id = vsphere_vapp_container.vapp_container.id
-  datastore_id     = vsphere_nas_datastore.ds1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
 
   num_cpus                   = 2
   memory                     = 2048
@@ -419,14 +392,15 @@ resource "vsphere_virtual_machine" "vm" {
 
   disk {
     label = "disk0"
-    size  = "1"
+    size  = 1
+    io_reservation = 1
   }
 
   network_interface {
     network_id = data.vsphere_network.network1.id
   }
 }
-`, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootHost1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigResDS1(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigResResourcePool1(), testhelper.ConfigDataRootPortGroup1()),
+`, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootHost1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigDataRootDS1(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigResResourcePool1(), testhelper.ConfigDataRootPortGroup1()),
 	)
 }
 
@@ -464,7 +438,7 @@ resource "vsphere_vapp_entity" "vapp_entity2" {
 resource "vsphere_virtual_machine" "vm1" {
   name             = "terraform-virtual-machine-test-1"
   resource_pool_id = vsphere_vapp_container.vapp_container.id
-  datastore_id     = vsphere_nas_datastore.ds1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
 
   num_cpus                   = 2
   memory                     = 1024
@@ -473,7 +447,8 @@ resource "vsphere_virtual_machine" "vm1" {
 
   disk {
     label = "disk0"
-    size  = "1"
+    size  = 1
+    io_reservation = 1
   }
 
   network_interface {
@@ -484,7 +459,7 @@ resource "vsphere_virtual_machine" "vm1" {
 resource "vsphere_virtual_machine" "vm2" {
   name             = "terraform-virtual-machine-test-2"
   resource_pool_id = vsphere_vapp_container.vapp_container.id
-  datastore_id     = vsphere_nas_datastore.ds1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
 
   num_cpus                   = 2
   memory                     = 1024
@@ -493,14 +468,15 @@ resource "vsphere_virtual_machine" "vm2" {
 
   disk {
     label = "disk0"
-    size  = "1"
+    size  = 1
+    io_reservation = 1
   }
 
   network_interface {
     network_id = data.vsphere_network.network1.id
   }
 }
-`, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootHost1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigResDS1(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigResResourcePool1(), testhelper.ConfigDataRootPortGroup1()),
+`, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootHost1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigDataRootDS1(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigResResourcePool1(), testhelper.ConfigDataRootPortGroup1()),
 	)
 }
 func testAccResourceVSphereVAppEntityConfigMultipleNonDefault() string {
@@ -549,7 +525,7 @@ resource "vsphere_vapp_entity" "vapp_entity2" {
 resource "vsphere_virtual_machine" "vm1" {
   name             = "terraform-virtual-machine-test-1"
   resource_pool_id = vsphere_vapp_container.vapp_container.id
-  datastore_id     = vsphere_nas_datastore.ds1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
 
   num_cpus                   = 2
   memory                     = 1024
@@ -558,7 +534,8 @@ resource "vsphere_virtual_machine" "vm1" {
 
   disk {
     label = "disk0"
-    size  = "1"
+    size  = 1
+    io_reservation = 1
   }
 
   network_interface {
@@ -569,7 +546,7 @@ resource "vsphere_virtual_machine" "vm1" {
 resource "vsphere_virtual_machine" "vm2" {
   name             = "terraform-virtual-machine-test-2"
   resource_pool_id = vsphere_vapp_container.vapp_container.id
-  datastore_id     = vsphere_nas_datastore.ds1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
 
   num_cpus                   = 2
   memory                     = 1024
@@ -578,13 +555,14 @@ resource "vsphere_virtual_machine" "vm2" {
 
   disk {
     label = "disk0"
-    size  = "1"
+    size  = 1
+    io_reservation = 1
   }
 
   network_interface {
     network_id = data.vsphere_network.network1.id
   }
 }
-`, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootHost1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigResDS1(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigResResourcePool1(), testhelper.ConfigDataRootPortGroup1()),
+`, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootHost1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigDataRootDS1(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigResResourcePool1(), testhelper.ConfigDataRootPortGroup1()),
 	)
 }

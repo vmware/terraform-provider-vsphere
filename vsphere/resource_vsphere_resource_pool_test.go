@@ -61,7 +61,6 @@ func TestAccResourceVSphereResourcePool_basic(t *testing.T) {
 					testAccResourceVSphereResourcePoolCheckCPULimit(20),
 					testAccResourceVSphereResourcePoolCheckMemoryShareLevel("custom"),
 					testAccResourceVSphereResourcePoolCheckMemoryShares(10),
-					resource.TestCheckResourceAttr("vsphere_resource_pool.resource_pool", "scale_descendants_shares", "scaleCpuAndMemoryShares"),
 				),
 			},
 		},
@@ -69,12 +68,10 @@ func TestAccResourceVSphereResourcePool_basic(t *testing.T) {
 }
 
 func TestAccResourceVSphereResourcePool_updateRename(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereResourcePoolPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereResourcePoolCheckExists(false),
@@ -99,12 +96,10 @@ func TestAccResourceVSphereResourcePool_updateRename(t *testing.T) {
 }
 
 func TestAccResourceVSphereResourcePool_updateToCustom(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereResourcePoolPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereResourcePoolCheckExists(false),
@@ -118,9 +113,6 @@ func TestAccResourceVSphereResourcePool_updateToCustom(t *testing.T) {
 					testAccResourceVSphereResourcePoolCheckCPUExpandable(true),
 					testAccResourceVSphereResourcePoolCheckCPULimit(-1),
 					testAccResourceVSphereResourcePoolCheckCPUShareLevel("normal"),
-					testAccResourceVSphereResourcePoolCheckCPUReservation(0),
-					testAccResourceVSphereResourcePoolCheckCPUExpandable(true),
-					testAccResourceVSphereResourcePoolCheckCPULimit(-1),
 					testAccResourceVSphereResourcePoolCheckMemoryShareLevel("normal"),
 				),
 			},
@@ -133,9 +125,6 @@ func TestAccResourceVSphereResourcePool_updateToCustom(t *testing.T) {
 					testAccResourceVSphereResourcePoolCheckCPULimit(20),
 					testAccResourceVSphereResourcePoolCheckCPUShareLevel("custom"),
 					testAccResourceVSphereResourcePoolCheckCPUShares(10),
-					testAccResourceVSphereResourcePoolCheckCPUReservation(10),
-					testAccResourceVSphereResourcePoolCheckCPUExpandable(false),
-					testAccResourceVSphereResourcePoolCheckCPULimit(20),
 					testAccResourceVSphereResourcePoolCheckMemoryShareLevel("custom"),
 					testAccResourceVSphereResourcePoolCheckMemoryShares(10),
 				),
@@ -145,12 +134,10 @@ func TestAccResourceVSphereResourcePool_updateToCustom(t *testing.T) {
 }
 
 func TestAccResourceVSphereResourcePool_updateToDefaults(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereResourcePoolPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereResourcePoolCheckExists(false),
@@ -164,9 +151,6 @@ func TestAccResourceVSphereResourcePool_updateToDefaults(t *testing.T) {
 					testAccResourceVSphereResourcePoolCheckCPULimit(20),
 					testAccResourceVSphereResourcePoolCheckCPUShareLevel("custom"),
 					testAccResourceVSphereResourcePoolCheckCPUShares(10),
-					testAccResourceVSphereResourcePoolCheckCPUReservation(10),
-					testAccResourceVSphereResourcePoolCheckCPUExpandable(false),
-					testAccResourceVSphereResourcePoolCheckCPULimit(20),
 					testAccResourceVSphereResourcePoolCheckMemoryShareLevel("custom"),
 					testAccResourceVSphereResourcePoolCheckMemoryShares(10),
 				),
@@ -190,12 +174,10 @@ func TestAccResourceVSphereResourcePool_updateToDefaults(t *testing.T) {
 }
 
 func TestAccResourceVSphereResourcePool_esxiHost(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereResourcePoolPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereResourcePoolCheckExists(false),
@@ -238,12 +220,10 @@ func TestAccResourceVSphereResourcePool_updateParent(t *testing.T) {
 }
 
 func TestAccResourceVSphereResourcePool_tags(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereResourcePoolPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereResourcePoolCheckExists(false),
@@ -257,18 +237,6 @@ func TestAccResourceVSphereResourcePool_tags(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccResourceVSphereResourcePoolPreCheck(t *testing.T) {
-	if os.Getenv("TF_VAR_VSPHERE_DATACENTER") == "" {
-		t.Skip("set TF_VAR_VSPHERE_DATACENTER to run vsphere_resource_pool acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_CLUSTER") == "" {
-		t.Skip("set TF_VAR_VSPHERE_CLUSTER to run vsphere_resource_pool acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_ESXI2") == "" {
-		t.Skip("set TF_VAR_VSPHERE_ESXI2 to run vsphere_resource_pool acceptance tests")
-	}
 }
 
 func testAccResourceVSphereResourcePoolCheckExists(expected bool) resource.TestCheckFunc {
@@ -471,7 +439,6 @@ resource "vsphere_resource_pool" "resource_pool" {
   memory_reservation       = 10
   memory_expandable        = false
   memory_limit             = 20
-  scale_descendants_shares = "scaleCpuAndMemoryShares"
 }
 `, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootComputeCluster1()),
 	)

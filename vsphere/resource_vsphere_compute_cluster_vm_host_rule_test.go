@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"reflect"
 	"testing"
 
@@ -22,12 +21,10 @@ import (
 )
 
 func TestAccResourceVSphereComputeClusterVMHostRule_basic(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereComputeClusterVMHostRulePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereComputeClusterVMHostRuleExists(false),
@@ -93,12 +90,10 @@ func TestAccResourceVSphereComputeClusterVMHostRule_basic(t *testing.T) {
 }
 
 func TestAccResourceVSphereComputeClusterVMHostRule_antiAffinity(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereComputeClusterVMHostRulePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereComputeClusterVMHostRuleExists(false),
@@ -122,12 +117,10 @@ func TestAccResourceVSphereComputeClusterVMHostRule_antiAffinity(t *testing.T) {
 }
 
 func TestAccResourceVSphereComputeClusterVMHostRule_updateEnabled(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereComputeClusterVMHostRulePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereComputeClusterVMHostRuleExists(false),
@@ -165,12 +158,10 @@ func TestAccResourceVSphereComputeClusterVMHostRule_updateEnabled(t *testing.T) 
 }
 
 func TestAccResourceVSphereComputeClusterVMHostRule_updateAffinity(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereComputeClusterVMHostRulePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereComputeClusterVMHostRuleExists(false),
@@ -205,24 +196,6 @@ func TestAccResourceVSphereComputeClusterVMHostRule_updateAffinity(t *testing.T)
 			},
 		},
 	})
-}
-
-func testAccResourceVSphereComputeClusterVMHostRulePreCheck(t *testing.T) {
-	if os.Getenv("TF_VAR_VSPHERE_DATACENTER") == "" {
-		t.Skip("set TF_VAR_VSPHERE_DATACENTER to run vsphere_compute_cluster_vm_host_rule acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_ESXI1") == "" {
-		t.Skip("set TF_VAR_VSPHERE_ESXI1 to run vsphere_compute_cluster_vm_host_rule acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_ESXI2") == "" {
-		t.Skip("set TF_VAR_VSPHERE_ESXI2 to run vsphere_compute_cluster_vm_host_rule acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_NFS_DS_NAME") == "" {
-		t.Skip("set TF_VAR_VSPHERE_NFS_DS_NAME to run vsphere_compute_cluster_vm_host_rule acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_PG_NAME") == "" {
-		t.Skip("set TF_VAR_VSPHERE_PG_NAME to run vsphere_compute_cluster_vm_host_rule acceptance tests")
-	}
 }
 
 func testAccResourceVSphereComputeClusterVMHostRuleExists(expected bool) resource.TestCheckFunc {
@@ -305,28 +278,28 @@ func testAccResourceVSphereComputeClusterVMHostRuleConfigAffinity() string {
 resource "vsphere_virtual_machine" "vm" {
   name             = "testacc-test"
   resource_pool_id = data.vsphere_compute_cluster.rootcompute_cluster1.resource_pool_id
-  datastore_id     = vsphere_nas_datastore.ds1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
 
   num_cpus = 2
   memory   = 2048
   guest_id = "other3xLinuxGuest"
 
-  wait_for_guest_net_timeout = -1
+  wait_for_guest_net_timeout = 0
 
   network_interface {
     network_id = data.vsphere_network.network1.id
   }
 
   disk {
-    label = "disk0"
-    size  = 20
+    label          = "disk0"
+    size           = 1
+    io_reservation = 1
   }
 }
 
 resource "vsphere_compute_cluster_host_group" "cluster_host_group" {
   name               = "terraform-test-cluster-host-group"
   compute_cluster_id = data.vsphere_compute_cluster.rootcompute_cluster1.id
-  host_system_ids    = [data.vsphere_host.roothost1.id, data.vsphere_host.roothost2.id]
 }
 
 resource "vsphere_compute_cluster_vm_group" "cluster_vm_group" {
@@ -343,11 +316,8 @@ resource "vsphere_compute_cluster_vm_host_rule" "cluster_vm_host_rule" {
 }
 `, testhelper.CombineConfigs(
 		testhelper.ConfigDataRootDC1(),
-		testhelper.ConfigDataRootHost1(),
-		testhelper.ConfigDataRootHost2(),
-		testhelper.ConfigResDS1(),
+		testhelper.ConfigDataRootDS1(),
 		testhelper.ConfigDataRootComputeCluster1(),
-		testhelper.ConfigResResourcePool1(),
 		testhelper.ConfigDataRootPortGroup1()),
 	)
 }
@@ -359,28 +329,28 @@ func testAccResourceVSphereComputeClusterVMHostRuleConfigAntiAffinity() string {
 resource "vsphere_virtual_machine" "vm" {
   name             = "testacc-test"
   resource_pool_id = data.vsphere_compute_cluster.rootcompute_cluster1.resource_pool_id
-  datastore_id     = vsphere_nas_datastore.ds1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
 
   num_cpus = 2
   memory   = 2048
   guest_id = "other3xLinuxGuest"
 
-  wait_for_guest_net_timeout = -1
+  wait_for_guest_net_timeout = 0
 
   network_interface {
     network_id = data.vsphere_network.network1.id
   }
 
   disk {
-    label = "disk0"
-    size  = 20
+    label          = "disk0"
+    size           = 1
+    io_reservation = 1
   }
 }
 
 resource "vsphere_compute_cluster_host_group" "cluster_host_group" {
   name               = "terraform-test-cluster-host-group"
   compute_cluster_id = data.vsphere_compute_cluster.rootcompute_cluster1.id
-  host_system_ids    = [data.vsphere_host.roothost1.id, data.vsphere_host.roothost2.id]
 }
 
 resource "vsphere_compute_cluster_vm_group" "cluster_vm_group" {
@@ -397,11 +367,8 @@ resource "vsphere_compute_cluster_vm_host_rule" "cluster_vm_host_rule" {
 }
 `, testhelper.CombineConfigs(
 		testhelper.ConfigDataRootDC1(),
-		testhelper.ConfigDataRootHost1(),
-		testhelper.ConfigDataRootHost2(),
-		testhelper.ConfigResDS1(),
+		testhelper.ConfigDataRootDS1(),
 		testhelper.ConfigDataRootComputeCluster1(),
-		testhelper.ConfigResResourcePool1(),
 		testhelper.ConfigDataRootPortGroup1()),
 	)
 }
@@ -413,28 +380,28 @@ func testAccResourceVSphereComputeClusterVMHostRuleConfigDisabled() string {
 resource "vsphere_virtual_machine" "vm" {
   name             = "testacc-test"
   resource_pool_id = data.vsphere_compute_cluster.rootcompute_cluster1.resource_pool_id
-  datastore_id     = vsphere_nas_datastore.ds1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
 
   num_cpus = 2
   memory   = 2048
   guest_id = "other3xLinuxGuest"
 
-  wait_for_guest_net_timeout = -1
+  wait_for_guest_net_timeout = 0
 
   network_interface {
     network_id = data.vsphere_network.network1.id
   }
 
   disk {
-    label = "disk0"
-    size  = 20
+    label          = "disk0"
+    size           = 1
+    io_reservation = 1
   }
 }
 
 resource "vsphere_compute_cluster_host_group" "cluster_host_group" {
   name               = "terraform-test-cluster-host-group"
   compute_cluster_id = data.vsphere_compute_cluster.rootcompute_cluster1.id
-  host_system_ids    = [data.vsphere_host.roothost1.id, data.vsphere_host.roothost2.id]
 }
 
 resource "vsphere_compute_cluster_vm_group" "cluster_vm_group" {
@@ -452,11 +419,8 @@ resource "vsphere_compute_cluster_vm_host_rule" "cluster_vm_host_rule" {
 }
 `, testhelper.CombineConfigs(
 		testhelper.ConfigDataRootDC1(),
-		testhelper.ConfigDataRootHost1(),
-		testhelper.ConfigDataRootHost2(),
-		testhelper.ConfigResDS1(),
+		testhelper.ConfigDataRootDS1(),
 		testhelper.ConfigDataRootComputeCluster1(),
-		testhelper.ConfigResResourcePool1(),
 		testhelper.ConfigDataRootPortGroup1()),
 	)
 }

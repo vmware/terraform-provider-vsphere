@@ -14,7 +14,6 @@ import (
 )
 
 func TestAccDataSourceVSphereContentLibraryItem_basic(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -45,20 +44,19 @@ variable "file" {
 
 data "vsphere_datastore" "ds" {
   datacenter_id = data.vsphere_datacenter.rootdc1.id
-  name          = vsphere_nas_datastore.ds1.name
+  name          = data.vsphere_datastore.rootds1.name
 }
 
 resource "vsphere_content_library" "library" {
   name            = "ContentLibrary_test"
-  storage_backing = [data.vsphere_datastore.ds.id]
+  storage_backing = [data.vsphere_datastore.rootds1.id]
   description     = "Library Description"
 }
 
 resource "vsphere_content_library_item" "item" {
-  name        = "ubuntu"
-  description = "Ubuntu Description"
+  name        = "TinyVM"
   library_id  = vsphere_content_library.library.id
-  type        = "ovf"
+  type        = "ova"
   file_url    = var.file
 }
 
@@ -67,7 +65,7 @@ data "vsphere_content_library_item" "item" {
   library_id = vsphere_content_library.library.id
   type       = "ovf"
 }
-`, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootHost1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigResDS1(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigResResourcePool1(), testhelper.ConfigDataRootPortGroup1()),
-		testhelper.ContentLibraryFiles,
+`, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootDS1()),
+		testhelper.TestOva,
 	)
 }

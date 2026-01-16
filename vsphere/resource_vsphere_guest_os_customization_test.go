@@ -14,7 +14,7 @@ import (
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/guestoscustomizations"
 )
 
-func TestAccResourceVSpherGOSC_windows_basic(t *testing.T) {
+func TestAccResourceVSphereGOSC_windows_basic(t *testing.T) {
 	goscName := acctest.RandomWithPrefix("win")
 	goscResourceName := acctest.RandomWithPrefix("gosc")
 	resource.Test(t, resource.TestCase{
@@ -33,10 +33,9 @@ func TestAccResourceVSpherGOSC_windows_basic(t *testing.T) {
 	})
 }
 
-func TestAccResourceVSpherGOSC_windows_workGroup(t *testing.T) {
+func TestAccResourceVSphereGOSC_windows_workGroup(t *testing.T) {
 	goscName := acctest.RandomWithPrefix("win")
 	goscResourceName := acctest.RandomWithPrefix("gosc")
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -53,7 +52,7 @@ func TestAccResourceVSpherGOSC_windows_workGroup(t *testing.T) {
 	})
 }
 
-func TestAccResourceVSpherGOSC_linux(t *testing.T) {
+func TestAccResourceVSphereGOSC_linux(t *testing.T) {
 	goscName := acctest.RandomWithPrefix("lin")
 	goscResourceName := acctest.RandomWithPrefix("gosc")
 	resource.Test(t, resource.TestCase{
@@ -72,7 +71,7 @@ func TestAccResourceVSpherGOSC_linux(t *testing.T) {
 	})
 }
 
-func TestAccResourceVSpherGOSC_sysprep(t *testing.T) {
+func TestAccResourceVSphereGOSC_sysprep(t *testing.T) {
 	goscName := acctest.RandomWithPrefix("lin")
 	goscResourceName := acctest.RandomWithPrefix("gosc")
 	resource.Test(t, resource.TestCase{

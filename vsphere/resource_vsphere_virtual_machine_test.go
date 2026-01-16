@@ -208,7 +208,6 @@ func TestAccResourceVSphereVirtualMachine_videoCardCreate(t *testing.T) {
 }
 
 func TestAccResourceVSphereVirtualMachine_evc(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -375,35 +374,27 @@ func TestAccResourceVSphereVirtualMachine_hardwareVersionUpgrade(t *testing.T) {
 }
 
 func TestAccResourceVSphereVirtualMachine_hardwareVersionInvalidVersion(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
-				ExpectError: regexp.MustCompile("expected hardware_version to be in the range"),
+				ExpectError: regexp.MustCompile("\"hardware_version\" must be 4, 7-11, 13-15, 17-22, got: 1"),
 				Config:      testAccResourceVSphereVirtualMachineConfigBareHardwareVersion(1),
-				Check: resource.ComposeTestCheckFunc(
-					testAccResourceVSphereVirtualMachineCheckExists(true),
-					resource.TestMatchResourceAttr("vsphere_virtual_machine.vm", "hardware_version", regexp.MustCompile("^14$")),
-				),
 			},
 		},
 	})
 }
 
 func TestAccResourceVSphereVirtualMachine_hardwareVersionDowngrade(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -449,7 +440,6 @@ func TestAccResourceVSphereVirtualMachineContentLibrary_basic(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -510,7 +500,6 @@ func TestAccResourceVSphereVirtualMachine_ESXiOnly(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 			testAccSkipIfNotEsxi(t)
 		},
 		Providers:    testAccProviders,
@@ -737,7 +726,6 @@ func TestAccResourceVSphereVirtualMachine_highDiskUnitInsufficientBus(t *testing
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -835,7 +823,6 @@ func TestAccResourceVSphereVirtualMachine_disksKeepOnRemove(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -864,7 +851,6 @@ func TestAccResourceVSphereVirtualMachine_cdromClientMapping(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -886,7 +872,6 @@ func TestAccResourceVSphereVirtualMachine_vAppIsoBasic(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -908,7 +893,6 @@ func TestAccResourceVSphereVirtualMachine_vAppIsoNoVApp(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -932,7 +916,6 @@ func TestAccResourceVSphereVirtualMachine_vAppIsoNoCdrom(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -955,7 +938,6 @@ func TestAccResourceVSphereVirtualMachine_vAppIsoConfigIsoIgnored(t *testing.T) 
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -980,7 +962,6 @@ func TestAccResourceVSphereVirtualMachine_vAppIsoChangeCdromBacking(t *testing.T
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1010,7 +991,6 @@ func TestAccResourceVSphereVirtualMachine_vAppIsoPoweredOffCdromRead(t *testing.
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1042,7 +1022,6 @@ func TestAccResourceVSphereVirtualMachine_vvtdAndVbs(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -1063,7 +1042,6 @@ func TestAccResourceVSphereVirtualMachine_cdromNoParameters(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1085,7 +1063,6 @@ func TestAccResourceVSphereVirtualMachine_cdromIsoBacking(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1105,7 +1082,6 @@ func TestAccResourceVSphereVirtualMachine_cdromConflictingParameters(t *testing.
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1119,7 +1095,6 @@ func TestAccResourceVSphereVirtualMachine_cdromConflictingParameters(t *testing.
 }
 
 func TestAccResourceVSphereVirtualMachine_maximumNumberOfNICs(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
@@ -1145,7 +1120,6 @@ func TestAccResourceVSphereVirtualMachine_upgradeCPUAndRam(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1172,12 +1146,10 @@ func TestAccResourceVSphereVirtualMachine_upgradeCPUAndRam(t *testing.T) {
 }
 
 func TestAccResourceVSphereVirtualMachine_modifyAnnotation(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1201,12 +1173,10 @@ func TestAccResourceVSphereVirtualMachine_modifyAnnotation(t *testing.T) {
 }
 
 func TestAccResourceVSphereVirtualMachine_growDisk(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1230,12 +1200,10 @@ func TestAccResourceVSphereVirtualMachine_growDisk(t *testing.T) {
 }
 
 func TestAccResourceVSphereVirtualMachine_swapSCSIBus(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1259,12 +1227,10 @@ func TestAccResourceVSphereVirtualMachine_swapSCSIBus(t *testing.T) {
 }
 
 func TestAccResourceVSphereVirtualMachine_extraConfig(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1289,12 +1255,10 @@ func TestAccResourceVSphereVirtualMachine_extraConfig(t *testing.T) {
 }
 
 func TestAccResourceVSphereVirtualMachine_extraConfigSwapKeys(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1319,12 +1283,10 @@ func TestAccResourceVSphereVirtualMachine_extraConfigSwapKeys(t *testing.T) {
 }
 
 func TestAccResourceVSphereVirtualMachine_attachExistingVmdk(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1346,7 +1308,6 @@ func TestAccResourceVSphereVirtualMachine_attachExistingVmdkTaint(t *testing.T) 
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1371,12 +1332,10 @@ func TestAccResourceVSphereVirtualMachine_attachExistingVmdkTaint(t *testing.T) 
 }
 
 func TestAccResourceVSphereVirtualMachine_resourcePoolMove(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1405,7 +1364,6 @@ func TestAccResourceVSphereVirtualMachine_vAppContainerAndFolder(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1424,7 +1382,6 @@ func TestAccResourceVSphereVirtualMachine_vAppContainerMove(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1455,12 +1412,10 @@ func TestAccResourceVSphereVirtualMachine_vAppContainerMove(t *testing.T) {
 }
 
 func TestAccResourceVSphereVirtualMachine_inFolder(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1503,12 +1458,10 @@ func TestAccResourceVSphereVirtualMachine_moveToFolder(t *testing.T) {
 }
 
 func TestAccResourceVSphereVirtualMachine_staticMAC(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1525,12 +1478,10 @@ func TestAccResourceVSphereVirtualMachine_staticMAC(t *testing.T) {
 }
 
 func TestAccResourceVSphereVirtualMachine_singleTag(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1547,12 +1498,10 @@ func TestAccResourceVSphereVirtualMachine_singleTag(t *testing.T) {
 }
 
 func TestAccResourceVSphereVirtualMachine_multipleTags(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1569,12 +1518,10 @@ func TestAccResourceVSphereVirtualMachine_multipleTags(t *testing.T) {
 }
 
 func TestAccResourceVSphereVirtualMachine_switchTags(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1605,7 +1552,6 @@ func TestAccResourceVSphereVirtualMachine_renamedDiskInPlaceOfExisting(t *testin
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1656,7 +1602,6 @@ func TestAccResourceVSphereVirtualMachine_blockComputedDiskName(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers: testAccProviders,
 		ExternalProviders: map[string]resource.ExternalProvider{
@@ -1681,7 +1626,6 @@ func TestAccResourceVSphereVirtualMachine_blockVAppSettingsOnNonClones(t *testin
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1700,7 +1644,6 @@ func TestAccResourceVSphereVirtualMachine_blockVAppSettingsOnNonClonesAfterCreat
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1731,7 +1674,6 @@ func TestAccResourceVSphereVirtualMachine_blockDiskLabelStartingWithOrphanedPref
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1751,7 +1693,6 @@ func TestAccResourceVSphereVirtualMachine_createIntoEmptyClusterNoEnvironmentBro
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1770,7 +1711,6 @@ func TestAccResourceVSphereVirtualMachine_cloneFromTemplate(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1791,7 +1731,6 @@ func TestAccResourceVSphereVirtualMachine_clonePoweredOn(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1812,7 +1751,6 @@ func TestAccResourceVSphereVirtualMachine_cloneCustomizeWithNewResourcePool(t *t
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1835,7 +1773,6 @@ func TestAccResourceVSphereVirtualMachine_cloneCustomizeForceNewWithDatastore(t 
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1887,7 +1824,6 @@ func TestAccResourceVSphereVirtualMachine_cloneModifyDiskAndSCSITypeAtSameTime(t
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1927,7 +1863,6 @@ func TestAccResourceVSphereVirtualMachine_cloneMultiNICWithSameGateway(t *testin
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1948,7 +1883,6 @@ func TestAccResourceVSphereVirtualMachine_cloneMultiNICFromSingleNICTemplate(t *
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1969,7 +1903,6 @@ func TestAccResourceVSphereVirtualMachine_cloneMultiNICSRIOVFromVMXNET3Template(
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -1990,7 +1923,6 @@ func TestAccResourceVSphereVirtualMachine_cloneWithDifferentTimezone(t *testing.
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2011,7 +1943,6 @@ func TestAccResourceVSphereVirtualMachine_cloneBlockESXi(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 			testAccSkipIfNotEsxi(t)
 		},
 		Providers:    testAccProviders,
@@ -2036,7 +1967,6 @@ func TestAccResourceVSphereVirtualMachine_cloneWithBadTimezone(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2079,7 +2009,6 @@ func TestAccResourceVSphereVirtualMachine_cloneWithBadSizeWithLinkedClone(t *tes
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2099,7 +2028,6 @@ func TestAccResourceVSphereVirtualMachine_cloneWithBadSizeWithoutLinkedClone(t *
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2118,7 +2046,6 @@ func TestAccResourceVSphereVirtualMachine_cloneIntoEmptyCluster(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2140,7 +2067,6 @@ func TestAccResourceVSphereVirtualMachine_cloneWithDifferentHostname(t *testing.
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2161,7 +2087,6 @@ func TestAccResourceVSphereVirtualMachine_cloneWithDiskTypeChange(t *testing.T) 
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2183,7 +2108,6 @@ func TestAccResourceVSphereVirtualMachine_cloneOnDsCuster(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 			testAccDsClusterRequiredPreCheck(t)
 		},
 		Providers:    testAccProviders,
@@ -2205,7 +2129,6 @@ func TestAccResourceVSphereVirtualMachine_cpuHotAdd(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2237,7 +2160,6 @@ func TestAccResourceVSphereVirtualMachine_memoryHotAdd(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2269,7 +2191,6 @@ func TestAccResourceVSphereVirtualMachine_dualStackIPv4AndIPv6(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2291,7 +2212,6 @@ func TestAccResourceVSphereVirtualMachine_hostCheck(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2320,7 +2240,6 @@ func TestAccResourceVSphereVirtualMachine_hostVMotion(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2349,7 +2268,6 @@ func TestAccResourceVSphereVirtualMachine_resourcePoolVMotion(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2378,7 +2296,6 @@ func TestAccResourceVSphereVirtualMachine_storageVMotionGlobalSetting(t *testing
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2415,7 +2332,6 @@ func TestAccResourceVSphereVirtualMachine_storageVMotionSingleDisk(t *testing.T)
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2451,7 +2367,6 @@ func TestAccResourceVSphereVirtualMachine_storageVMotionPinDatastore(t *testing.
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2487,7 +2402,6 @@ func TestAccResourceVSphereVirtualMachine_storageVMotionRenamedVirtualMachine(t 
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2531,7 +2445,6 @@ func TestAccResourceVSphereVirtualMachine_storageVMotionLinkedClones(t *testing.
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2571,7 +2484,6 @@ func TestAccResourceVSphereVirtualMachine_storageVMotionBlockExternallyAttachedD
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2603,7 +2515,6 @@ func TestAccResourceVSphereVirtualMachine_singleCustomAttribute(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2625,7 +2536,6 @@ func TestAccResourceVSphereVirtualMachine_multiCustomAttribute(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2647,7 +2557,6 @@ func TestAccResourceVSphereVirtualMachine_switchCustomAttribute(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2676,7 +2585,6 @@ func TestAccResourceVSphereVirtualMachine_multipleDisksAtDifferentSCSISlotsImpor
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2718,7 +2626,6 @@ func TestAccResourceVSphereVirtualMachine_cloneImport(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2801,7 +2708,6 @@ func TestAccResourceVSphereVirtualMachine_interpolatedDisk(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2826,7 +2732,6 @@ func TestAccResourceVSphereVirtualMachine_deployOvfFromUrl(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2871,7 +2776,6 @@ func TestAccResourceVSphereVirtualMachine_cloneWithCustomizationSpec(t *testing.
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2892,7 +2796,6 @@ func TestAccResourceVSphereVirtualMachine_SRIOV(t *testing.T) {
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 			testAccSriovPreCheck(t)
 		},
 		Providers:    testAccProviders,
@@ -2914,7 +2817,6 @@ func TestAccResourceVSphereVirtualMachine_createMemoryReservationLockedToMax(t *
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
@@ -2936,7 +2838,6 @@ func TestAccResourceVSphereVirtualMachine_deployOvfFromUrlMultipleVmsSameName(t 
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers: testAccProviders,
 		CheckDestroy: resource.ComposeTestCheckFunc(
@@ -2963,7 +2864,6 @@ func TestAccResourceVSphereVirtualMachine_nvmeController(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
-			testAccResourceVSphereVirtualMachinePreCheck(t)
 		},
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -3044,51 +2944,6 @@ func TestAccResourceVSphereVirtualMachine_vAppExternalPort(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccResourceVSphereVirtualMachinePreCheck(t *testing.T) {
-	// Note that TF_VAR_VSPHERE_USE_LINKED_CLONE is also a variable and its presence
-	// speeds up tests greatly, but it's not a necessary variable, so we don't
-	// enforce it here.
-	if os.Getenv("TF_VAR_VSPHERE_DATACENTER") == "" {
-		t.Skip("set TF_VAR_VSPHERE_DATACENTER to run vsphere_virtual_machine acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_CLUSTER") == "" {
-		t.Skip("set TF_VAR_VSPHERE_CLUSTER to run vsphere_virtual_machine acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_RESOURCE_POOL") == "" {
-		t.Skip("set TF_VAR_VSPHERE_RESOURCE_POOL to run vsphere_virtual_machine acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_PG_NAME") == "" {
-		t.Skip("set TF_VAR_VSPHERE_PG_NAME to run vsphere_virtual_machine acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_NFS_DS_NAME") == "" {
-		t.Skip("set TF_VAR_VSPHERE_NFS_DS_NAME to run vsphere_virtual_machine acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_TEMPLATE") == "" {
-		t.Skip("set TF_VAR_VSPHERE_TEMPLATE to run vsphere_virtual_machine acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_TEMPLATE_ISO_TRANSPORT") == "" {
-		t.Skip("set TF_VAR_VSPHERE_TEMPLATE_ISO_TRANSPORT to run vsphere_virtual_machine acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_TEMPLATE_WINDOWS") == "" {
-		t.Skip("set TF_VAR_VSPHERE_TEMPLATE_WINDOWS to run vsphere_virtual_machine acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_TEMPLATE_NONUSER_VAPP") == "" {
-		t.Skip("set TF_VAR_VSPHERE_TEMPLATE_NONUSER_VAPP to run vsphere_virtual_machine acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_TEMPLATE_COREOS") == "" {
-		t.Skip("set TF_VAR_VSPHERE_TEMPLATE_COREOS to run vsphere_virtual_machine acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_ESXI1") == "" {
-		t.Skip("set TF_VAR_VSPHERE_ESXI1 to run vsphere_virtual_machine acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_ESXI2") == "" {
-		t.Skip("set TF_VAR_VSPHERE_ESXI2 to run vsphere_virtual_machine acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_NAS_HOST") == "" {
-		t.Skip("set TF_VAR_VSPHERE_NAS_HOST to run vsphere_virtual_machine acceptance tests")
-	}
 }
 
 func testAccDsClusterRequiredPreCheck(t *testing.T) {
@@ -5651,6 +5506,7 @@ resource "vsphere_virtual_machine" "vm" {
   memory     = 2048
   guest_id   = "other3xLinuxGuest"
   annotation = var.annotation
+  firmware   = "efi"
 
   network_interface {
     network_id = data.vsphere_network.network1.id
@@ -5659,6 +5515,7 @@ resource "vsphere_virtual_machine" "vm" {
   disk {
     label = "disk0"
     size  = 1
+io_reservation = 1
   }
 }
 `,
@@ -5690,8 +5547,9 @@ resource "vsphere_virtual_machine" "vm" {
   }
 
   disk {
-    label = "disk0"
-    size  = %d
+    label          = "disk0"
+    size           = %d
+    io_reservation = 1
   }
 }
 `,
@@ -5715,6 +5573,7 @@ resource "vsphere_virtual_machine" "vm" {
   num_cpus = 2
   memory   = 2048
   guest_id = "other3xLinuxGuest"
+  firmware = "efi"
 
   scsi_type = "lsilogic-sas"
 
@@ -5727,6 +5586,7 @@ resource "vsphere_virtual_machine" "vm" {
   disk {
     label = "disk0"
     size  = 1
+io_reservation = 1
   }
 }
 `,
@@ -5749,6 +5609,7 @@ resource "vsphere_virtual_machine" "vm" {
   num_cpus = 2
   memory   = 2048
   guest_id = "other3xLinuxGuest"
+  firmware = "efi"
 
   wait_for_guest_net_timeout = 0
 
@@ -5762,8 +5623,9 @@ resource "vsphere_virtual_machine" "vm" {
   }
 
   disk {
-    label = "disk0"
-    size  = 1
+    label          = "disk0"
+    size           = 1
+    io_reservation = 1
   }
 }
 `,
@@ -5800,6 +5662,7 @@ resource "vsphere_virtual_machine" "vm" {
   num_cpus = 2
   memory   = 2048
   guest_id = "other3xLinuxGuest"
+  firmware = "efi"
 
   wait_for_guest_net_timeout = 0
 
@@ -5808,17 +5671,19 @@ resource "vsphere_virtual_machine" "vm" {
   }
 
   disk {
-    label = "disk0"
-    size  = 1
+    label          = "disk0"
+    size           = 1
+    io_reservation = 1
   }
 
   disk {
-    label        = "disk1"
-    datastore_id = data.vsphere_datastore.rootds1.id
-    path         = vsphere_virtual_disk.disk.vmdk_path
-    disk_mode    = "independent_persistent"
-    attach       = true
-    unit_number  = 1
+    label          = "disk1"
+    datastore_id   = data.vsphere_datastore.rootds1.id
+    path           = vsphere_virtual_disk.disk.vmdk_path
+    disk_mode      = "independent_persistent"
+    attach         = true
+    unit_number    = 1
+    io_reservation = 1
   }
 }
 `,
@@ -5940,6 +5805,7 @@ resource "vsphere_virtual_machine" "vm" {
   memory                     = 2048
   guest_id                   = "other3xLinuxGuest"
   wait_for_guest_net_timeout = -1
+  firmware                   = "efi"
 
   network_interface {
     network_id = data.vsphere_network.network1.id
@@ -5948,6 +5814,7 @@ resource "vsphere_virtual_machine" "vm" {
   disk {
     label = "disk0"
     size  = 1
+    io_reservation = 1
   }
 }
 `,
@@ -6097,6 +5964,7 @@ resource "vsphere_virtual_machine" "vm" {
   num_cpus = 2
   memory   = 2048
   guest_id = "other3xLinuxGuest"
+  firmware = "efi"
 
   wait_for_guest_net_timeout = 0
 
@@ -6109,6 +5977,7 @@ resource "vsphere_virtual_machine" "vm" {
   disk {
     label = "disk0"
     size  = 1
+    io_reservation = 1
   }
 }
 `,
@@ -6146,6 +6015,7 @@ resource "vsphere_virtual_machine" "vm" {
   num_cpus = 2
   memory   = 2048
   guest_id = "other3xLinuxGuest"
+  firmware = "efi"
 
   wait_for_guest_net_timeout = 0
 
@@ -6156,6 +6026,7 @@ resource "vsphere_virtual_machine" "vm" {
   disk {
     label = "disk0"
     size  = 1
+    io_reservation = 1
   }
 
   tags = [
@@ -6209,6 +6080,7 @@ resource "vsphere_virtual_machine" "vm" {
   num_cpus = 2
   memory   = 2048
   guest_id = "other3xLinuxGuest"
+  firmware = "efi"
 
   wait_for_guest_net_timeout = 0
 
@@ -6219,9 +6091,10 @@ resource "vsphere_virtual_machine" "vm" {
   disk {
     label = "disk0"
     size  = 1
+    io_reservation = 1
   }
 
-  tags = vsphere_tag.testacc-tags-alt.*.id
+  tags = "${vsphere_tag.testacc-tags-alt.*.id}"
 }
 `,
 
@@ -8390,7 +8263,7 @@ resource "vsphere_virtual_machine" "vm" {
 
 
 `, testAccResourceVSphereVirtualMachineConfigBase(),
-		testhelper.ContentLibraryFiles,
+		testhelper.TestOvf,
 	)
 }
 

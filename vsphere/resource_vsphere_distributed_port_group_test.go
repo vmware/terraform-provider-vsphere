@@ -52,12 +52,10 @@ func TestAccResourceVSphereDistributedPortGroup_basic(t *testing.T) {
 }
 
 func TestAccResourceVSphereDistributedPortGroup_inheritPolicyDiffCheck(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDistributedPortGroupPreCheck()
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDistributedPortGroupExists(false),
@@ -73,12 +71,10 @@ func TestAccResourceVSphereDistributedPortGroup_inheritPolicyDiffCheck(t *testin
 }
 
 func TestAccResourceVSphereDistributedPortGroup_inheritPolicyDiffCheckVlanRangeTypeSetEdition(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDistributedPortGroupPreCheck()
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDistributedPortGroupExists(false),
@@ -115,12 +111,10 @@ func TestAccResourceVSphereDistributedPortGroup_overrideVlan(t *testing.T) {
 }
 
 func TestAccResourceVSphereDistributedPortGroup_singleTag(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDistributedPortGroupPreCheck()
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDistributedPortGroupExists(false),
@@ -137,12 +131,10 @@ func TestAccResourceVSphereDistributedPortGroup_singleTag(t *testing.T) {
 }
 
 func TestAccResourceVSphereDistributedPortGroup_multiTag(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDistributedPortGroupPreCheck()
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDistributedPortGroupExists(false),
@@ -159,12 +151,10 @@ func TestAccResourceVSphereDistributedPortGroup_multiTag(t *testing.T) {
 }
 
 func TestAccResourceVSphereDistributedPortGroup_singleCustomAttribute(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDistributedPortGroupPreCheck()
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDistributedPortGroupExists(false),
@@ -181,12 +171,10 @@ func TestAccResourceVSphereDistributedPortGroup_singleCustomAttribute(t *testing
 }
 
 func TestAccResourceVSphereDistributedPortGroup_multiCustomAttribute(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereDistributedPortGroupPreCheck()
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereDistributedPortGroupExists(false),
@@ -207,9 +195,6 @@ func TestAccResourceVSphereDistributedPortGroup_multiCustomAttribute(t *testing.
 			},
 		},
 	})
-}
-
-func testAccResourceVSphereDistributedPortGroupPreCheck() {
 }
 
 func testAccResourceVSphereDistributedPortGroupExists(expected bool) resource.TestCheckFunc {
@@ -516,7 +501,7 @@ resource "vsphere_distributed_virtual_switch" "dvs" {
 
 locals {
   pg_attrs = {
-    vsphere_custom_attribute.testacc-attribute.id = "value"
+    "${vsphere_custom_attribute.testacc-attribute.id}" = "value"
   }
 }
 
@@ -560,8 +545,8 @@ resource "vsphere_distributed_virtual_switch" "dvs" {
 
 locals {
   pg_attrs = {
-    vsphere_custom_attribute.testacc-attribute-alt.0.id = "value"
-    vsphere_custom_attribute.testacc-attribute-alt.1.id = "value-2"
+    "${vsphere_custom_attribute.testacc-attribute-alt.0.id}" = "value"
+    "${vsphere_custom_attribute.testacc-attribute-alt.1.id}" = "value-2"
   }
 }
 

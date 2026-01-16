@@ -116,8 +116,20 @@ func resourceVSphereZoneUpdate(ctx context.Context, d *schema.ResourceData, meta
 func resourceVSphereZoneDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*Client).restClient
 	zm := zones.NewManager(c)
+	am := associations.NewManager(c)
 
 	name := d.Get("name").(string)
+	clusterIDs := d.Get("cluster_ids").(*schema.Set)
+
+	if clusterIDs != nil {
+		for _, clusterID := range clusterIDs.List() {
+			tflog.Debug(ctx, fmt.Sprintf("removing association of vSphere Zone %s with cluster %s", name, clusterID))
+			if err := am.RemoveAssociations(name, clusterID.(string)); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
+
 	tflog.Debug(ctx, fmt.Sprintf("deleting vSphere Zone %s", name))
 	if err := zm.DeleteZone(name); err != nil {
 		return diag.FromErr(err)

@@ -6,7 +6,6 @@ package vsphere
 
 import (
 	"fmt"
-	"os"
 	"regexp"
 	"testing"
 
@@ -48,12 +47,10 @@ func TestAccResourceVSphereContentLibrary_basic(t *testing.T) {
 }
 
 func TestAccResourceVSphereContentLibrary_subscribed(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereContentLibraryPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereContentLibraryCheckExists(false),
@@ -75,12 +72,10 @@ func TestAccResourceVSphereContentLibrary_subscribed(t *testing.T) {
 	})
 }
 func TestAccResourceVSphereContentLibrary_authenticated(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereContentLibraryPreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereContentLibraryCheckExists(false),
@@ -95,15 +90,6 @@ func TestAccResourceVSphereContentLibrary_authenticated(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccResourceVSphereContentLibraryPreCheck(t *testing.T) {
-	if os.Getenv("TF_VAR_VSPHERE_DATACENTER") == "" {
-		t.Skip("set TF_VAR_VSPHERE_DATACENTER to run vsphere_content_library acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_NFS_DS_NAME") == "" {
-		t.Skip("set TF_VAR_VSPHERE_NFS_DS_NAME to run vsphere_content_library acceptance tests")
-	}
 }
 
 func testAccResourceVSphereContentLibraryDescription(expected *regexp.Regexp) resource.TestCheckFunc {

@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"reflect"
 	"testing"
 
@@ -109,12 +108,10 @@ func TestAccResourceVSphereHAVMOverride_basic(t *testing.T) {
 }
 
 func TestAccResourceVSphereHAVMOverride_complete(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereHAVMOverridePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereHAVMOverrideExists(false),
@@ -149,12 +146,10 @@ func TestAccResourceVSphereHAVMOverride_complete(t *testing.T) {
 }
 
 func TestAccResourceVSphereHAVMOverride_update(t *testing.T) {
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
-			testAccResourceVSphereHAVMOverridePreCheck(t)
 		},
 		Providers:    testAccProviders,
 		CheckDestroy: testAccResourceVSphereHAVMOverrideExists(false),
@@ -211,21 +206,6 @@ func TestAccResourceVSphereHAVMOverride_update(t *testing.T) {
 			},
 		},
 	})
-}
-
-func testAccResourceVSphereHAVMOverridePreCheck(t *testing.T) {
-	if os.Getenv("TF_VAR_VSPHERE_DATACENTER") == "" {
-		t.Skip("set TF_VAR_VSPHERE_DATACENTER to run vsphere_ha_vm_override acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_NFS_DS_NAME") == "" {
-		t.Skip("set TF_VAR_VSPHERE_NFS_DS_NAME to run vsphere_ha_vm_override acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_CLUSTER") == "" {
-		t.Skip("set TF_VAR_VSPHERE_CLUSTER to run vsphere_ha_vm_override acceptance tests")
-	}
-	if os.Getenv("TF_VAR_VSPHERE_PG_NAME") == "" {
-		t.Skip("set TF_VAR_VSPHERE_PG_NAME to run vsphere_ha_vm_override acceptance tests")
-	}
 }
 
 func testAccResourceVSphereHAVMOverrideExists(expected bool) resource.TestCheckFunc {
@@ -409,8 +389,8 @@ resource "vsphere_virtual_machine" "vm" {
   }
 
   disk {
-    label = "disk0"
-    size  = 2
+    label          = "disk0"
+    size           = 2
     io_reservation = 1
   }
 }
@@ -421,8 +401,6 @@ resource "vsphere_ha_vm_override" "ha_vm_override" {
 }
 `, testhelper.CombineConfigs(
 		testhelper.ConfigDataRootDC1(),
-		testhelper.ConfigDataRootHost1(),
-		testhelper.ConfigDataRootHost2(),
 		testhelper.ConfigDataRootDS1(),
 		testhelper.ConfigDataRootComputeCluster1(),
 		testhelper.ConfigResResourcePool1(),
@@ -437,21 +415,22 @@ func testAccResourceVSphereHAVMOverrideConfigOverrideComplete() string {
 resource "vsphere_virtual_machine" "vm" {
   name             = "testacc-test"
   resource_pool_id = data.vsphere_compute_cluster.rootcompute_cluster1.resource_pool_id
-  datastore_id     = vsphere_nas_datastore.ds1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
 
   num_cpus = 2
   memory   = 2048
   guest_id = "other3xLinuxGuest"
 
-  wait_for_guest_net_timeout = -1
+  wait_for_guest_net_timeout = 0
 
   network_interface {
     network_id = data.vsphere_network.network1.id
   }
 
   disk {
-    label = "disk0"
-    size  = 20
+    label          = "disk0"
+    size           = 2
+    io_reservation = 1
   }
 }
 
@@ -476,6 +455,11 @@ resource "vsphere_ha_vm_override" "ha_vm_override" {
   ha_vm_maximum_resets                  = 5
   ha_vm_maximum_failure_window          = 600
 }
-`, testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootHost1(), testhelper.ConfigDataRootHost2(), testhelper.ConfigResDS1(), testhelper.ConfigDataRootComputeCluster1(), testhelper.ConfigResResourcePool1(), testhelper.ConfigDataRootPortGroup1()),
+`, testhelper.CombineConfigs(
+		testhelper.ConfigDataRootDC1(),
+		testhelper.ConfigDataRootDS1(),
+		testhelper.ConfigDataRootComputeCluster1(),
+		testhelper.ConfigResResourcePool1(),
+		testhelper.ConfigDataRootPortGroup1()),
 	)
 }

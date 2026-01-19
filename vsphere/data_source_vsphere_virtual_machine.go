@@ -232,6 +232,7 @@ func dataSourceVSphereVirtualMachine() *schema.Resource {
 		"custom_attributes": {
 			Type:     schema.TypeMap,
 			Computed: true,
+			Description: "The custom attributes applied to this virtual machine",
 			Elem:     &schema.Schema{Type: schema.TypeString},
 		},
 	}

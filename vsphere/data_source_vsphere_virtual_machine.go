@@ -226,6 +226,7 @@ func dataSourceVSphereVirtualMachine() *schema.Resource {
 		"tags": {
 			Type:     schema.TypeList,
 			Computed: true,
+			Description: "The tags applied to this virtual machine",
 			Elem:     &schema.Schema{Type: schema.TypeString},
 		},
 		"custom_attributes": {

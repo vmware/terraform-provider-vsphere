@@ -10,19 +10,23 @@ import (
 	"log"
 	"path"
 
+	"context"
+	"fmt"
+	"log"
+	"path"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/vmware/govmomi/object"
+	"github.com/vmware/govmomi/property"
 	"github.com/vmware/govmomi/vim25/types"
+	"github.com/vmware/govmomi/vapi/tags"
+	"github.com/vmware/govmomi/vim25/mo"
+	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/customattribute"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/folder"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/structure"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/virtualmachine"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/virtualdevice"
-
-	"github.com/vmware/govmomi/property"
-	"github.com/vmware/govmomi/vapi/tags"
-	"github.com/vmware/govmomi/vim25/mo"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/customattribute"
 )
 
 func dataSourceVSphereVirtualMachine() *schema.Resource {

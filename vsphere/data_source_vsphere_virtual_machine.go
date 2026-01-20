@@ -10,18 +10,13 @@ import (
 	"log"
 	"path"
 
-	"context"
-	"fmt"
-	"log"
-	"path"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/property"
-	"github.com/vmware/govmomi/vim25/types"
 	"github.com/vmware/govmomi/vapi/tags"
 	"github.com/vmware/govmomi/vim25/mo"
+	"github.com/vmware/govmomi/vim25/types"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/customattribute"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/folder"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/structure"
@@ -224,16 +219,16 @@ func dataSourceVSphereVirtualMachine() *schema.Resource {
 			Description: "Indicates whether a virtual Trusted Platform Module (TPM) device is present on the virtual machine.",
 		},
 		"tags": {
-			Type:     schema.TypeList,
-			Computed: true,
+			Type:        schema.TypeList,
+			Computed:    true,
 			Description: "The tags applied to this virtual machine",
-			Elem:     &schema.Schema{Type: schema.TypeString},
+			Elem:        &schema.Schema{Type: schema.TypeString},
 		},
 		"custom_attributes": {
-			Type:     schema.TypeMap,
-			Computed: true,
+			Type:        schema.TypeMap,
+			Computed:    true,
 			Description: "The custom attributes applied to this virtual machine",
-			Elem:     &schema.Schema{Type: schema.TypeString},
+			Elem:        &schema.Schema{Type: schema.TypeString},
 		},
 	}
 

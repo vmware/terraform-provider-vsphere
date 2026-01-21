@@ -176,8 +176,8 @@ func DiskSubresourceSchema() map[string]*schema.Schema {
 			Type:         schema.TypeInt,
 			Optional:     true,
 			Default:      0,
-			Description:  "The unique device number for this disk. This number determines where on the SCSI bus this device will be attached.",
-			ValidateFunc: validation.IntBetween(0, 59),
+			Description:  "The unique device number for this disk. This number determines where on the virtual bus this device will be attached.",
+			ValidateFunc: validation.IntAtLeast(0),
 		},
 		"keep_on_remove": {
 			Type:        schema.TypeBool,

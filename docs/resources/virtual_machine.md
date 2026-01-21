@@ -885,7 +885,7 @@ an error if you try to label a disk with this prefix.
 
 ~> **NOTE:** Use the [`api_timeout`](/docs/providers/vsphere/index.html#argument-reference) option to increase the default timeout when creating virtual machines with large disk sizes and avoid "context deadline exceeded" errors.
 
-* `unit_number` - (Optional) The disk number on the storage bus. The maximum value for this setting is the value of the controller count times the controller capacity (15 for SCSI, 30 for SATA, and 2 for IDE). Duplicate unit numbers are not allowed. Default `0`, for which one disk must be set to.
+* `unit_number` - (Optional) The disk number on the storage bus. The maximum value for this setting is the value of the controller count times the controller capacity (15 for SCSI, 30 for SATA, 2 for IDE, and 64 fo NVMe). Duplicate unit numbers are not allowed. Default `0`, for which one disk must be set to.
 
 * `datastore_id` - (Optional) The [managed object reference ID][docs-about-morefs] for the datastore on which the virtual disk is placed. The default is to use the datastore of the virtual machine. See the section on [virtual machine migration](#virtual-machine-migration) for information on modifying this value.
 

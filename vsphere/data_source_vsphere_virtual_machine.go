@@ -158,6 +158,11 @@ func dataSourceVSphereVirtualMachine() *schema.Resource {
 						Type:     schema.TypeString,
 						Computed: true,
 					},
+					"external_port_id": {
+						Type:        schema.TypeString,
+						Computed:    true,
+						Description: "The external port id to be bound to the VM port.",
+					},
 				},
 			},
 		},

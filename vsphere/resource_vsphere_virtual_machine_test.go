@@ -4149,31 +4149,31 @@ func testAccResourceVSphereVirtualMachineConfigNvme() string {
 %s  // Mix and match config
 
   resource "vsphere_virtual_machine" "vm" {
-   name             = "testacc-vm"
-   resource_pool_id = vsphere_resource_pool.pool1.id
-   datastore_id     = data.vsphere_datastore.rootds1.id
+    name             = "testacc-vm"
+    resource_pool_id = vsphere_resource_pool.pool1.id
+    datastore_id     = data.vsphere_datastore.rootds1.id
 
-   num_cpus                   = 1
-   memory                     = 512
-   // NVMe controllers are not supported on other3xLinuxGuest
-   guest_id                   = "sles16_64Guest"
-   firmware                   = "efi"
-   enable_disk_uuid           = true
-   wait_for_guest_net_timeout = 0
+    num_cpus                   = 1
+    memory                     = 512
+    // NVMe controllers are not supported on other3xLinuxGuest
+    guest_id                   = "sles16_64Guest"
+    firmware                   = "efi"
+    enable_disk_uuid           = true
+    wait_for_guest_net_timeout = 0
 
-   nvme_controller_count = 2
+    nvme_controller_count = 2
 
-   network_interface {
-     network_id = data.vsphere_network.network1.id
-   }
+    network_interface {
+      network_id = data.vsphere_network.network1.id
+    }
 
-   disk {
-     label           = "disk0"
-     size            = 1
-     io_reservation  = 1
-     unit_number     = 0
-     controller_type = "nvme"
-   }
+    disk {
+      label           = "disk0"
+      size            = 1
+      io_reservation  = 1
+      unit_number     = 0
+      controller_type = "nvme"
+    }
   }
   `,
 		testAccResourceVSphereVirtualMachineConfigBase())

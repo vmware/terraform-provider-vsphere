@@ -1085,6 +1085,13 @@ func resourceVSphereVirtualMachineCustomizeDiff(_ context.Context, d *schema.Res
 				if k == "clone.0.timeout" {
 					continue
 				}
+
+				// Network interfaces do not need to ForceNew since they can be added to the VM
+				// without interruption.
+				if strings.HasPrefix(k, "clone.0.customize.0.network_interface") {
+					continue
+				}
+
 				_ = d.ForceNew(k)
 			}
 		}

@@ -201,6 +201,7 @@ func CreateLibraryItem(c *rest.Client, l *library.Library, name string, desc str
 	if strings.HasPrefix(file, "http") {
 		isLocal = false
 	}
+	// TODO - rely on the type attribute instead of the file extension
 	if strings.HasSuffix(file, ".ova") {
 		isOva = true
 	}
@@ -208,9 +209,12 @@ func CreateLibraryItem(c *rest.Client, l *library.Library, name string, desc str
 		isIso = true
 	}
 
-	ovfDescriptor, err := ovfdeploy.GetOvfDescriptor(file, isOva, isLocal, true)
-	if err != nil {
-		return nil, provider.Error(name, "CreateLibraryItem", err)
+	var ovfDescriptor string
+	if !isIso {
+		ovfDescriptor, err = ovfdeploy.GetOvfDescriptor(file, isOva, isLocal, true)
+		if err != nil {
+			return nil, provider.Error(name, "CreateLibraryItem", err)
+		}
 	}
 
 	switch {

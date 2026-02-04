@@ -115,7 +115,8 @@ The following attributes are exported:
   there are multiple controller types. Only the first number of controllers
   defined by `scsi_controller_scan_count` are scanned.
 * `scsi_bus_sharing` - Mode for sharing the SCSI bus. The modes are
-  physicalSharing, virtualSharing, and noSharing. Only the first number of
+  `physicalSharing`, `virtualSharing`, `noSharing`, or `mixed` when
+  there are multiple sharing types across controllers. Only the first number of
   controllers defined by `scsi_controller_scan_count` are scanned.
 * `disks` - Information about each of the disks on this virtual machine or
   template. These are sorted by bus and unit number so that they can be applied

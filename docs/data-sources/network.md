@@ -48,7 +48,8 @@ data "vsphere_network" "my_port_group" {
 
 The following arguments are supported:
 
-* `name` - (Required) The name of the network. This can be a name or path.
+* `name` - (Optional) The name of the network. This can be a name or path. Exactly one of `name` or `vlan_id` must be set.
+* `vlan_id` - (Optional) The VLAN ID of the network. Exactly one of `name` or `vlan_id` must be set. This is used to look up a Distributed Virtual Port Group by its VLAN ID.
 * `datacenter_id` - (Optional) The
   [managed object reference ID][docs-about-morefs] of the datacenter the network
   is located in. This can be omitted if the search path used in `name` is an

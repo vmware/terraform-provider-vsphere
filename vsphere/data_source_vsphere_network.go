@@ -16,7 +16,7 @@ import (
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/vim25/mo"
-    "github.com/vmware/govmomi/vim25/types"
+	"github.com/vmware/govmomi/vim25/types"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/network"
 )
 
@@ -32,17 +32,17 @@ func dataSourceVSphereNetwork() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:        schema.TypeString,
-				Description: "The name or path of the network.",
+				Type:         schema.TypeString,
+				Description:  "The name or path of the network.",
 				Optional:     true,
 				ExactlyOneOf: []string{"name", "vlan_id"},
 			},
 			"vlan_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				Description: "The vlan id of the network.",
+				Description:  "The vlan id of the network.",
 				ExactlyOneOf: []string{"name", "vlan_id"},
- 			},
+			},
 			"datacenter_id": {
 				Type:        schema.TypeString,
 				Description: "The managed object ID of the datacenter the network is in. This is required if the supplied path is not an absolute path containing a datacenter and there are multiple datacenters in your infrastructure.",
@@ -115,7 +115,7 @@ func expandDistributedPortGroupVlan(d *schema.ResourceData) *distributedPortGrou
 func dataSourceVSphereNetworkRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*Client).vimClient
 
-	vlan := expandDistributedPortGroupVlan(d) 
+	vlan := expandDistributedPortGroupVlan(d)
 	name := d.Get("name").(string)
 	dvSwitchUUID := d.Get("distributed_virtual_switch_uuid").(string)
 	vpcID := d.Get("vpc_id").(string)
@@ -192,8 +192,7 @@ func dataSourceVSphereNetworkRead(d *schema.ResourceData, meta interface{}) erro
 				}
 
 				var pg mo.DistributedVirtualPortgroup
-				if err := dvpg.Properties(ctx, dvpg.Reference(),
-					[]string{"config.defaultPortConfig"}, &pg); err != nil {
+				if err := dvpg.Properties(ctx, dvpg.Reference(), []string{"config.defaultPortConfig"}, &pg); err != nil {
 					return struct{}{}, waitForNetworkError, err
 				}
 
@@ -223,6 +222,7 @@ func dataSourceVSphereNetworkRead(d *schema.ResourceData, meta interface{}) erro
 
 			return matches[0], waitForNetworkCompleted, nil
 		}
+
 		// Handle standard switch port group
 		net, err = network.FromName(vimClient, name, dc, filters) // Pass the *vim25.Client
 		if err != nil {
@@ -262,9 +262,9 @@ func dataSourceVSphereNetworkRead(d *schema.ResourceData, meta interface{}) erro
 
 	if state == waitForNetworkPending {
 		if vlan != nil {
-		   err = fmt.Errorf("network with vlan_id %d not found", vlan.VLANID)
-	    } else {
-		   err = fmt.Errorf("network %s not found", name)
+			err = fmt.Errorf("network with vlan_id %d not found", vlan.VLANID)
+		} else {
+			err = fmt.Errorf("network %s not found", name)
 		}
 	}
 

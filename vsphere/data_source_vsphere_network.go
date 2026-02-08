@@ -5,6 +5,7 @@
 package vsphere
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -12,7 +13,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/object"
+	"github.com/vmware/govmomi/vim25/mo"
+    "github.com/vmware/govmomi/vim25/types"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/network"
 )
 
@@ -30,8 +34,15 @@ func dataSourceVSphereNetwork() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Description: "The name or path of the network.",
-				Required:    true,
+				Required:    false,
+				ExactlyOneOf: []string{"name", "vlan_id"},
 			},
+			"vlan_id": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Description: "The vlan id of the network.",
+				ExactlyOneOf: []string{"name", "vlan_id"},
+ 			},
 			"datacenter_id": {
 				Type:        schema.TypeString,
 				Description: "The managed object ID of the datacenter the network is in. This is required if the supplied path is not an absolute path containing a datacenter and there are multiple datacenters in your infrastructure.",
@@ -88,9 +99,23 @@ func dataSourceVSphereNetwork() *schema.Resource {
 	}
 }
 
+type distributedPortGroupStructure struct {
+	VLANID int
+}
+
+func expandDistributedPortGroupVlan(d *schema.ResourceData) *distributedPortGroupStructure {
+	if v, ok := d.GetOk("vlan_id"); ok {
+		return &distributedPortGroupStructure{
+			VLANID: v.(int),
+		}
+	}
+	return nil
+}
+
 func dataSourceVSphereNetworkRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*Client).vimClient
 
+	vlan := expandDistributedPortGroupVlan(d) 
 	name := d.Get("name").(string)
 	dvSwitchUUID := d.Get("distributed_virtual_switch_uuid").(string)
 	vpcID := d.Get("vpc_id").(string)
@@ -145,6 +170,59 @@ func dataSourceVSphereNetworkRead(d *schema.ResourceData, meta interface{}) erro
 			}
 			return net, waitForNetworkCompleted, nil
 		}
+		// Handle VLAN-based lookup (Distributed Virtual Port Groups only)
+		if vlan != nil {
+			ctx := context.Background()
+			finder := find.NewFinder(vimClient, false)
+			if dc != nil {
+				finder.SetDatacenter(dc)
+			}
+
+			nets, err := finder.NetworkList(ctx, "*")
+			if err != nil {
+				return struct{}{}, waitForNetworkError, err
+			}
+
+			var matches []object.NetworkReference
+
+			for _, n := range nets {
+				dvpg, ok := n.(*object.DistributedVirtualPortgroup)
+				if !ok {
+					continue
+				}
+
+				var pg mo.DistributedVirtualPortgroup
+				if err := dvpg.Properties(ctx, dvpg.Reference(),
+					[]string{"config.defaultPortConfig"}, &pg); err != nil {
+					return struct{}{}, waitForNetworkError, err
+				}
+
+				cfg, ok := pg.Config.DefaultPortConfig.(*types.VMwareDVSPortSetting)
+				if !ok || cfg.Vlan == nil {
+					continue
+				}
+
+				vlanSpec, ok := cfg.Vlan.(*types.VmwareDistributedVirtualSwitchVlanIdSpec)
+				if !ok {
+					continue
+				}
+
+				if int(vlanSpec.VlanId) == vlan.VLANID {
+					matches = append(matches, dvpg)
+				}
+			}
+
+			if len(matches) == 0 {
+				return struct{}{}, waitForNetworkPending, nil
+			}
+
+			if len(matches) > 1 {
+				return struct{}{}, waitForNetworkError,
+					fmt.Errorf("multiple distributed port groups found with vlan_id %d", vlan.VLANID)
+			}
+
+			return matches[0], waitForNetworkCompleted, nil
+		}
 		// Handle standard switch port group
 		net, err = network.FromName(vimClient, name, dc, filters) // Pass the *vim25.Client
 		if err != nil {
@@ -183,7 +261,11 @@ func dataSourceVSphereNetworkRead(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if state == waitForNetworkPending {
-		err = fmt.Errorf("network %s not found", name)
+		if vlan != nil {
+		   err = fmt.Errorf("network with vlan_id %d not found", vlan.VLANID)
+	    } else {
+		   err = fmt.Errorf("network %s not found", name)
+		}
 	}
 
 	if err != nil {

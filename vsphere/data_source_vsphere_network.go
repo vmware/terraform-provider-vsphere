@@ -40,7 +40,7 @@ func dataSourceVSphereNetwork() *schema.Resource {
 			"vlan_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
-				Description:  "The vlan id of the network.",
+				Description:  "The VLAN ID of the network.",
 				ExactlyOneOf: []string{"name", "vlan_id"},
 			},
 			"datacenter_id": {

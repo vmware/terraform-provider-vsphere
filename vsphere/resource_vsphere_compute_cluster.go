@@ -157,7 +157,7 @@ func resourceVSphereComputeCluster() *schema.Resource {
 			"host_system_ids": {
 				Type:          schema.TypeSet,
 				Optional:      true,
-				MaxItems:      64,
+				MaxItems:      96,
 				Description:   "The managed object IDs of the hosts to put in the cluster.",
 				Elem:          &schema.Schema{Type: schema.TypeString},
 				ConflictsWith: []string{"host_managed"},

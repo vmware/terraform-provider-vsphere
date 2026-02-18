@@ -261,6 +261,12 @@ func resourceVSphereVirtualMachine() *schema.Resource {
 			Elem:         &schema.Schema{Type: schema.TypeString},
 			RequiredWith: []string{"host_system_id"},
 		},
+		"shared_pci_device_id": {
+			Type:        schema.TypeSet,
+			Optional:    true,
+			Description: "A list of Shared PCI passthrough device, 'grid_rtx8000-8q'",
+			Elem:        &schema.Schema{Type: schema.TypeString},
+		},
 		"clone": {
 			Type:        schema.TypeList,
 			Optional:    true,
@@ -566,6 +572,7 @@ func resourceVSphereVirtualMachineRead(d *schema.ResourceData, meta interface{})
 
 	// Read the virtual machine PCI passthrough devices
 	var pciDevs []string
+	var sharedPciDevs []string
 	for _, dev := range vprops.Config.Hardware.Device {
 		if pci, ok := dev.(*types.VirtualPCIPassthrough); ok {
 			if pciBacking, ok := pci.Backing.(*types.VirtualPCIPassthroughDeviceBackingInfo); ok {
@@ -577,6 +584,10 @@ func resourceVSphereVirtualMachineRead(d *schema.ResourceData, meta interface{})
 		}
 	}
 	err = d.Set("pci_device_id", pciDevs)
+	if err != nil {
+		return err
+	}
+	err = d.Set("shared_pci_device_id", sharedPciDevs)
 	if err != nil {
 		return err
 	}

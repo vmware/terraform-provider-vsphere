@@ -622,6 +622,8 @@ The following options are general virtual machine and provider workflow options:
 
 * `clone` - (Optional) When specified, the virtual machine will be created as a clone of a specified template. Optional customization options can be submitted for the resource. See [creating a virtual machine from a template](#creating-a-virtual-machine-from-a-template) for more information.
 
+~> **NOTE:** Cloning requires vCenter Server and is not supported on direct ESXi host connections.
+
 * `extra_config_reboot_required` - (Optional) Allow the virtual machine to be rebooted when a change to `extra_config` occurs. Default: `true`.
 
 * `custom_attributes` - (Optional) Map of custom attribute ids to attribute value strings to set for virtual machine. Please refer to the [`vsphere_custom_attributes`][docs-setting-custom-attributes] resource for more information on setting custom attributes.
@@ -650,7 +652,7 @@ The following options are general virtual machine and provider workflow options:
 
 * `firmware` - (Optional) The firmware for the virtual machine. One of `bios` or `efi`.
 
-* `folder` - (Optional) The path to the virtual machine folder in which to place the virtual machine, relative to the datacenter path (`/<datacenter-name>/vm`).  For example, `/dc-01/vm/foo`
+* `folder` - (Optional) The path to the virtual machine folder in which to place the virtual machine, relative to the datacenter path (`/<datacenter-name>/vm`). For example, `/dc-01/vm/foo`
 
 * `guest_id` - (Optional) The guest ID for the operating system type. Default: `otherGuest64`.
 
@@ -678,13 +680,13 @@ The following options are general virtual machine and provider workflow options:
 
 * `pci_device_id` - (Optional) List of host PCI device IDs in which to create PCI passthroughs.
 
-~> **NOTE:** Cloning requires vCenter Server and is not supported on direct ESXi host connections.
+* `shared_pci_device_id` - (Optional) A shared PCI device ID to create PCI passthrough.
 
 * `ovf_deploy` - (Optional) When specified, the virtual machine will be deployed from the provided OVF/OVA template. See [creating a virtual machine from an OVF/OVA template](#creating-a-virtual-machine-from-an-ovf-ova-template) for more information.
 
 * `replace_trigger` - (Optional) Triggers replacement of resource whenever it changes.
 
-For example, `replace_trigger = sha256(format("%s-%s",data.template_file.cloud_init_metadata.rendered,data.template_file.cloud_init_userdata.rendered))` will fingerprint the changes in cloud-init metadata and userdata templates. This will enable a replacement of the resource whenever the dependant template renders a new configuration. (Forces a replacement.)
+  For example, `replace_trigger = sha256(format("%s-%s",data.template_file.cloud_init_metadata.rendered,data.template_file.cloud_init_userdata.rendered))` will fingerprint the changes in cloud-init metadata and user-data templates. This will enable a replacement of the resource whenever the dependant template renders a new configuration. (Forces a replacement.)
 
 * `resource_pool_id` - (Required) The [managed object reference ID][docs-about-morefs] of the resource pool in which to place the virtual machine. See the [Virtual Machine Migration](#virtual-machine-migration) section for more information on modifying this value.
 
@@ -697,6 +699,17 @@ For example, `replace_trigger = sha256(format("%s-%s",data.template_file.cloud_i
 * `scsi_type` - (Optional) The SCSI controller type for the virtual machine. One of `lsilogic` (LSI Logic Parallel), `lsilogic-sas` (LSI Logic SAS) or `pvscsi` (VMware Paravirtual). Default: `pvscsi`.
 
 * `scsi_bus_sharing` - (Optional) The type of SCSI bus sharing for the virtual machine SCSI controller. One of `physicalSharing`, `virtualSharing`, and `noSharing`. Default: `noSharing`.
+
+* `storage_policy_id` - (Optional) The ID of the storage policy to assign to the home directory of a virtual machine.
+
+* `shared_pci_device_id` - (Optional) List of shared PCI device(s) to create
+  shared PCI passthrough.
+
+  For example, attaching a vGPU to the virtual machine: `shared_pci_device_id = ["grid_a100d-40c"]`
+
+~> **NOTE:** The use of vGPU requires that the VM has memory reservation set equal
+to the amount of provisioned memory. This can be accomplished by leveraging
+the [`memory_reservation`](#memory_reservation) option.
 
 * `storage_policy_id` - (Optional) The ID of the storage policy to assign to the home directory of a virtual machine.
 
@@ -850,7 +863,7 @@ The options are:
 
 Virtual disks are managed by adding one or more instance of the `disk` block.
 
-At a minimum, both the `label` and `size` attributes must be provided.  The `unit_number` is required for any disk other than the first, and there must be at least one resource with the implicit number of `0`.
+At a minimum, both the `label` and `size` attributes must be provided. The `unit_number` is required for any disk other than the first, and there must be at least one resource with the implicit number of `0`.
 
 The following example demonstrates an abridged multi-disk configuration:
 
@@ -903,7 +916,7 @@ an error if you try to label a disk with this prefix.
 
 [vmware-docs-disk-mode]: https://developer.broadcom.com/xapis/virtual-infrastructure-json-api/latest/data-structures/VirtualDiskMode/enum/
 
-* `eagerly_scrub` - (Optional) If set to `true`, the disk space is zeroed out when the virtual machine is created. This will delay the creation of the virtual disk. Cannot be set to `true` when `thin_provisioned` is `true`.  See the section on [picking a disk type](#picking-a-disk-type) for more information.  Default: `false`.
+* `eagerly_scrub` - (Optional) If set to `true`, the disk space is zeroed out when the virtual machine is created. This will delay the creation of the virtual disk. Cannot be set to `true` when `thin_provisioned` is `true`. See the section on [picking a disk type](#picking-a-disk-type) for more information. Default: `false`.
 
 * `thin_provisioned` - (Optional) If `true`, the disk is thin provisioned, with space for the file being allocated on an as-needed basis. Cannot be set to `true` when `eagerly_scrub` is `true`. See the section on [selecting a disk type](#selecting-a-disk-type) for more information. Default: `true`.
 
@@ -913,7 +926,7 @@ an error if you try to label a disk with this prefix.
 
 * `io_limit` - (Optional) The upper limit of IOPS that this disk can use. The default is no limit.
 
-* `io_reservation` - (Optional) The I/O reservation (guarantee) for the virtual disk has, in IOPS.  The default is no reservation.
+* `io_reservation` - (Optional) The I/O reservation (guarantee) for the virtual disk has, in IOPS. The default is no reservation.
 
 * `io_share_level` - (Optional) The share allocation level for the virtual disk. One of `low`, `normal`, `high`, or `custom`. Default: `normal`.
 
@@ -1134,6 +1147,7 @@ there are a few requirements
 * The `memory_reservation` must be fully set (that is, equal to the `memory`) for the VM.
 
 * The `network_interface` sub-resource takes a `physical_function` argument:
+
   * This **must** be set if your adapter type is `sriov`.
   * This **must not** be set if your adapter type is not `sriov`.
   * This can be found by navigating to the relevant host in the vSphere Client,
@@ -1314,7 +1328,7 @@ The options are:
 
 * `ipv6_address` - (Optional) The IPv6 address assigned to the network adapter. If blank or not included, auto-configuration is used.
 
-* `ipv6_netmask` - (Optional) The IPv6 subnet mask, in bits (_e.g._  `32`).
+* `ipv6_netmask` - (Optional) The IPv6 subnet mask, in bits (_e.g._ `32`).
 
 ~> **NOTE:** The minimum setting for IPv4 in a customization specification is DHCP. If you are setting up an IPv6-exclusive network without DHCP, you may need to set [`wait_for_guest_net_timeout`](#wait_for_guest_net_timeout) to a high enough value to cover the DHCP timeout of your virtual machine, or disable by supplying a zero or negative value. Disabling `wait_for_guest_net_timeout` may result in IP addresses not being reported to any provisioners you may have configured on the resource.
 
@@ -1406,7 +1420,7 @@ The options are:
 
 * `admin_password` - (Optional) The administrator password for the virtual machine.
 
-~> **NOTE:** `admin_password` is a sensitive field and will not be output on-screen, but is stored in state and sent to the virtual machine in plain text.
+~> \*_NOTE:_* `admin_password` is a sensitive field and will not be output on-screen, but is stored in state and sent to the virtual machine in plain text.
 
 * `workgroup` - (Optional) The workgroup name for the virtual machine. One of this or `join_domain` must be included.
 
@@ -1439,7 +1453,7 @@ resource "vsphere_virtual_machine" "vm" {
 
 * `domain_admin_password` - (Optional) The password user account with administrative privileges used to join the virtual machine to the domain. Required if setting `join_domain`.
 
-~> **NOTE:** `domain_admin_password` is a sensitive field and will not be output on-screen, but is stored in state and sent to the virtual machine in plain text
+~> \*_NOTE:_* `domain_admin_password` is a sensitive field and will not be output on-screen, but is stored in state and sent to the virtual machine in plain text
 
 * `full_name` - (Optional) The full name of the organization owner of the virtual machine. This populates the "user" field in the general Windows system information. Default: `Administrator`.
 
@@ -1603,13 +1617,13 @@ resource "vsphere_virtual_machine" "vm" {
 
 When cloning from a template, there are additional requirements in both the resource configuration and source template:
 
-* The virtual machine must not be powered on at the time of cloning.
-* All disks on the virtual machine must be SCSI disks.
-* You must specify at least the same number of `disk` devices as there are disks that exist in the template. These devices are ordered and lined up by the `unit_number` attribute. Additional disks can be added past this.
-* The `size` of a virtual disk must be at least the same size as its counterpart disk in the source template.
-* When using `linked_clone`, the `size`, `thin_provisioned`, and `eagerly_scrub` settings for each disk must be an exact match to the individual disk's counterpart in the source template.
-* The storage controller count settings should be configured as necessary to cover all of the disks on the template. For best results, only configure this setting for the number of controllers you will need to cover your disk quantity and bandwidth needs, and configure your template accordingly. For most workloads, this setting should be kept at the default of `1` SCSI controller, and all disks in the template should reside on the single, primary controller.
-* Some operating systems do not respond well to a change in disk controller type. Ensure that `scsi_type` is set to an exact match of the template's controller set. For maximum compatibility, make sure the SCSI controllers on the source template are all the same type.
+- The virtual machine must not be powered on at the time of cloning.
+- All disks on the virtual machine must be SCSI disks.
+- You must specify at least the same number of `disk` devices as there are disks that exist in the template. These devices are ordered and lined up by the `unit_number` attribute. Additional disks can be added past this.
+- The `size` of a virtual disk must be at least the same size as its counterpart disk in the source template.
+- When using `linked_clone`, the `size`, `thin_provisioned`, and `eagerly_scrub` settings for each disk must be an exact match to the individual disk's counterpart in the source template.
+- The storage controller count settings should be configured as necessary to cover all of the disks on the template. For best results, only configure this setting for the number of controllers you will need to cover your disk quantity and bandwidth needs, and configure your template accordingly. For most workloads, this setting should be kept at the default of `1` SCSI controller, and all disks in the template should reside on the single, primary controller.
+- Some operating systems do not respond well to a change in disk controller type. Ensure that `scsi_type` is set to an exact match of the template's controller set. For maximum compatibility, make sure the SCSI controllers on the source template are all the same type.
 
 You can use the [`vsphere_virtual_machine`][tf-vsphere-virtual-machine-ds] data source, which provides disk attributes, network interface types, SCSI bus types, and the guest ID of the source template, to return this information. See the section on [cloning and customization](#cloning-and-customization) for more information.
 
@@ -1645,9 +1659,9 @@ The same rules apply for migration as they do for virtual machine creation - any
 
 Storage migration can be done on two levels:
 
-* Global datastore migration can be handled by changing the global `datastore_id` attribute. This triggers a storage migration for all disks that do not have an explicit `datastore_id` specified.
-* When using Storage DRS through the `datastore_cluster_id` attribute, the entire virtual machine can be migrated from one datastore cluster to another by changing the value of this setting. In addition, when `datastore_cluster_id` is in use, any disks that drift to datastores outside of the datastore cluster via such actions as manual modification will be migrated back to the datastore cluster on the next apply.
-* An individual `disk` device can be migrated by manually specifying the `datastore_id` in its configuration block. This also pins it to the specific datastore that is specified - if at a later time the virtual machine and any unpinned disks migrate to another host, the disk will stay on the specified datastore.
+- Global datastore migration can be handled by changing the global `datastore_id` attribute. This triggers a storage migration for all disks that do not have an explicit `datastore_id` specified.
+- When using Storage DRS through the `datastore_cluster_id` attribute, the entire virtual machine can be migrated from one datastore cluster to another by changing the value of this setting. In addition, when `datastore_cluster_id` is in use, any disks that drift to datastores outside of the datastore cluster via such actions as manual modification will be migrated back to the datastore cluster on the next apply.
+- An individual `disk` device can be migrated by manually specifying the `datastore_id` in its configuration block. This also pins it to the specific datastore that is specified - if at a later time the virtual machine and any unpinned disks migrate to another host, the disk will stay on the specified datastore.
 
 An example of datastore pinning is below. As long as the datastore in the `pinned_datastore` data source does not change, any change to the standard `vm_datastore` data source will not affect the data disk - the disk will stay where it is.
 
@@ -1725,7 +1739,7 @@ The following attributes are exported on the base level of this resource:
 
 * `reboot_required` - Value internal to Terraform used to determine if a configuration set change requires a reboot. This value is most useful during an update process and gets reset on refresh.
 
-* `vmware_tools_status` - The state of  VMware Tools in the guest. This will determine the proper course of action for some device operations.
+* `vmware_tools_status` - The state of VMware Tools in the guest. This will determine the proper course of action for some device operations.
 
 * `vmx_path` - The path of the virtual machine configuration file on the datastore in which the virtual machine is placed.
 
@@ -1777,17 +1791,17 @@ The following requirements apply to import:
 
 ~> **NOTE:** Any custom `label` set at deployment of machine through Terraform, on import will not have the custom `label` and will default to `Hard Disk _x_`.
 
-* Disks are always imported with [`keep_on_remove`](#keep_on_remove) enabled until the first `terraform apply` run which will remove the setting for known disks. This process safeguards against naming or accounting mistakes in the disk configuration.
+- Disks are always imported with [`keep_on_remove`](#keep_on_remove) enabled until the first `terraform apply` run which will remove the setting for known disks. This process safeguards against naming or accounting mistakes in the disk configuration.
 
-* The storage controller count for the resource is set to the number of contiguous storage controllers found, starting with the controller at SCSI bus number `0`. If no storage controllers are discovered, the virtual machine is not eligible for import. For maximum compatibility, ensure that the virtual machine has the exact number of storage controllers needed and set the storage controller count accordingly.
+- The storage controller count for the resource is set to the number of contiguous storage controllers found, starting with the controller at SCSI bus number `0`. If no storage controllers are discovered, the virtual machine is not eligible for import. For maximum compatibility, ensure that the virtual machine has the exact number of storage controllers needed and set the storage controller count accordingly.
 
 After importing, you should run `terraform plan`. Unless you have changed anything else in the configuration that would cause other attributes to change. The only difference should be configuration-only changes, which are typically comprised of:
 
-* The [`imported`](#imported) flag will transition from `true` to `false`.
+- The [`imported`](#imported) flag will transition from `true` to `false`.
 
-* The [`keep_on_remove`](#keep_on_remove) of known disks will transition from `true` to `false`.
+- The [`keep_on_remove`](#keep_on_remove) of known disks will transition from `true` to `false`.
 
-* Configuration supplied in the [`clone`](#clone) block, if present, will be persisted to state. This initial persistence operation does not perform any cloning or customization actions, nor does it force a new resource. After the first apply operation, further changes to `clone` will force the creation of a new resource.
+- Configuration supplied in the [`clone`](#clone) block, if present, will be persisted to state. This initial persistence operation does not perform any cloning or customization actions, nor does it force a new resource. After the first apply operation, further changes to `clone` will force the creation of a new resource.
 
 ~> **NOTE:** Do not make any configuration changes to `clone` after importing or upgrading from a legacy version of the provider before doing an initial `terraform apply` as these changes will not correctly force a new resource and your changes will have persisted to state, preventing further plans from correctly triggering a diff.
 

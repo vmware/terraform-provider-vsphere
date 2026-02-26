@@ -62,7 +62,9 @@ func dataSourceVSphereTagCategoryRead(d *schema.ResourceData, meta interface{}) 
 		d.SetId(id.(string))
 		return resourceVSphereTagCategoryRead(d, meta)
 	}
+
 	name := d.Get("name").(string)
+
 	if name == "" {
 		return fmt.Errorf("either id or name must be provided")
 	}

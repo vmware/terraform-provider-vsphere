@@ -30,7 +30,7 @@ data "vsphere_tag_category" "category" {
 }
 ```
 
-### Lookup by ID (new)
+### Lookup by ID
 
 ```hcl
 data "vsphere_tag_category" "by_id" {

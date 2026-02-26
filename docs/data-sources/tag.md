@@ -34,7 +34,7 @@ data "vsphere_tag" "tag" {
   category_id = data.vsphere_tag_category.category.id
 }
 ```
-### Lookup by ID (new)
+### Lookup by ID
 
 ```hcl
 data "vsphere_tag" "by_id" {

@@ -25,7 +25,7 @@ func dataSourceVSphereTagCategory() *schema.Resource {
 			},
 			"id": {
 				Type:        schema.TypeString,
-				Description: "The unique identifier of the tag category.",
+				Description: "The unique identifier of the category.",
 				Optional:    true,
 				ExactlyOneOf: []string{
 					"id",

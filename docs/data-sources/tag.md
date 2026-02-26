@@ -22,7 +22,7 @@ requires vCenter Server.
 
 ## Example Usage
 
-### Lookup by name and category (classic)
+### Lookup by Name and Category
 
 ```hcl
 data "vsphere_tag_category" "category" {

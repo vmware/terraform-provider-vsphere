@@ -42,7 +42,7 @@ data "vsphere_tag_category" "by_id" {
 
 The following arguments are supported:
 
-* `id` - (Optional) The unique identifier of the tag category. If specified,  `name` must not be set.
+* `id` - (Optional) The unique identifier of the tag category. If specified, `name` must not be set.
 
 * `name` - (Optional) The name of the tag category. Required if `id` is not set.
 

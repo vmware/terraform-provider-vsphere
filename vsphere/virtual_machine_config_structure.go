@@ -298,7 +298,8 @@ func schemaVirtualMachineConfigSpec() map[string]*schema.Schema {
 			Optional: true,
 			Description: "If set true, memory resource reservation for this virtual machine will always be equal to the virtual machine's memory size;" +
 				"increases in memory size will be rejected when a corresponding reservation increase is not possible." +
-				" This feature may only be enabled if it is currently possible to reserve all of the virtual machine's memory.",
+				" This feature may only be enabled if it is currently possible to reserve all of the virtual machine's memory." +
+				" Applied only when `memory` and `memory_reservation` have the same value.",
 		},
 		"memory_hot_add_enabled": {
 			Type:        schema.TypeBool,

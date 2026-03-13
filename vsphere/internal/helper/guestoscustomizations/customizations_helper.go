@@ -154,10 +154,11 @@ func SpecSchema(isVM bool) map[string]*schema.Schema {
 					Description: "Specifies whether or not the VM automatically logs on as Administrator.",
 				},
 				"auto_logon_count": {
-					Type:        schema.TypeInt,
-					Optional:    true,
-					Default:     1,
-					Description: "Specifies how many times the VM should auto-logon the Administrator account when auto_logon is true.",
+					Type:         schema.TypeInt,
+					Optional:     true,
+					Default:      1,
+					Description:  "Specifies how many times the VM should auto-logon the Administrator account when auto_logon is true.",
+					ValidateFunc: validation.IntAtLeast(1),
 				},
 				"admin_password": {
 					Type:        schema.TypeString,

@@ -22,6 +22,8 @@ requires vCenter Server.
 
 ## Example Usage
 
+### Lookup by Name and Category
+
 ```hcl
 data "vsphere_tag_category" "category" {
   name = "example-category"
@@ -32,14 +34,26 @@ data "vsphere_tag" "tag" {
   category_id = data.vsphere_tag_category.category.id
 }
 ```
+### Lookup by ID
+
+```hcl
+data "vsphere_tag" "by_id" {
+  id = "urn:vmomi:InventoryServiceTag:xxxx"
+}
+```
 
 ## Argument Reference
 
 The following arguments are supported:
 
-* `name` - (Required) The name of the tag.
-* `category_id` - (Required) The ID of the tag category in which the tag is
-  located.
+* `id` - (Optional) The unique identifier of the tag. If specified, `name` and
+  `category_id` must not be set.
+
+* `name` - (Optional) The name of the tag. If specified, `category_id` must also
+  be provided.
+
+* `category_id` - (Optional) The ID of the tag category in which the tag is
+  located. Required when `name` is used.
 
 ## Attribute Reference
 

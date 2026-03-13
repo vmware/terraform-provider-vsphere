@@ -1451,7 +1451,7 @@ resource "vsphere_virtual_machine" "vm" {
 
 * `run_once_command_list` - (Optional) A list of commands to run at first user logon, after guest customization. Each run once command is limited by the API to 260 characters.
 
-* `auto_logon` - (Optional) Specifies whether or not the virtual machine automatically logs on as Administrator. Default: `false`.
+* `auto_logon` - (Optional) Specifies whether or not the virtual machine automatically logs on as Administrator. Default: `false`. Make sure that `auto_logon_count` is not set to 0 if `auto_logon` is `true`.
 
 * `auto_logon_count` - (Optional) Specifies how many times the virtual machine should auto-logon the Administrator account when `auto_logon` is `true`. This option should be set accordingly to ensure that all of your commands that run in `run_once_command_list` can log in to run. Default: `1`.
 

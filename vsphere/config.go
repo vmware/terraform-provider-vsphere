@@ -284,10 +284,10 @@ func (c *Config) EnableDebug() error {
 	} else {
 		// reuse the same path
 		r = filepath.Join(r, run)
-		_ = os.RemoveAll(r)
+		_ = os.RemoveAll(filepath.Clean(r))
 	}
 
-	err := os.MkdirAll(r, 0700)
+	err := os.MkdirAll(filepath.Clean(r), 0700)
 	if err != nil {
 		log.Printf("[ERROR] Client debug setup failed: %v", err)
 		return err

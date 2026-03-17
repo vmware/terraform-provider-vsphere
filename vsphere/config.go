@@ -284,10 +284,10 @@ func (c *Config) EnableDebug() error {
 	} else {
 		// reuse the same path
 		r = filepath.Join(r, run)
-		_ = os.RemoveAll(r)
+		_ = os.RemoveAll(r) // nolint (gosec G703)
 	}
 
-	err := os.MkdirAll(r, 0700)
+	err := os.MkdirAll(r, 0700) // nolint (gosec G703)
 	if err != nil {
 		log.Printf("[ERROR] Client debug setup failed: %v", err)
 		return err

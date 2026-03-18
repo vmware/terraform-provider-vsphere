@@ -2037,6 +2037,18 @@ func (r *DiskSubresource) assignBackingInfo(disk *types.VirtualDisk) error {
 	return nil
 }
 
+// scsiControllerType returns the SubresourceControllerType string for a
+// concrete SCSI controller device, allowing callers to determine the controller
+// sub-type from the device itself rather than relying on the global scsi_type.
+func scsiControllerType(dev types.BaseVirtualDevice) string {
+	switch dev.(type) {
+	case *types.ParaVirtualSCSIController:
+		return SubresourceControllerTypeParaVirtual
+	default:
+		return SubresourceControllerTypeLsiLogic
+	}
+}
+
 // scsiUsableUnitsPerController returns the number of usable disk slots per
 // SCSI controller based on the controller sub-type. PVSCSI controllers support
 // 64 devices (63 usable after reserving one for the controller), while LSI
@@ -2220,7 +2232,9 @@ func (r *Subresource) findControllerInfo(l object.VirtualDeviceList, disk *types
 		if unit > sc.GetVirtualSCSIController().ScsiCtlrUnitNumber {
 			unit--
 		}
-		scsiType := r.rdd.Get("scsi_type").(string)
+		// Determine usable units from the actual controller type, not the
+		// global scsi_type setting, to handle mixed-controller VMs correctly.
+		scsiType := scsiControllerType(ctlr)
 		usable := int32(scsiUsableUnitsPerController(scsiType))
 		unit += usable * sc.GetVirtualSCSIController().BusNumber
 		return int(unit), ctlr.(types.BaseVirtualController), nil

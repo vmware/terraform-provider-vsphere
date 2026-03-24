@@ -863,11 +863,11 @@ resource "vsphere_virtual_machine" "vm" {
   # ... other configuration ...
   disk {
     label = "Hard Disk 1"
-    size  = "10"
+    size  = 10
   }
   disk {
     label       = "Hard Disk 2"
-    size        = "100"
+    size        = 100
     unit_number = 1
   }
   # ... other configuration ...

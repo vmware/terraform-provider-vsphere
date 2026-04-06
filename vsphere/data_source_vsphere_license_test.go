@@ -20,7 +20,7 @@ func TestAccDataSourceVSphereLicense_basic(t *testing.T) {
 			testAccPreCheck(t)
 			testAccDataSourceVSphereLicensePreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereLicenseConfig(),

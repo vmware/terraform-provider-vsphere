@@ -16,7 +16,7 @@ func TestAccResourceVSphereVmClass_basic(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVSphereVMClassConfig(),
@@ -34,7 +34,7 @@ func TestAccResourceVSphereVmClass_vgpu(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVSphereVMClassConfigVgpu(),

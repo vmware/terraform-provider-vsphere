@@ -29,7 +29,7 @@ func TestAccResourceVSphereStorageDrsVMOverride_basic(t *testing.T) {
 			testAccPreCheck(t)
 			testAccResourceVSphereStorageDrsVMOverridePreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereStorageDrsVMOverrideExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -81,7 +81,7 @@ func TestAccResourceVSphereStorageDrsVMOverride_overrides(t *testing.T) {
 			testAccPreCheck(t)
 			testAccResourceVSphereStorageDrsVMOverridePreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereStorageDrsVMOverrideExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -103,7 +103,7 @@ func TestAccResourceVSphereStorageDrsVMOverride_update(t *testing.T) {
 			testAccPreCheck(t)
 			testAccResourceVSphereStorageDrsVMOverridePreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereStorageDrsVMOverrideExists(false),
 		Steps: []resource.TestStep{
 			{

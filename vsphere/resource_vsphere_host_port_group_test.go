@@ -21,7 +21,7 @@ func TestAccResourceVSphereHostPortGroup_basic(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereHostPortGroupExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -40,7 +40,7 @@ func TestAccResourceVSphereHostPortGroup_complexWithOverrides(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereHostPortGroupExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -63,7 +63,7 @@ func TestAccResourceVSphereHostPortGroup_basicToComplex(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereHostPortGroupExists(false),
 		Steps: []resource.TestStep{
 			{

@@ -26,7 +26,7 @@ func TestAccResourceVSphereComputeClusterVMHostRule_basic(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereComputeClusterVMHostRuleExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -95,7 +95,7 @@ func TestAccResourceVSphereComputeClusterVMHostRule_antiAffinity(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereComputeClusterVMHostRuleExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -122,7 +122,7 @@ func TestAccResourceVSphereComputeClusterVMHostRule_updateEnabled(t *testing.T) 
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereComputeClusterVMHostRuleExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -163,7 +163,7 @@ func TestAccResourceVSphereComputeClusterVMHostRule_updateAffinity(t *testing.T)
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereComputeClusterVMHostRuleExists(false),
 		Steps: []resource.TestStep{
 			{

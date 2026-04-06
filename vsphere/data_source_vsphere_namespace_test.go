@@ -17,7 +17,7 @@ func TestAccDataSourceVSphereNamespace_basic(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereNamespaceConfigBasic(),

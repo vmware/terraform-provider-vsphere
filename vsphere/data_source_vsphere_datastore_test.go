@@ -18,7 +18,7 @@ func TestAccDataSourceVSphereDatastore_basic(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereDatastoreConfig(),
@@ -39,7 +39,7 @@ func TestAccDataSourceVSphereDatastore_noDatacenterAndAbsolutePath(t *testing.T)
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereDatastoreConfigAbsolutePath(),
@@ -60,7 +60,7 @@ func TestAccDataSourceVSphereDatastore_getStats(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereDatastoreConfigGetStats(),

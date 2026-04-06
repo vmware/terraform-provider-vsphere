@@ -22,7 +22,7 @@ func TestAccResourceVSphereGOSC_windows_basic(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccGOSCExists(goscResourceName, goscName, false),
 		Steps: []resource.TestStep{
 			{
@@ -41,7 +41,7 @@ func TestAccResourceVSphereGOSC_windows_workGroup(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccGOSCExists(goscResourceName, goscName, false),
 		Steps: []resource.TestStep{
 			{
@@ -60,7 +60,7 @@ func TestAccResourceVSphereGOSC_linux(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccGOSCExists(goscResourceName, goscName, false),
 		Steps: []resource.TestStep{
 			{
@@ -79,7 +79,7 @@ func TestAccResourceVSphereGOSC_sysprep(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccGOSCExists(goscResourceName, goscName, false),
 		Steps: []resource.TestStep{
 			{

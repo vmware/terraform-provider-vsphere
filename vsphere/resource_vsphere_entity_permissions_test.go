@@ -22,7 +22,7 @@ func TestAccResourcevsphereEntityPermissions_basic(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceEntityPermissionsCheckExists(false),
 		Steps: []resource.TestStep{
 			{

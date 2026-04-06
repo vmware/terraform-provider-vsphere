@@ -22,7 +22,7 @@ func TestAccResourceVSphereTag_basic(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereTagExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -72,7 +72,7 @@ func TestAccResourceVSphereTag_changeName(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereTagExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -98,7 +98,7 @@ func TestAccResourceVSphereTag_changeDescription(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereTagExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -124,7 +124,7 @@ func TestAccResourceVSphereTag_detachAllTags(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereTagExists(false),
 		Steps: []resource.TestStep{
 			{

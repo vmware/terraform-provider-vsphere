@@ -23,7 +23,7 @@ func TestAccResourceVSphereContentLibraryItem_localOva(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereContentLibraryItemCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -60,7 +60,7 @@ func TestAccResourceVSphereContentLibraryItem_remoteOvf(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereContentLibraryItemCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -102,7 +102,7 @@ func TestAccResourceVSphereContentLibraryItem_remoteOva(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereContentLibraryItemCheckExists(false),
 		Steps: []resource.TestStep{
 			{

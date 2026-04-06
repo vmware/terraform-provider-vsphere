@@ -28,7 +28,7 @@ func TestAccResourceVSphereSupervisorV2_singleZone(t *testing.T) {
 				"TF_VAR_EDGE_MANAGEMENT_NETWORK",
 			})
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVSphereSupervisorV2ConfigSingleZone(),
@@ -60,7 +60,7 @@ func TestAccResourceVSphereSupervisorV2_multiZone(t *testing.T) {
 				"TF_VAR_HAPROXY_CA_CHAIN",
 			})
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVSphereSupervisorV2ConfigMultiZone(),

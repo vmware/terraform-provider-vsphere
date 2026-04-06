@@ -21,7 +21,7 @@ func TestAccResourceVSphereVAppEntity_basic(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereVAppEntityCheckExists("vapp_entity", false),
 		Steps: []resource.TestStep{
 			{
@@ -51,7 +51,7 @@ func TestAccResourceVSphereVAppEntity_nonDefault(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereVAppEntityCheckExists("vapp_entity", false),
 		Steps: []resource.TestStep{
 			{
@@ -76,7 +76,7 @@ func TestAccResourceVSphereVAppEntity_update(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereVAppEntityCheckExists("vapp_entity", false),
 		Steps: []resource.TestStep{
 			{
@@ -113,7 +113,7 @@ func TestAccResourceVSphereVAppEntity_multi(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccResourceVSphereVAppEntityCheckExists("vapp_entity1", false),
 			testAccResourceVSphereVAppEntityCheckExists("vapp_entity2", false),
@@ -148,7 +148,7 @@ func TestAccResourceVSphereVAppEntity_multiUpdate(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccResourceVSphereVAppEntityCheckExists("vapp_entity1", false),
 			testAccResourceVSphereVAppEntityCheckExists("vapp_entity2", false),

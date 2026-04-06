@@ -19,7 +19,7 @@ func TestAccDataSourceVSphereVirtualMachine_basic(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereVirtualMachineConfig(),
@@ -67,7 +67,7 @@ func TestAccDataSourceVSphereVirtualMachine_noDatacenterAndAbsolutePath(t *testi
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereVirtualMachineConfigAbsolutePath(),
@@ -112,7 +112,7 @@ func TestAccDataSourceVSphereVirtualMachine_uuid(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereVirtualMachineConfigUUID(),
@@ -158,7 +158,7 @@ func TestAccDataSourceVSphereVirtualMachine_moid(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereVirtualMachineConfigMOID(),
@@ -204,7 +204,7 @@ func TestAccDataSourceVSphereVirtualMachine_nameAndFolder(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{{
 			Config: testAccDataSourceVirtualMachineFolder(),
 			Check: resource.ComposeTestCheckFunc(

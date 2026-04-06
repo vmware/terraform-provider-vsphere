@@ -18,7 +18,7 @@ func TestAccDataSourceVSphereDistributedVirtualSwitch_basic(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereDistributedVirtualSwitchConfig(),
@@ -54,7 +54,7 @@ func TestAccDataSourceVSphereDistributedVirtualSwitch_absolutePathNoDatacenterSp
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereDistributedVirtualSwitchConfigAbsolute(),
@@ -90,7 +90,7 @@ func TestAccDataSourceVSphereDistributedVirtualSwitch_CreatePortgroup(t *testing
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereDistributedVirtualSwitchConfigWithPortgroup(),

@@ -20,7 +20,7 @@ func TestAccDataSourceVSphereAlarm_EventExpWithActions(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereAlarmEventExpWithActions(),
@@ -106,7 +106,7 @@ func TestAccDataSourceVSphereAlarm_StateExpWithActions(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereAlarmStateExp(),
@@ -163,7 +163,7 @@ func TestAccDataSourceVSphereAlarm_MetricExpWithActions(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereAlarmMetricExp(),

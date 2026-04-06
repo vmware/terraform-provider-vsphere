@@ -25,7 +25,7 @@ func TestAccResourceVSphereVirtualDisk_basic(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccVSphereVirtualDiskExists("vsphere_virtual_disk.foo", false),
 		Steps: []resource.TestStep{
 			{
@@ -46,7 +46,7 @@ func TestAccResourceVSphereVirtualDisk_extend(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccVSphereVirtualDiskExists("vsphere_virtual_disk.foo", false),
 		Steps: []resource.TestStep{
 			{
@@ -75,7 +75,7 @@ func TestAccResourceVSphereVirtualDisk_multi(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccVSphereVirtualDiskExists("vsphere_virtual_disk.foo.0", false),
 			testAccVSphereVirtualDiskExists("vsphere_virtual_disk.foo.1", false),
@@ -102,7 +102,7 @@ func TestAccResourceVSphereVirtualDisk_multiWithParent(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: resource.ComposeTestCheckFunc(
 			testAccVSphereVirtualDiskExists("vsphere_virtual_disk.foo.0", false),
 			testAccVSphereVirtualDiskExists("vsphere_virtual_disk.foo.1", false),
@@ -129,7 +129,7 @@ func TestAccResourceVSphereVirtualDisk_withParent(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccVSphereVirtualDiskExists("vsphere_virtual_disk.foo", false),
 		Steps: []resource.TestStep{
 			{

@@ -26,7 +26,7 @@ func TestAccResourceVSphereNasDatastore_basic(t *testing.T) {
 			testAccPreCheck(t)
 			testAccResourceVSphereNasDatastorePreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereNasDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -54,7 +54,7 @@ func TestAccResourceVSphereNasDatastore_multiHost(t *testing.T) {
 			testAccResourceVSphereNasDatastorePreCheck(t)
 			testAccSkipIfEsxi(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereNasDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -75,7 +75,7 @@ func TestAccResourceVSphereNasDatastore_basicToMultiHost(t *testing.T) {
 			testAccPreCheck(t)
 			testAccResourceVSphereNasDatastorePreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereNasDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -104,7 +104,7 @@ func TestAccResourceVSphereNasDatastore_multiHostToBasic(t *testing.T) {
 			testAccResourceVSphereNasDatastorePreCheck(t)
 			testAccSkipIfEsxi(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereNasDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -131,7 +131,7 @@ func TestAccResourceVSphereNasDatastore_renameDatastore(t *testing.T) {
 			testAccPreCheck(t)
 			testAccResourceVSphereNasDatastorePreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereNasDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -165,7 +165,7 @@ func TestAccResourceVSphereNasDatastore_inFolder(t *testing.T) {
 			// barring manual testing.
 			testAccSkipIfEsxi(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereNasDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -187,7 +187,7 @@ func TestAccResourceVSphereNasDatastore_moveToFolder(t *testing.T) {
 			testAccPreCheck(t)
 			testAccResourceVSphereNasDatastorePreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereNasDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -217,7 +217,7 @@ func TestAccResourceVSphereNasDatastore_inDatastoreCluster(t *testing.T) {
 			testAccResourceVSphereNasDatastorePreCheck(t)
 			testAccSkipIfEsxi(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereNasDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -239,7 +239,7 @@ func TestAccResourceVSphereNasDatastore_moveToDatastoreCluster(t *testing.T) {
 			testAccPreCheck(t)
 			testAccResourceVSphereNasDatastorePreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereNasDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -267,7 +267,7 @@ func TestAccResourceVSphereNasDatastore_singleTag(t *testing.T) {
 			testAccPreCheck(t)
 			testAccResourceVSphereNasDatastorePreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereNasDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -289,7 +289,7 @@ func TestAccResourceVSphereNasDatastore_modifyTags(t *testing.T) {
 			testAccPreCheck(t)
 			testAccResourceVSphereNasDatastorePreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereNasDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -318,7 +318,7 @@ func TestAccResourceVSphereNasDatastore_singleCustomAttribute(t *testing.T) {
 			testAccPreCheck(t)
 			testAccResourceVSphereNasDatastorePreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereNasDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -340,7 +340,7 @@ func TestAccResourceVSphereNasDatastore_multiCustomAttribute(t *testing.T) {
 			testAccPreCheck(t)
 			testAccResourceVSphereNasDatastorePreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereNasDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{

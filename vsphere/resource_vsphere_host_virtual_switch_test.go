@@ -22,7 +22,7 @@ func TestAccResourceVSphereHostVirtualSwitch_basic(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereHostVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -57,7 +57,7 @@ func TestAccResourceVSphereHostVirtualSwitch_removeNIC(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereHostVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -82,7 +82,7 @@ func TestAccResourceVSphereHostVirtualSwitch_noNICs(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereHostVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -102,7 +102,7 @@ func TestAccResourceVSphereHostVirtualSwitch_badActiveNICList(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereHostVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -120,7 +120,7 @@ func TestAccResourceVSphereHostVirtualSwitch_badStandbyNICList(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereHostVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -138,7 +138,7 @@ func TestAccResourceVSphereHostVirtualSwitch_removeAllNICs(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereHostVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{

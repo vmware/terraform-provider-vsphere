@@ -23,7 +23,7 @@ func TestAccResourceVSphereResourcePool_basic(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereResourcePoolCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -73,7 +73,7 @@ func TestAccResourceVSphereResourcePool_updateRename(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereResourcePoolCheckExists(false),
 
 		Steps: []resource.TestStep{
@@ -101,7 +101,7 @@ func TestAccResourceVSphereResourcePool_updateToCustom(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereResourcePoolCheckExists(false),
 
 		Steps: []resource.TestStep{
@@ -139,7 +139,7 @@ func TestAccResourceVSphereResourcePool_updateToDefaults(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereResourcePoolCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -179,7 +179,7 @@ func TestAccResourceVSphereResourcePool_esxiHost(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereResourcePoolCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -198,7 +198,7 @@ func TestAccResourceVSphereResourcePool_updateParent(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereResourcePoolCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -225,7 +225,7 @@ func TestAccResourceVSphereResourcePool_tags(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereResourcePoolCheckExists(false),
 		Steps: []resource.TestStep{
 			{

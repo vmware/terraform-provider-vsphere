@@ -20,7 +20,7 @@ func TestAccDataSourceVSphereVAppContainer_basic(t *testing.T) {
 			testAccPreCheck(t)
 			testAccSkipIfEsxi(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				ExpectNonEmptyPlan: true,
@@ -40,7 +40,7 @@ func TestAccDataSourceVSphereVAppContainer_path(t *testing.T) {
 			testAccPreCheck(t)
 			testAccSkipIfEsxi(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				ExpectNonEmptyPlan: true,

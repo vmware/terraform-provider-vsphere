@@ -27,7 +27,7 @@ func TestAccResourceVSphereHAVMOverride_basic(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereHAVMOverrideExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -113,7 +113,7 @@ func TestAccResourceVSphereHAVMOverride_complete(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereHAVMOverrideExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -151,7 +151,7 @@ func TestAccResourceVSphereHAVMOverride_update(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereHAVMOverrideExists(false),
 		Steps: []resource.TestStep{
 			{

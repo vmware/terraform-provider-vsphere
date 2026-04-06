@@ -141,7 +141,7 @@ func TestAccResourceVSphereDatacenter_createOnRootFolder(t *testing.T) {
 	name := "testDC"
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccCheckVSphereDatacenterDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -166,7 +166,7 @@ func TestAccResourceVSphereDatacenter_createOnSubfolder(t *testing.T) {
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccCheckVSphereDatacenterDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -195,7 +195,7 @@ func TestAccResourceVSphereDatacenter_singleTag(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccCheckVSphereDatacenterDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -218,7 +218,7 @@ func TestAccResourceVSphereDatacenter_modifyTags(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccCheckVSphereDatacenterDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -251,7 +251,7 @@ func TestAccResourceVSphereDatacenter_singleCustomAttribute(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccCheckVSphereDatacenterDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -274,7 +274,7 @@ func TestAccResourceVSphereDatacenter_modifyCustomAttribute(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccCheckVSphereDatacenterDestroy,
 		Steps: []resource.TestStep{
 			{

@@ -20,7 +20,7 @@ func TestAccDataSourceVSphereNetwork_dvsPortgroup(t *testing.T) {
 			testAccPreCheck(t)
 			testAccSkipIfEsxi(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereNetworkConfigDVSPortgroup(false),
@@ -43,7 +43,7 @@ func TestAccDataSourceVSphereNetwork_withTimeout(t *testing.T) {
 			testAccPreCheck(t)
 			testAccSkipIfEsxi(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereNetworkConfigDVSPortgroup(true),
@@ -66,7 +66,7 @@ func TestAccDataSourceVSphereNetwork_absolutePathNoDatacenter(t *testing.T) {
 			testAccPreCheck(t)
 			testAccSkipIfEsxi(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereNetworkConfigDVSPortgroupAbsolute(),
@@ -88,7 +88,7 @@ func TestAccDataSourceVSphereNetwork_hostPortgroups(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereNetworkConfigHostPortgroup(),
@@ -173,7 +173,7 @@ func TestAccDataSourceVSphereNetwork_vpcNetwork(t *testing.T) {
 				t.Skipf("This test requires VPC settings, please set TF_VAR_VSPHERE_VPC_SUBNET and TF_VAR_VSPHERE_VPC_ID environment variables")
 			}
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereNetworkConfigVPCNetwork(),
@@ -202,7 +202,7 @@ func TestAccDataSourceVSphereNetwork_vpcNetworkAndProject(t *testing.T) {
 				t.Skipf("This test requires project and VPC settings, please set TF_VAR_VSPHERE_PROJECT_VPC_SUBNET, TF_VAR_VSPHERE_PROJECT_VPC_ID and TF_VAR_VSPHERE_PROJECT_ID environment variables")
 			}
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereNetworkConfigProjectVPCNetwork(),

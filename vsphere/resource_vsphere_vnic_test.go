@@ -53,7 +53,7 @@ func TestAccResourceVSphereVNic_dvs_default(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccVSphereVNicDestroy,
 		Steps:        generateSteps(testaccvspherevnicconfigDvs, "defaultTcpipStack"),
 	})
@@ -66,7 +66,7 @@ func TestAccResourceVSphereVNic_dvs_vmotion(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccVSphereVNicDestroy,
 		Steps:        generateSteps(testaccvspherevnicconfigDvs, "vmotion"),
 	})
@@ -79,7 +79,7 @@ func TestAccResourceVSphereVNic_hvs_default(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccVSphereVNicDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -105,7 +105,7 @@ func TestAccResourceVSphereVNic_hvs_vmotion(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccVSphereVNicDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -131,7 +131,7 @@ func TestAccResourceVSphereVNic_services_nonDefaultNetstack(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccVSphereVNicDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -157,7 +157,7 @@ func TestAccResourceVSphereVNic_services_invalid(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccVSphereVNicDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -184,7 +184,7 @@ func TestAccResourceVSphereVNic_services_valid(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccVSphereVNicDestroy,
 		Steps: []resource.TestStep{
 			{

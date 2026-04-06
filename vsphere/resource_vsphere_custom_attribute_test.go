@@ -19,7 +19,7 @@ func TestAccResourceVSphereCustomAttribute_basic(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereCustomAttributeExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -58,7 +58,7 @@ func TestAccResourceVSphereCustomAttribute_withType(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereCustomAttributeExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -78,7 +78,7 @@ func TestAccResourceVSphereCustomAttribute_rename(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereCustomAttributeExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -104,7 +104,7 @@ func TestAccResourceVSphereCustomAttribute_changeType(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereCustomAttributeExists(false),
 		Steps: []resource.TestStep{
 			{

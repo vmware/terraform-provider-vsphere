@@ -25,7 +25,7 @@ func TestAccResourceVSphereSupervisor_basic(t *testing.T) {
 				"TF_VAR_EDGE_CLUSTER",
 			})
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				// You can change the network settings in the configuration
@@ -51,7 +51,7 @@ func TestAccResourceVSphereSupervisor_full(t *testing.T) {
 				"TF_VAR_EDGE_CLUSTER",
 			})
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				// You can change the network settings in the configuration

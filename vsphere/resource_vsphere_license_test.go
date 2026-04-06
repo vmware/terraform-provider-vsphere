@@ -33,7 +33,7 @@ func TestAccResourceVSphereLicense_basic(t *testing.T) {
 			testAccPreCheck(t)
 			testAccVSpherePreLicenseBasicCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccVSphereLicenseDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -53,7 +53,7 @@ func TestAccResourceVSphereLicense_invalid(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccVSphereLicenseDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -76,7 +76,7 @@ func TestAccResourceVSphereLicense_withLabelsOnVCenter(t *testing.T) {
 			testAccVSpherePreLicenseBasicCheck(t)
 			testAccVspherePreLicenseESXiServerIsNotSetCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccVSphereLicenseDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -99,7 +99,7 @@ func TestAccResourceVSphereLicense_withLabelsOnESXiServer(t *testing.T) {
 			testAccVSpherePreLicenseBasicCheck(t)
 			testAccSkipIfNotEsxi(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccVSphereLicenseDestroy,
 		Steps: []resource.TestStep{
 			{

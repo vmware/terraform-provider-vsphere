@@ -27,7 +27,7 @@ func TestAccResourceVSphereDRSVMOverride_drs(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDRSVMOverrideExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -77,7 +77,7 @@ func TestAccResourceVSphereDRSVMOverride_automationLevel(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDRSVMOverrideExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -97,7 +97,7 @@ func TestAccResourceVSphereDRSVMOverride_update(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDRSVMOverrideExists(false),
 		Steps: []resource.TestStep{
 			{

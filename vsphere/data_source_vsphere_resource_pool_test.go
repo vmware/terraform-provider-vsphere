@@ -21,7 +21,7 @@ func TestAccDataSourceVSphereResourcePool_basic(t *testing.T) {
 			testAccPreCheck(t)
 			testAccSkipIfEsxi(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereResourcePoolConfig(),
@@ -40,7 +40,7 @@ func TestAccDataSourceVSphereResourcePool_noDatacenterAndAbsolutePath(t *testing
 			testAccPreCheck(t)
 			testAccSkipIfEsxi(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereResourcePoolConfigAbsolutePath(),
@@ -59,7 +59,7 @@ func TestAccDataSourceVSphereResourcePool_withParentId(t *testing.T) {
 			testAccPreCheck(t)
 			testAccSkipIfEsxi(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereResourcePoolConfigWithParent(),
@@ -83,7 +83,7 @@ func TestAccDataSourceVSphereResourcePool_withParentIdAndNamePathError(t *testin
 			testAccPreCheck(t)
 			testAccSkipIfEsxi(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccDataSourceVSphereResourcePoolConfigWithParentAndNamePath(),
@@ -100,7 +100,7 @@ func TestAccDataSourceVSphereResourcePool_withParentIdAndMissingNameError(t *tes
 			testAccPreCheck(t)
 			testAccSkipIfEsxi(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccDataSourceVSphereResourcePoolConfigWithParentAndMissingName(),
@@ -117,7 +117,7 @@ func TestAccDataSourceVSphereResourcePool_withInvalidParentIdError(t *testing.T)
 			testAccPreCheck(t)
 			testAccSkipIfEsxi(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccDataSourceVSphereResourcePoolConfigWithInvalidParent(),
@@ -134,7 +134,7 @@ func TestAccDataSourceVSphereResourcePool_withParentIdAndNotFoundNameError(t *te
 			testAccPreCheck(t)
 			testAccSkipIfEsxi(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccDataSourceVSphereResourcePoolConfigWithParentAndNotFoundName(),
@@ -153,7 +153,7 @@ func TestAccDataSourceVSphereResourcePool_defaultResourcePoolForESXi(t *testing.
 			testAccPreCheck(t)
 			testAccSkipIfNotEsxi(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereResourcePoolConfigDefault,
@@ -172,7 +172,7 @@ func TestAccDataSourceVSphereResourcePool_emptyNameOnVCenterShouldError(t *testi
 			testAccPreCheck(t)
 			testAccSkipIfEsxi(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccDataSourceVSphereResourcePoolConfigDefault,

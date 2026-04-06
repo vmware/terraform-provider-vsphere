@@ -31,7 +31,7 @@ func TestAccResourceVSphereDatastoreCluster_basic(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -76,7 +76,7 @@ func TestAccResourceVSphereDatastoreCluster_sdrsEnabled(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -96,7 +96,7 @@ func TestAccResourceVSphereDatastoreCluster_rename(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -123,7 +123,7 @@ func TestAccResourceVSphereDatastoreCluster_inFolder(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -143,7 +143,7 @@ func TestAccResourceVSphereDatastoreCluster_moveToFolder(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -170,7 +170,7 @@ func TestAccResourceVSphereDatastoreCluster_sdrsOverrides(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -192,7 +192,7 @@ func TestAccResourceVSphereDatastoreCluster_miscTweaks(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -218,7 +218,7 @@ func TestAccResourceVSphereDatastoreCluster_reservableIops(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -253,7 +253,7 @@ func TestAccResourceVSphereDatastoreCluster_freeSpace(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -288,7 +288,7 @@ func TestAccResourceVSphereDatastoreCluster_singleTag(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -308,7 +308,7 @@ func TestAccResourceVSphereDatastoreCluster_multipleTags(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -328,7 +328,7 @@ func TestAccResourceVSphereDatastoreCluster_switchTags(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -355,7 +355,7 @@ func TestAccResourceVSphereDatastoreCluster_singleCustomAttribute(t *testing.T) 
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -375,7 +375,7 @@ func TestAccResourceVSphereDatastoreCluster_multipleCustomAttribute(t *testing.T
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -395,7 +395,7 @@ func TestAccResourceVSphereDatastoreCluster_switchCustomAttribute(t *testing.T) 
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDatastoreClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{

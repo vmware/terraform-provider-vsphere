@@ -10,6 +10,7 @@ import (
 	"reflect"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -216,6 +217,13 @@ func TestNewConfig(t *testing.T) {
 	_ = d.Set("client_debug_path", expected.DebugPath)
 	_ = d.Set("persist_session", expected.Persist)
 	_ = d.Set("vim_session_path", expected.VimSessionPath)
+	_ = d.Set("rest_session_path", "./restsess")
+	_ = d.Set("vim_keep_alive", 10)
+	_ = d.Set("api_timeout", 5)
+
+	expected.RestSessionPath = "./restsess"
+	expected.KeepAlive = 10
+	expected.APITimeout = 5 * time.Minute
 
 	actual, err := NewConfig(d)
 	if err != nil {

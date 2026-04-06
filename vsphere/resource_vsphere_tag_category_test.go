@@ -23,7 +23,7 @@ func TestAccResourceVSphereTagCategory_basic(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereTagCategoryExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -63,7 +63,7 @@ func TestAccResourceVSphereTagCategory_addType(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereTagCategoryExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -95,7 +95,7 @@ func TestAccResourceVSphereTagCategory_removeTypeShouldError(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereTagCategoryExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -118,7 +118,7 @@ func TestAccResourceVSphereTagCategory_invalidTypeShouldError(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereTagCategoryExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -135,7 +135,7 @@ func TestAccResourceVSphereTagCategory_rename(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereTagCategoryExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -161,7 +161,7 @@ func TestAccResourceVSphereTagCategory_singleCardinality(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereTagCategoryExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -181,7 +181,7 @@ func TestAccResourceVSphereTagCategory_multiCardinality(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereTagCategoryExists(false),
 		Steps: []resource.TestStep{
 			{

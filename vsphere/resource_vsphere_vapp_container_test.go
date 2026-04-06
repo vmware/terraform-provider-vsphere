@@ -28,7 +28,7 @@ func TestAccResourceVSphereVAppContainer_basic(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereVAppContainerCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -79,7 +79,7 @@ func TestAccResourceVSphereVAppContainer_childImport(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereVAppContainerCheckExistsInner("child", false),
 		Steps: []resource.TestStep{
 			{
@@ -118,7 +118,7 @@ func TestAccResourceVSphereVAppContainer_vmBasic(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereVAppContainerCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -138,7 +138,7 @@ func TestAccResourceVSphereVAppContainer_vmMoveIntoVApp(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereVAppContainerCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -165,7 +165,7 @@ func TestAccResourceVSphereVAppContainer_vmSDRS(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereVAppContainerCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -186,7 +186,7 @@ func TestAccResourceVSphereVAppContainer_vmClone(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereVAppContainerCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -207,7 +207,7 @@ func TestAccResourceVSphereVAppContainer_vmCloneSDRS(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereVAppContainerCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -228,7 +228,7 @@ func TestAccResourceVSphereVAppContainer_vmMoveIntoVAppSDRS(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereVAppContainerCheckExists(false),
 		Steps: []resource.TestStep{
 			{

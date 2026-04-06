@@ -39,7 +39,7 @@ func TestAccResourceVSphereFile_basic(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccCheckVSphereFileDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -87,7 +87,7 @@ func TestAccResourceVSphereFile_uploadWithCreateDirectories(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccCheckVSphereFileDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -152,7 +152,7 @@ func TestAccResourceVSphereFile_basicUploadAndCopy(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccCheckVSphereFileDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -206,7 +206,7 @@ func TestAccResourceVSphereFile_renamePostCreation(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccCheckVSphereFileDestroy,
 		Steps: []resource.TestStep{
 			{
@@ -270,7 +270,7 @@ func TestAccResourceVSphereFile_uploadAndCopyAndUpdate(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccCheckVSphereFileDestroy,
 		Steps: []resource.TestStep{
 			{

@@ -22,7 +22,7 @@ func TestAccResourceVSphereOfflineSoftwareDepot_basic(t *testing.T) {
 			testAccPreCheck(t)
 			testAccResourceVSphereOfflineSoftwareDepotPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testhelper.ConfigDataSoftwareDepot(),

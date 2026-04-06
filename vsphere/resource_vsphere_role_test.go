@@ -28,7 +28,7 @@ func TestAccResourceVsphereRole_createRole(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVsphereRoleCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -55,7 +55,7 @@ func TestAccResourceVsphereRole_addPrivileges(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVsphereRoleCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -88,7 +88,7 @@ func TestAccResourceVsphereRole_removePrivileges(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVsphereRoleCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -121,7 +121,7 @@ func TestAccResourceVsphereRole_importSystemRoleShouldError(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config:            testAccResourceVsphereRoleConfigSystemRole(),

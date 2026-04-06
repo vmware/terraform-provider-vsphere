@@ -21,7 +21,7 @@ func TestAccResourceVSphereDistributedPortGroup_basic(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDistributedPortGroupExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -57,7 +57,7 @@ func TestAccResourceVSphereDistributedPortGroup_inheritPolicyDiffCheck(t *testin
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDistributedPortGroupExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -76,7 +76,7 @@ func TestAccResourceVSphereDistributedPortGroup_inheritPolicyDiffCheckVlanRangeT
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDistributedPortGroupExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -95,7 +95,7 @@ func TestAccResourceVSphereDistributedPortGroup_overrideVlan(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDistributedPortGroupExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -116,7 +116,7 @@ func TestAccResourceVSphereDistributedPortGroup_singleTag(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDistributedPortGroupExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -136,7 +136,7 @@ func TestAccResourceVSphereDistributedPortGroup_multiTag(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDistributedPortGroupExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -156,7 +156,7 @@ func TestAccResourceVSphereDistributedPortGroup_singleCustomAttribute(t *testing
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDistributedPortGroupExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -176,7 +176,7 @@ func TestAccResourceVSphereDistributedPortGroup_multiCustomAttribute(t *testing.
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereDistributedPortGroupExists(false),
 		Steps: []resource.TestStep{
 			{

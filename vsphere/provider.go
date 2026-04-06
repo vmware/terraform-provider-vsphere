@@ -5,8 +5,6 @@
 package vsphere
 
 import (
-	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -22,83 +20,72 @@ func Provider() *schema.Provider {
 		Schema: map[string]*schema.Schema{
 			"user": {
 				Type:        schema.TypeString,
-				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("VSPHERE_USER", nil),
-				Description: "The user name for vSphere API operations.",
+				Optional:    true,
+				Description: "The user name for vSphere API operations. Can be set with VSPHERE_USER.",
 			},
 
 			"password": {
 				Type:        schema.TypeString,
-				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("VSPHERE_PASSWORD", nil),
-				Description: "The user password for vSphere API operations.",
+				Optional:    true,
+				Sensitive:   true,
+				Description: "The user password for vSphere API operations. Can be set with VSPHERE_PASSWORD.",
 			},
 
 			"vsphere_server": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("VSPHERE_SERVER", nil),
-				Description: "The vSphere Server name for vSphere API operations.",
+				Description: "The vSphere Server name for vSphere API operations. Can be set with VSPHERE_SERVER.",
 			},
 			"allow_unverified_ssl": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("VSPHERE_ALLOW_UNVERIFIED_SSL", false),
-				Description: "If set, VMware vSphere client will permit unverifiable SSL certificates.",
+				Description: "If set, VMware vSphere client will permit unverifiable SSL certificates. Can be set with VSPHERE_ALLOW_UNVERIFIED_SSL.",
 			},
 			"vcenter_server": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("VSPHERE_VCENTER", nil),
 				Deprecated:  "This field has been renamed to vsphere_server.",
+				Description: "Deprecated; use vsphere_server. Can be set with VSPHERE_VCENTER.",
 			},
 			"client_debug": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("VSPHERE_CLIENT_DEBUG", false),
-				Description: "govmomi debug",
+				Description: "govmomi debug. Can be set with VSPHERE_CLIENT_DEBUG.",
 			},
 			"client_debug_path_run": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("VSPHERE_CLIENT_DEBUG_PATH_RUN", ""),
-				Description: "govmomi debug path for a single run",
+				Description: "govmomi debug path for a single run. Can be set with VSPHERE_CLIENT_DEBUG_PATH_RUN.",
 			},
 			"client_debug_path": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("VSPHERE_CLIENT_DEBUG_PATH", ""),
-				Description: "govmomi debug path for debug",
+				Description: "govmomi debug path for debug. Can be set with VSPHERE_CLIENT_DEBUG_PATH.",
 			},
 			"persist_session": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("VSPHERE_PERSIST_SESSION", false),
-				Description: "Persist vSphere client sessions to disk",
+				Description: "Persist vSphere client sessions to disk. Can be set with VSPHERE_PERSIST_SESSION.",
 			},
 			"vim_session_path": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("VSPHERE_VIM_SESSION_PATH", filepath.Join(os.Getenv("HOME"), ".govmomi", "sessions")),
-				Description: "The directory to save vSphere SOAP API sessions to",
+				Description: "The directory to save vSphere SOAP API sessions to. Can be set with VSPHERE_VIM_SESSION_PATH.",
 			},
 			"rest_session_path": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("VSPHERE_REST_SESSION_PATH", filepath.Join(os.Getenv("HOME"), ".govmomi", "rest_sessions")),
-				Description: "The directory to save vSphere REST API sessions to",
+				Description: "The directory to save vSphere REST API sessions to. Can be set with VSPHERE_REST_SESSION_PATH.",
 			},
 			"vim_keep_alive": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("VSPHERE_VIM_KEEP_ALIVE", 10),
-				Description: "Keep alive interval for the VIM session in minutes",
+				Description: "Keep alive interval for the VIM session in minutes. Can be set with VSPHERE_VIM_KEEP_ALIVE.",
 			},
 			"api_timeout": {
 				Type:        schema.TypeInt,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("VSPHERE_API_TIMEOUT", 5),
-				Description: "API timeout in minutes (Default: 5)",
+				Description: "API timeout in minutes (Default: 5). Can be set with VSPHERE_API_TIMEOUT.",
 			},
 		},
 
@@ -194,11 +181,21 @@ func Provider() *schema.Provider {
 	}
 }
 
-func providerConfigure(d *schema.ResourceData) (interface{}, error) {
-	timeoutMins := time.Duration(d.Get("api_timeout").(int))
-	defaultAPITimeout = timeoutMins * time.Minute
+// SetDefaultAPITimeoutFromProviderSettings updates the package-level API timeout
+// used by resources. Called from both SDK and plugin-framework Configure paths
+// when using terraform-plugin-mux.
+func SetDefaultAPITimeoutFromProviderSettings(s ProviderSettings) {
+	defaultAPITimeout = time.Duration(s.APITimeoutMins) * time.Minute
+}
 
-	c, err := NewConfig(d)
+func providerConfigure(d *schema.ResourceData) (interface{}, error) {
+	s, err := ProviderSettingsFromResourceData(d)
+	if err != nil {
+		return nil, err
+	}
+	SetDefaultAPITimeoutFromProviderSettings(s)
+
+	c, err := NewConfigFromProviderSettings(s)
 	if err != nil {
 		return nil, err
 	}

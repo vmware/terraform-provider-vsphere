@@ -20,7 +20,7 @@ func TestAccDataSourceVSphereHost_basic(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereHostConfig(),
@@ -43,7 +43,7 @@ func TestAccDataSourceVSphereHost_defaultHost(t *testing.T) {
 			testAccPreCheck(t)
 			testAccSkipIfNotEsxi(t)
 		},
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDataSourceVSphereHostConfigDefault(),

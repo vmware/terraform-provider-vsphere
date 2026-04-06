@@ -39,7 +39,7 @@ func TestAccResourceVsphereAlarm_basicEvent(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceAlarmCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -104,7 +104,7 @@ func TestAccResourceVsphereAlarm_snmpAction(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceAlarmCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -149,7 +149,7 @@ func TestAccResourceVsphereAlarm_advancedAction(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceAlarmCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -193,7 +193,7 @@ func TestAccResourceVsphereAlarm_emailAction(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceAlarmCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -240,7 +240,7 @@ func TestAccResourceVsphereAlarm_metricExpression(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceAlarmCheckExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -283,7 +283,7 @@ func TestAccResourceVsphereAlarm_stateExpression(t *testing.T) {
 		PreCheck: func() {
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceAlarmCheckExists(false),
 		Steps: []resource.TestStep{
 			{

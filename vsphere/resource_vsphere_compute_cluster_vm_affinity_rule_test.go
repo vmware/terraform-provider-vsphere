@@ -28,7 +28,7 @@ func TestAccResourceVSphereComputeClusterVMAffinityRule_basic(t *testing.T) {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereComputeClusterVMAffinityRuleExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -88,7 +88,7 @@ func TestAccResourceVSphereComputeClusterVMAffinityRule_updateEnabled(t *testing
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereComputeClusterVMAffinityRuleExists(false),
 		Steps: []resource.TestStep{
 			{
@@ -125,7 +125,7 @@ func TestAccResourceVSphereComputeClusterVMAffinityRule_updateCount(t *testing.T
 			RunSweepers()
 			testAccPreCheck(t)
 		},
-		Providers:    testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		CheckDestroy: testAccResourceVSphereComputeClusterVMAffinityRuleExists(false),
 		Steps: []resource.TestStep{
 			{

@@ -57,6 +57,37 @@ func TestAccDataSourceVSphereTagCategory_basic(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceVSphereTagCategory_byID(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			RunSweepers()
+			testAccPreCheck(t)
+		},
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceVSphereTagCategoryByIDConfig(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"data.vsphere_tag_category.testacc-category-data-by-id",
+						"name",
+						testAccDataSourceVSphereTagCategoryConfigName,
+					),
+					resource.TestCheckResourceAttr(
+						"data.vsphere_tag_category.testacc-category-data-by-id",
+						"description",
+						testAccDataSourceVSphereTagCategoryConfigDescription,
+					),
+					resource.TestCheckResourceAttrPair(
+						"data.vsphere_tag_category.testacc-category-data-by-id", "id",
+						"vsphere_tag_category.testacc-category", "id",
+					),
+				),
+			},
+		},
+	})
+}
+
 const testAccDataSourceVSphereTagCategoryConfigName = "testacc-category"
 const testAccDataSourceVSphereTagCategoryConfigDescription = "Managed by Terraform"
 const testAccDataSourceVSphereTagCategoryConfigCardinality = vSphereTagCategoryCardinalitySingle
@@ -92,6 +123,45 @@ resource "vsphere_tag_category" "testacc-category" {
 
 data "vsphere_tag_category" "testacc-category-data" {
   name = vsphere_tag_category.testacc-category.name
+}
+`,
+		testAccDataSourceVSphereTagCategoryConfigName,
+		testAccDataSourceVSphereTagCategoryConfigDescription,
+		testAccDataSourceVSphereTagCategoryConfigCardinality,
+		testAccDataSourceVSphereTagCategoryConfigAssociableType,
+	)
+}
+
+func testAccDataSourceVSphereTagCategoryByIDConfig() string {
+	return fmt.Sprintf(`
+variable "tag_category_name" {
+  default = "%s"
+}
+
+variable "tag_category_description" {
+  default = "%s"
+}
+
+variable "tag_category_cardinality" {
+  default = "%s"
+}
+
+variable "tag_category_associable_types" {
+  default = [
+    "%s",
+  ]
+}
+
+resource "vsphere_tag_category" "testacc-category" {
+  name        = var.tag_category_name
+  description = var.tag_category_description
+  cardinality = var.tag_category_cardinality
+
+  associable_types = var.tag_category_associable_types
+}
+
+data "vsphere_tag_category" "testacc-category-data-by-id" {
+  id = vsphere_tag_category.testacc-category.id
 }
 `,
 		testAccDataSourceVSphereTagCategoryConfigName,

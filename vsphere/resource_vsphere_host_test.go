@@ -827,6 +827,5 @@ resource "vsphere_host" "h1" {
 		os.Getenv("ESX_USERNAME"),
 		os.Getenv("ESX_PASSWORD"),
 		serversStr)
-	log.Printf("Generated Terraform configuration: %s", config)
 	return config
 }

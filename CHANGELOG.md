@@ -1,5 +1,22 @@
 # <!-- markdownlint-disable first-line-h1 no-inline-html -->
 
+## v2.15.2
+
+> Release Date: 2026-03-26
+
+DOCUMENTATION:
+
+- Updated documentation to list support for vSphere 9.x.
+- Updated documentation to remove support for vSphere 7.x.
+
+## v2.15.1
+
+> Release Date: 2026-03-23
+
+CHORE:
+
+- `provider`: Updated `google.golang.org/grpc` to 1.79.3
+
 ## v2.15.0
 
 > Release Date: 2025-08-22

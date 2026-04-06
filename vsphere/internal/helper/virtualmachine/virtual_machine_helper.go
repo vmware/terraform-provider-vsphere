@@ -740,6 +740,20 @@ func PowerOff(vm *object.VirtualMachine) error {
 	return task.WaitEx(tctx)
 }
 
+// Suspend wraps suspending a VM and waiting for the subsequent task.
+func Suspend(vm *object.VirtualMachine) error {
+	log.Printf("[DEBUG] Suspending virtual machine %q", vm.InventoryPath)
+	ctx, cancel := context.WithTimeout(context.Background(), provider.DefaultAPITimeout)
+	defer cancel()
+	task, err := vm.Suspend(ctx)
+	if err != nil {
+		return err
+	}
+	tctx, tcancel := context.WithTimeout(context.Background(), provider.DefaultAPITimeout)
+	defer tcancel()
+	return task.WaitEx(tctx)
+}
+
 // ShutdownGuest wraps the graceful shutdown of a guest VM, and then waiting an
 // appropriate amount of time for the guest power state to go to powered off.
 // If the VM does not power off in the shutdown period specified by timeout (in

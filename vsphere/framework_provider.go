@@ -7,6 +7,7 @@ package vsphere
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework/action"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
@@ -16,6 +17,8 @@ import (
 
 // FrameworkProvider is the plugin-framework half of the muxed provider.
 type FrameworkProvider struct{}
+
+var _ provider.ProviderWithActions = (*FrameworkProvider)(nil)
 
 // NewFrameworkProvider returns a new plugin-framework provider instance.
 func NewFrameworkProvider() provider.Provider {
@@ -150,6 +153,14 @@ func (p *FrameworkProvider) Configure(ctx context.Context, req provider.Configur
 
 	resp.ResourceData = client
 	resp.DataSourceData = client
+	resp.ActionData = client
+}
+
+// Actions implements provider.ProviderWithActions.
+func (p *FrameworkProvider) Actions(context.Context) []func() action.Action {
+	return []func() action.Action{
+		NewVirtualMachinePowerAction,
+	}
 }
 
 // Resources implements provider.Provider.

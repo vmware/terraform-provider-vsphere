@@ -21,7 +21,7 @@ func TestAccResourceVSphereContentLibrary_basic(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereContentLibraryCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereContentLibraryCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereContentLibraryConfig(),
@@ -53,7 +53,7 @@ func TestAccResourceVSphereContentLibrary_subscribed(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereContentLibraryCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereContentLibraryCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testaccresourcevspherecontentlibraryconfigSubscribed(),
@@ -78,7 +78,7 @@ func TestAccResourceVSphereContentLibrary_authenticated(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereContentLibraryCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereContentLibraryCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testaccresourcevspherecontentlibraryconfigAuthenticated(),

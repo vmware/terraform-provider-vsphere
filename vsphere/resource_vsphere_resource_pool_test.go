@@ -24,7 +24,7 @@ func TestAccResourceVSphereResourcePool_basic(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereResourcePoolCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereResourcePoolCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereResourcePoolConfigBasic(),
@@ -74,7 +74,7 @@ func TestAccResourceVSphereResourcePool_updateRename(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereResourcePoolCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereResourcePoolCheckExists(false),
 
 		Steps: []resource.TestStep{
 			{
@@ -102,7 +102,7 @@ func TestAccResourceVSphereResourcePool_updateToCustom(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereResourcePoolCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereResourcePoolCheckExists(false),
 
 		Steps: []resource.TestStep{
 			{
@@ -140,7 +140,7 @@ func TestAccResourceVSphereResourcePool_updateToDefaults(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereResourcePoolCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereResourcePoolCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereResourcePoolConfigNonDefault(),
@@ -180,7 +180,7 @@ func TestAccResourceVSphereResourcePool_esxiHost(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereResourcePoolCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereResourcePoolCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereResourcePoolConfigEsxiHost(),
@@ -199,7 +199,7 @@ func TestAccResourceVSphereResourcePool_updateParent(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereResourcePoolCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereResourcePoolCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereResourcePoolConfigBasic(),
@@ -226,7 +226,7 @@ func TestAccResourceVSphereResourcePool_tags(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereResourcePoolCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereResourcePoolCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereResourcePoolConfigTags(),

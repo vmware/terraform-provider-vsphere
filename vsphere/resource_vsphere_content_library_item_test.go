@@ -24,7 +24,7 @@ func TestAccResourceVSphereContentLibraryItem_localOva(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereContentLibraryItemCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereContentLibraryItemCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				PreConfig: testAccResourceVSphereContentLibraryItemGetOva,
@@ -61,7 +61,7 @@ func TestAccResourceVSphereContentLibraryItem_remoteOvf(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereContentLibraryItemCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereContentLibraryItemCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testaccresourcevspherecontentlibraryitemconfigRemoteovf(),
@@ -103,7 +103,7 @@ func TestAccResourceVSphereContentLibraryItem_remoteOva(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereContentLibraryItemCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereContentLibraryItemCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testaccresourcevspherecontentlibraryitemconfigRemoteova(),

@@ -32,7 +32,7 @@ func TestAccResourceVSphereDatastoreClusterVMAntiAffinityRule_basic(t *testing.T
 			testAccResourceVSphereDatastoreClusterVMAntiAffinityRulePreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereDatastoreClusterVMAntiAffinityRuleExists(false),
+		CheckDestroy:             testAccResourceVSphereDatastoreClusterVMAntiAffinityRuleExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereDatastoreClusterVMAntiAffinityRuleConfig(2, true),
@@ -94,7 +94,7 @@ func TestAccResourceVSphereDatastoreClusterVMAntiAffinityRule_updateEnabled(t *t
 			testAccResourceVSphereDatastoreClusterVMAntiAffinityRulePreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereDatastoreClusterVMAntiAffinityRuleExists(false),
+		CheckDestroy:             testAccResourceVSphereDatastoreClusterVMAntiAffinityRuleExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereDatastoreClusterVMAntiAffinityRuleConfig(2, true),
@@ -133,7 +133,7 @@ func TestAccResourceVSphereDatastoreClusterVMAntiAffinityRule_updateCount(t *tes
 			testAccResourceVSphereDatastoreClusterVMAntiAffinityRulePreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereDatastoreClusterVMAntiAffinityRuleExists(false),
+		CheckDestroy:             testAccResourceVSphereDatastoreClusterVMAntiAffinityRuleExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereDatastoreClusterVMAntiAffinityRuleConfig(2, true),

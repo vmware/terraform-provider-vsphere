@@ -25,7 +25,7 @@ func TestAccResourceVMStoragePolicy_basic(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVMStoragePolicyCheckExists(false),
+		CheckDestroy:             testAccResourceVMStoragePolicyCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVMStoragePolicyonfigBasic(policyName),

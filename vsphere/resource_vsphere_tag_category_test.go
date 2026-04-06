@@ -24,7 +24,7 @@ func TestAccResourceVSphereTagCategory_basic(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereTagCategoryExists(false),
+		CheckDestroy:             testAccResourceVSphereTagCategoryExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereTagCategoryConfigBasic,
@@ -64,7 +64,7 @@ func TestAccResourceVSphereTagCategory_addType(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereTagCategoryExists(false),
+		CheckDestroy:             testAccResourceVSphereTagCategoryExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereTagCategoryConfigBasic,
@@ -96,7 +96,7 @@ func TestAccResourceVSphereTagCategory_removeTypeShouldError(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereTagCategoryExists(false),
+		CheckDestroy:             testAccResourceVSphereTagCategoryExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereTagCategoryConfigMultiType,
@@ -119,7 +119,7 @@ func TestAccResourceVSphereTagCategory_invalidTypeShouldError(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereTagCategoryExists(false),
+		CheckDestroy:             testAccResourceVSphereTagCategoryExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccResourceVSphereTagCategoryConfigInvalid,
@@ -136,7 +136,7 @@ func TestAccResourceVSphereTagCategory_rename(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereTagCategoryExists(false),
+		CheckDestroy:             testAccResourceVSphereTagCategoryExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereTagCategoryConfigBasic,
@@ -162,7 +162,7 @@ func TestAccResourceVSphereTagCategory_singleCardinality(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereTagCategoryExists(false),
+		CheckDestroy:             testAccResourceVSphereTagCategoryExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereTagCategoryConfigSingleCardinality,
@@ -182,7 +182,7 @@ func TestAccResourceVSphereTagCategory_multiCardinality(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereTagCategoryExists(false),
+		CheckDestroy:             testAccResourceVSphereTagCategoryExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereTagCategoryConfigMultiCardinality,

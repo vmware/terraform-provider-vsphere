@@ -33,7 +33,7 @@ func TestAccResourceVSphereComputeCluster_basic(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterConfigBasic(),
@@ -69,7 +69,7 @@ func TestAccResourceVSphereComputeCluster_evc(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterConfigEvc(),
@@ -90,7 +90,7 @@ func TestAccResourceVSphereComputeCluster_haAdmissionControlPolicyDisabled(t *te
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterConfigHAAdmissionControlPolicyDisabled(),
@@ -111,7 +111,7 @@ func TestAccResourceVSphereComputeCluster_drsHAEnabled(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterConfigDRSHABasic(),
@@ -148,7 +148,7 @@ func TestAccResourceVSphereComputeCluster_vsanDedupEnabled(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterConfigVSANDedupEnabledCompressEnabled(),
@@ -172,7 +172,7 @@ func TestAccResourceVSphereComputeCluster_vsanCompressionEnabled(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterConfigVSANCompressionEnabledOnly(),
@@ -196,7 +196,7 @@ func TestAccResourceVSphereComputeCluster_vsanPerfEnabled(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterConfigVSANPerfEnabled(),
@@ -219,7 +219,7 @@ func TestAccResourceVSphereComputeCluster_vsanPerfVerboseEnabled(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterConfigVSANPerfVerboseEnabled(),
@@ -243,7 +243,7 @@ func TestAccResourceVSphereComputeCluster_vsanPerfVerboseDiagnosticEnabled(t *te
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterConfigVSANPerfVerboseDiagnosticEnabled(),
@@ -268,7 +268,7 @@ func TestAccResourceVSphereComputeCluster_vsanUnmapEnabledwithVsanEnabled(t *tes
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterConfigVSANUnmapEnabledwithVsanEnabled(),
@@ -291,7 +291,7 @@ func TestAccResourceVSphereComputeCluster_vsanUnmapDisabledwithVsanDisabled(t *t
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterConfigVSANUnmapEnabledwithVsanEnabled(),
@@ -329,7 +329,7 @@ func TestAccResourceVSphereComputeCluster_vsanDITEncryption(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 
@@ -356,7 +356,7 @@ func TestAccResourceVSphereComputeCluster_vsanEsaEnabled(t *testing.T) {
 			testAccResourceVSphereComputeClusterVSANEsaPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterConfigVSANEsaEnabled(),
@@ -377,7 +377,7 @@ func TestAccResourceVSphereComputeCluster_faultDomain(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterConfigFaultDomains(),
@@ -424,7 +424,7 @@ func TestAccResourceVSphereComputeCluster_vsanStretchedCluster(t *testing.T) {
 			testAccResourceVSphereComputeClusterVSANStretchedClusterPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterStretchedClusterEnabled(),
@@ -467,7 +467,7 @@ func TestAccResourceVSphereComputeCluster_explicitFailoverHost(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterConfigDRSHABasicExplicitFailoverHost(),
@@ -490,7 +490,7 @@ func TestAccResourceVSphereComputeCluster_rename(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterConfigWithName(testAccResourceVSphereComputeClusterNameStandard),
@@ -517,7 +517,7 @@ func TestAccResourceVSphereComputeCluster_inFolder(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterConfigWithFolder(testAccResourceVSphereComputeClusterFolder),
@@ -537,7 +537,7 @@ func TestAccResourceVSphereComputeCluster_moveToFolder(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterConfigEmpty(),
@@ -564,7 +564,7 @@ func TestAccResourceVSphereComputeCluster_singleTag(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterConfigSingleTag(),
@@ -584,7 +584,7 @@ func TestAccResourceVSphereComputeCluster_multipleTags(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterConfigMultiTag(),
@@ -604,7 +604,7 @@ func TestAccResourceVSphereComputeCluster_switchTags(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterConfigSingleTag(),
@@ -631,7 +631,7 @@ func TestAccResourceVSphereComputeCluster_singleCustomAttribute(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterConfigSingleCustomAttribute(),
@@ -651,7 +651,7 @@ func TestAccResourceVSphereComputeCluster_multipleCustomAttribute(t *testing.T) 
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterConfigMultiCustomAttributes(),
@@ -671,7 +671,7 @@ func TestAccResourceVSphereComputeCluster_switchCustomAttribute(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterConfigSingleCustomAttribute(),

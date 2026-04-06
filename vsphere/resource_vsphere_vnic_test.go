@@ -54,8 +54,8 @@ func TestAccResourceVSphereVNic_dvs_default(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccVSphereVNicDestroy,
-		Steps:        generateSteps(testaccvspherevnicconfigDvs, "defaultTcpipStack"),
+		CheckDestroy:             testAccVSphereVNicDestroy,
+		Steps:                    generateSteps(testaccvspherevnicconfigDvs, "defaultTcpipStack"),
 	})
 }
 
@@ -67,8 +67,8 @@ func TestAccResourceVSphereVNic_dvs_vmotion(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccVSphereVNicDestroy,
-		Steps:        generateSteps(testaccvspherevnicconfigDvs, "vmotion"),
+		CheckDestroy:             testAccVSphereVNicDestroy,
+		Steps:                    generateSteps(testaccvspherevnicconfigDvs, "vmotion"),
 	})
 }
 
@@ -80,7 +80,7 @@ func TestAccResourceVSphereVNic_hvs_default(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccVSphereVNicDestroy,
+		CheckDestroy:             testAccVSphereVNicDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testaccvspherevnicconfigHvs(combineSnippets(
@@ -106,7 +106,7 @@ func TestAccResourceVSphereVNic_hvs_vmotion(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccVSphereVNicDestroy,
+		CheckDestroy:             testAccVSphereVNicDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testaccvspherevnicconfigHvs(combineSnippets(
@@ -132,7 +132,7 @@ func TestAccResourceVSphereVNic_services_nonDefaultNetstack(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccVSphereVNicDestroy,
+		CheckDestroy:             testAccVSphereVNicDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testaccvspherevnicconfigHvs(
@@ -158,7 +158,7 @@ func TestAccResourceVSphereVNic_services_invalid(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccVSphereVNicDestroy,
+		CheckDestroy:             testAccVSphereVNicDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testaccvspherevnicconfigHvs(
@@ -185,7 +185,7 @@ func TestAccResourceVSphereVNic_services_valid(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccVSphereVNicDestroy,
+		CheckDestroy:             testAccVSphereVNicDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testaccvspherevnicconfigHvs(

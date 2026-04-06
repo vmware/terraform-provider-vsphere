@@ -27,7 +27,7 @@ func TestAccResourceVSphereDPMHostOverride_basic(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereDPMHostOverrideExists(false),
+		CheckDestroy:             testAccResourceVSphereDPMHostOverrideExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereDPMHostOverrideConfigDefaults(),
@@ -77,7 +77,7 @@ func TestAccResourceVSphereDPMHostOverride_overrides(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereDPMHostOverrideExists(false),
+		CheckDestroy:             testAccResourceVSphereDPMHostOverrideExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereDPMHostOverrideConfigOverrides(),
@@ -97,7 +97,7 @@ func TestAccResourceVSphereDPMHostOverride_update(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereDPMHostOverrideExists(false),
+		CheckDestroy:             testAccResourceVSphereDPMHostOverrideExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereDPMHostOverrideConfigDefaults(),

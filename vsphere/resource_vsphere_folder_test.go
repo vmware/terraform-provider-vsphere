@@ -30,7 +30,7 @@ func TestAccResourceVSphereFolder_vmFolder(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereFolderExists(false),
+		CheckDestroy:             testAccResourceVSphereFolderExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereFolderConfigBasic(
@@ -75,7 +75,7 @@ func TestAccResourceVSphereFolder_datastoreFolder(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereFolderExists(false),
+		CheckDestroy:             testAccResourceVSphereFolderExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereFolderConfigBasic(
@@ -99,7 +99,7 @@ func TestAccResourceVSphereFolder_networkFolder(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereFolderExists(false),
+		CheckDestroy:             testAccResourceVSphereFolderExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereFolderConfigBasic(
@@ -123,7 +123,7 @@ func TestAccResourceVSphereFolder_hostFolder(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereFolderExists(false),
+		CheckDestroy:             testAccResourceVSphereFolderExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereFolderConfigBasic(
@@ -147,7 +147,7 @@ func TestAccResourceVSphereFolder_datacenterFolder(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereFolderExists(false),
+		CheckDestroy:             testAccResourceVSphereFolderExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereFolderConfigBasic(
@@ -171,7 +171,7 @@ func TestAccResourceVSphereFolder_rename(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereFolderExists(false),
+		CheckDestroy:             testAccResourceVSphereFolderExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereFolderConfigBasic(
@@ -206,7 +206,7 @@ func TestAccResourceVSphereFolder_subfolder(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereFolderExists(false),
+		CheckDestroy:             testAccResourceVSphereFolderExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereFolderConfigSubFolder(
@@ -231,7 +231,7 @@ func TestAccResourceVSphereFolder_moveToSubfolder(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereFolderExists(false),
+		CheckDestroy:             testAccResourceVSphereFolderExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereFolderConfigBasic(
@@ -268,7 +268,7 @@ func TestAccResourceVSphereFolder_tags(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereFolderExists(false),
+		CheckDestroy:             testAccResourceVSphereFolderExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereFolderConfigTag(),
@@ -290,7 +290,7 @@ func TestAccResourceVSphereFolder_modifyTags(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereFolderExists(false),
+		CheckDestroy:             testAccResourceVSphereFolderExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereFolderConfigTag(),
@@ -321,7 +321,7 @@ func TestAccResourceVSphereFolder_modifyTagsMultiStage(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereFolderExists(false),
+		CheckDestroy:             testAccResourceVSphereFolderExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereFolderConfigTag(),
@@ -358,7 +358,7 @@ func TestAccResourceVSphereFolder_customAttributes(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereFolderExists(false),
+		CheckDestroy:             testAccResourceVSphereFolderExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereFolderCustomAttribute(),
@@ -380,7 +380,7 @@ func TestAccResourceVSphereFolder_modifyCustomAttributes(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereFolderExists(false),
+		CheckDestroy:             testAccResourceVSphereFolderExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereFolderCustomAttribute(),
@@ -411,7 +411,7 @@ func TestAccResourceVSphereFolder_removeAllCustomAttributes(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereFolderExists(false),
+		CheckDestroy:             testAccResourceVSphereFolderExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereFolderMultiCustomAttributes(),
@@ -444,7 +444,7 @@ func TestAccResourceVSphereFolder_preventDeleteIfNotEmpty(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereFolderExists(false),
+		CheckDestroy:             testAccResourceVSphereFolderExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereFolderConfigBasic(

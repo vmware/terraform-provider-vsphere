@@ -23,7 +23,7 @@ func TestAccResourceVSphereHostVirtualSwitch_basic(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereHostVirtualSwitchExists(false),
+		CheckDestroy:             testAccResourceVSphereHostVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereHostVirtualSwitchConfig(),
@@ -58,7 +58,7 @@ func TestAccResourceVSphereHostVirtualSwitch_removeNIC(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereHostVirtualSwitchExists(false),
+		CheckDestroy:             testAccResourceVSphereHostVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereHostVirtualSwitchConfig(),
@@ -83,7 +83,7 @@ func TestAccResourceVSphereHostVirtualSwitch_noNICs(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereHostVirtualSwitchExists(false),
+		CheckDestroy:             testAccResourceVSphereHostVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereHostVirtualSwitchConfigNoNIC(),
@@ -103,7 +103,7 @@ func TestAccResourceVSphereHostVirtualSwitch_badActiveNICList(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereHostVirtualSwitchExists(false),
+		CheckDestroy:             testAccResourceVSphereHostVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccResourceVSphereHostVirtualSwitchConfigBadActive(),
@@ -121,7 +121,7 @@ func TestAccResourceVSphereHostVirtualSwitch_badStandbyNICList(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereHostVirtualSwitchExists(false),
+		CheckDestroy:             testAccResourceVSphereHostVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccResourceVSphereHostVirtualSwitchConfigBadStandby(),
@@ -139,7 +139,7 @@ func TestAccResourceVSphereHostVirtualSwitch_removeAllNICs(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereHostVirtualSwitchExists(false),
+		CheckDestroy:             testAccResourceVSphereHostVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereHostVirtualSwitchConfig(),

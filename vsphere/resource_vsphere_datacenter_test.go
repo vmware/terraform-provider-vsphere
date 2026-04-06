@@ -140,9 +140,9 @@ resource "vsphere_datacenter" "testDC" {
 func TestAccResourceVSphereDatacenter_createOnRootFolder(t *testing.T) {
 	name := "testDC"
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccCheckVSphereDatacenterDestroy,
+		CheckDestroy:             testAccCheckVSphereDatacenterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckVSphereDatacenterConfig(name),
@@ -165,9 +165,9 @@ func TestAccResourceVSphereDatacenter_createOnSubfolder(t *testing.T) {
 	name := "testDC"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
+		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccCheckVSphereDatacenterDestroy,
+		CheckDestroy:             testAccCheckVSphereDatacenterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckVSphereDatacenterConfigSubfolder(name, dcFolder),
@@ -196,7 +196,7 @@ func TestAccResourceVSphereDatacenter_singleTag(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccCheckVSphereDatacenterDestroy,
+		CheckDestroy:             testAccCheckVSphereDatacenterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckVSphereDatacenterConfigTags,
@@ -219,7 +219,7 @@ func TestAccResourceVSphereDatacenter_modifyTags(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccCheckVSphereDatacenterDestroy,
+		CheckDestroy:             testAccCheckVSphereDatacenterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckVSphereDatacenterConfigTags,
@@ -252,7 +252,7 @@ func TestAccResourceVSphereDatacenter_singleCustomAttribute(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccCheckVSphereDatacenterDestroy,
+		CheckDestroy:             testAccCheckVSphereDatacenterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckVSphereDatacenterConfigCustomAttributes,
@@ -275,7 +275,7 @@ func TestAccResourceVSphereDatacenter_modifyCustomAttribute(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccCheckVSphereDatacenterDestroy,
+		CheckDestroy:             testAccCheckVSphereDatacenterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckVSphereDatacenterConfigCustomAttributes,

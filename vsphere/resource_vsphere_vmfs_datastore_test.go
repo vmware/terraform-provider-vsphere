@@ -30,7 +30,7 @@ func TestAccResourceVSphereVmfsDatastore_basic(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVmfsDatastoreExists(false),
+		CheckDestroy:             testAccResourceVSphereVmfsDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVmfsDatastoreConfigStaticSingle(),
@@ -66,7 +66,7 @@ func TestAccResourceVSphereVmfsDatastore_multiDisk(t *testing.T) {
 			testAccResourceVSphereVmfsDatastorePreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVmfsDatastoreExists(false),
+		CheckDestroy:             testAccResourceVSphereVmfsDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVmfsDatastoreConfigStaticMulti(),
@@ -87,7 +87,7 @@ func TestAccResourceVSphereVmfsDatastore_discoveryViaDatasource(t *testing.T) {
 			testAccResourceVSphereVmfsDatastorePreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVmfsDatastoreExists(false),
+		CheckDestroy:             testAccResourceVSphereVmfsDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVmfsDatastoreConfigDiscoverDatasource(),
@@ -108,7 +108,7 @@ func TestAccResourceVSphereVmfsDatastore_addDisksThroughUpdate(t *testing.T) {
 			testAccResourceVSphereVmfsDatastorePreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVmfsDatastoreExists(false),
+		CheckDestroy:             testAccResourceVSphereVmfsDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVmfsDatastoreConfigStaticSingle(),
@@ -135,7 +135,7 @@ func TestAccResourceVSphereVmfsDatastore_renameDatastore(t *testing.T) {
 			testAccResourceVSphereVmfsDatastorePreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVmfsDatastoreExists(false),
+		CheckDestroy:             testAccResourceVSphereVmfsDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVmfsDatastoreConfigStaticSingle(),
@@ -169,7 +169,7 @@ func TestAccResourceVSphereVmfsDatastore_withFolder(t *testing.T) {
 			testAccSkipIfEsxi(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVmfsDatastoreExists(false),
+		CheckDestroy:             testAccResourceVSphereVmfsDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVmfsDatastoreConfigStaticSingleFolder(),
@@ -191,7 +191,7 @@ func TestAccResourceVSphereVmfsDatastore_moveToFolderAfter(t *testing.T) {
 			testAccResourceVSphereVmfsDatastorePreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVmfsDatastoreExists(false),
+		CheckDestroy:             testAccResourceVSphereVmfsDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVmfsDatastoreConfigStaticSingle(),
@@ -221,7 +221,7 @@ func TestAccResourceVSphereVmfsDatastore_withDatastoreCluster(t *testing.T) {
 			testAccSkipIfEsxi(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVmfsDatastoreExists(false),
+		CheckDestroy:             testAccResourceVSphereVmfsDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVmfsDatastoreConfigDatastoreCluster(),
@@ -243,7 +243,7 @@ func TestAccResourceVSphereVmfsDatastore_moveToDatastoreClusterAfter(t *testing.
 			testAccResourceVSphereVmfsDatastorePreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVmfsDatastoreExists(false),
+		CheckDestroy:             testAccResourceVSphereVmfsDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVmfsDatastoreConfigStaticSingle(),
@@ -271,7 +271,7 @@ func TestAccResourceVSphereVmfsDatastore_singleTag(t *testing.T) {
 			testAccResourceVSphereVmfsDatastorePreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVmfsDatastoreExists(false),
+		CheckDestroy:             testAccResourceVSphereVmfsDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVmfsDatastoreConfigTags(),
@@ -293,7 +293,7 @@ func TestAccResourceVSphereVmfsDatastore_modifyTags(t *testing.T) {
 			testAccResourceVSphereVmfsDatastorePreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVmfsDatastoreExists(false),
+		CheckDestroy:             testAccResourceVSphereVmfsDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVmfsDatastoreConfigTags(),
@@ -322,7 +322,7 @@ func TestAccResourceVSphereVmfsDatastore_badDiskEntry(t *testing.T) {
 			testAccResourceVSphereVmfsDatastorePreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVmfsDatastoreExists(false),
+		CheckDestroy:             testAccResourceVSphereVmfsDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccResourceVSphereVmfsDatastoreConfigBadDisk(),
@@ -346,7 +346,7 @@ func TestAccResourceVSphereVmfsDatastore_duplicateDiskEntry(t *testing.T) {
 			testAccResourceVSphereVmfsDatastorePreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVmfsDatastoreExists(false),
+		CheckDestroy:             testAccResourceVSphereVmfsDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccResourceVSphereVmfsDatastoreConfigDuplicateDisk(),
@@ -370,7 +370,7 @@ func TestAccResourceVSphereVmfsDatastore_singleCustomAttribute(t *testing.T) {
 			testAccResourceVSphereVmfsDatastorePreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVmfsDatastoreExists(false),
+		CheckDestroy:             testAccResourceVSphereVmfsDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVmfsDatastoreConfigCustomAttributes(),
@@ -392,7 +392,7 @@ func TestAccResourceVSphereVmfsDatastore_multiCustomAttribute(t *testing.T) {
 			testAccResourceVSphereVmfsDatastorePreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVmfsDatastoreExists(false),
+		CheckDestroy:             testAccResourceVSphereVmfsDatastoreExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVmfsDatastoreConfigCustomAttributes(),

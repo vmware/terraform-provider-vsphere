@@ -23,7 +23,7 @@ func TestAccResourceVSphereDistributedVirtualSwitchPvlanMapping_basic(t *testing
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchPvlanMappingExists(false),
+		CheckDestroy:             testAccResourceVSphereDistributedVirtualSwitchPvlanMappingExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereDistributedVirtualSwitchPvlanMappingConfig(),

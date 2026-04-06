@@ -29,7 +29,7 @@ func TestAccResourceVSphereComputeClusterHostGroup_basic(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterHostGroupExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterHostGroupExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterHostGroupConfig(2),
@@ -84,7 +84,7 @@ func TestAccResourceVSphereComputeClusterHostGroup_update(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterHostGroupExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterHostGroupExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterHostGroupConfig(1),

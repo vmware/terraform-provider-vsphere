@@ -29,7 +29,7 @@ func TestAccResourceVSphereComputeClusterVMAffinityRule_basic(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterVMAffinityRuleExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterVMAffinityRuleExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterVMAffinityRuleConfig(2, true),
@@ -89,7 +89,7 @@ func TestAccResourceVSphereComputeClusterVMAffinityRule_updateEnabled(t *testing
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterVMAffinityRuleExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterVMAffinityRuleExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterVMAffinityRuleConfig(2, true),
@@ -126,7 +126,7 @@ func TestAccResourceVSphereComputeClusterVMAffinityRule_updateCount(t *testing.T
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterVMAffinityRuleExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterVMAffinityRuleExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterVMAffinityRuleConfig(2, true),

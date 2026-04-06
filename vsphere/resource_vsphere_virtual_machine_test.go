@@ -46,7 +46,7 @@ func TestAccResourceVSphereVirtualMachine_basic(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBasic(),
@@ -88,7 +88,7 @@ func TestAccResourceVSphereVirtualMachine_sdrsRecommendation(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigSdrsRecommendation(),
@@ -108,7 +108,7 @@ func TestAccResourceVSphereVirtualMachine_sdrsRecommendationSingleDisk(t *testin
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigSdrsRecommendationSingleDisk(),
@@ -128,7 +128,7 @@ func TestAccResourceVSphereVirtualMachine_sdrsRecommendationSingleDiskIncreaseSi
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigSdrsRecommendationSingleDiskLarger(),
@@ -147,7 +147,7 @@ func TestAccResourceVSphereVirtualMachine_hardwareVersionBare(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBareHardwareVersion(20),
@@ -174,7 +174,7 @@ func TestAccResourceVSphereVirtualMachine_fromSparseVmdk(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigFromSparseVmdk(),
@@ -193,7 +193,7 @@ func TestAccResourceVSphereVirtualMachine_videoCardCreate(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigVideoCardCreate(),
@@ -214,7 +214,7 @@ func TestAccResourceVSphereVirtualMachine_evc(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigEvc(),
@@ -233,7 +233,7 @@ func TestAccResourceVSphereVirtualMachine_videoCardClone(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigVideoCardClone(),
@@ -255,7 +255,7 @@ func TestAccResourceVSphereVirtualMachine_vtpmCreate(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigVtpm(),
@@ -276,7 +276,7 @@ func TestAccResourceVSphereVirtualMachine_vtpmAdd(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBasic(),
@@ -304,7 +304,7 @@ func TestAccResourceVSphereVirtualMachine_vtpmRemove(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigVtpm(),
@@ -332,7 +332,7 @@ func TestAccResourceVSphereVirtualMachine_vtpmClone(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigVtpmClone(),
@@ -353,7 +353,7 @@ func TestAccResourceVSphereVirtualMachine_hardwareVersionUpgrade(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBareHardwareVersion(20),
@@ -380,7 +380,7 @@ func TestAccResourceVSphereVirtualMachine_hardwareVersionInvalidVersion(t *testi
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				ExpectError: regexp.MustCompile("\"hardware_version\" must be 4, 7-11, 13-15, 17-22, got: 1"),
@@ -397,7 +397,7 @@ func TestAccResourceVSphereVirtualMachine_hardwareVersionDowngrade(t *testing.T)
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBareHardwareVersion(14),
@@ -421,7 +421,7 @@ func TestAccResourceVSphereVirtualMachine_hardwareVersionClone(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigHardwareVersionClone(20),
@@ -442,7 +442,7 @@ func TestAccResourceVSphereVirtualMachineContentLibrary_basic(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testaccresourcevspherevirtualmachineconfigcontentlibraryBasic(),
@@ -462,7 +462,7 @@ func TestAccResourceVSphereVirtualMachine_ignoreValidationOnComputedValue(t *tes
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config:             testAccResourceVSphereVirtualMachineConfigComputedValue(),
@@ -481,7 +481,7 @@ func TestAccResourceVSphereVirtualMachine_highLatencySensitivity(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigHighSensitivity(),
@@ -503,7 +503,7 @@ func TestAccResourceVSphereVirtualMachine_ESXiOnly(t *testing.T) {
 			testAccSkipIfNotEsxi(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBasicESXiOnly(),
@@ -524,7 +524,7 @@ func TestAccResourceVSphereVirtualMachine_shutdownOK(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBasic(),
@@ -555,7 +555,7 @@ func TestAccResourceVSphereVirtualMachine_reCreateOnDeletion(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBasic(),
@@ -590,7 +590,7 @@ func TestAccResourceVSphereVirtualMachine_multiDevice(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigMultiDevice(),
@@ -610,7 +610,7 @@ func TestAccResourceVSphereVirtualMachine_addDevices(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBasic(),
@@ -637,7 +637,7 @@ func TestAccResourceVSphereVirtualMachine_removeMiddleDevices(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigMultiDevice(),
@@ -675,7 +675,7 @@ func TestAccResourceVSphereVirtualMachine_removeMiddleDevicesChangeDiskUnit(t *t
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigMultiDevice(),
@@ -702,7 +702,7 @@ func TestAccResourceVSphereVirtualMachine_highDiskUnitNumbers(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigMultiHighBus(),
@@ -728,7 +728,7 @@ func TestAccResourceVSphereVirtualMachine_highDiskUnitInsufficientBus(t *testing
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccResourceVSphereVirtualMachineConfigMultiHighBusInsufficientBus(),
@@ -745,7 +745,7 @@ func TestAccResourceVSphereVirtualMachine_highDiskUnitsToRegularSingleController
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigMultiHighBus(),
@@ -776,7 +776,7 @@ func TestAccResourceVSphereVirtualMachine_scsiBusSharing(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigSharedSCSIBus(),
@@ -796,7 +796,7 @@ func TestAccResourceVSphereVirtualMachine_scsiBusSharingUpdate(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBasic(),
@@ -825,7 +825,7 @@ func TestAccResourceVSphereVirtualMachine_disksKeepOnRemove(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigKeepDisksOnRemove(),
@@ -853,7 +853,7 @@ func TestAccResourceVSphereVirtualMachine_cdromClientMapping(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigClientCdrom(),
@@ -874,7 +874,7 @@ func TestAccResourceVSphereVirtualMachine_vAppIsoBasic(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigClientCdromCloneIsoVApp(),
@@ -895,7 +895,7 @@ func TestAccResourceVSphereVirtualMachine_vAppIsoNoVApp(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigClientCdromClone(),
@@ -918,7 +918,7 @@ func TestAccResourceVSphereVirtualMachine_vAppIsoNoCdrom(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccResourceVSphereVirtualMachineConfigNoCdromCloneIsoVApp(),
@@ -940,7 +940,7 @@ func TestAccResourceVSphereVirtualMachine_vAppIsoConfigIsoIgnored(t *testing.T) 
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigClientCdromCloneIsoVApp(),
@@ -964,7 +964,7 @@ func TestAccResourceVSphereVirtualMachine_vAppIsoChangeCdromBacking(t *testing.T
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigClientCdromCloneIsoVApp(),
@@ -993,7 +993,7 @@ func TestAccResourceVSphereVirtualMachine_vAppIsoPoweredOffCdromRead(t *testing.
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigClientCdromCloneIsoVApp(),
@@ -1044,7 +1044,7 @@ func TestAccResourceVSphereVirtualMachine_cdromNoParameters(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccResourceVSphereVirtualMachineConfigNoCdromParameters(),
@@ -1065,7 +1065,7 @@ func TestAccResourceVSphereVirtualMachine_cdromIsoBacking(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBasicCdromIso(),
@@ -1084,7 +1084,7 @@ func TestAccResourceVSphereVirtualMachine_cdromConflictingParameters(t *testing.
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccResourceVSphereVirtualMachineConfigConflictingCdromParameters(),
@@ -1101,7 +1101,7 @@ func TestAccResourceVSphereVirtualMachine_maximumNumberOfNICs(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigMaxNIC(),
@@ -1122,7 +1122,7 @@ func TestAccResourceVSphereVirtualMachine_upgradeCPUAndRam(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBasic(),
@@ -1152,7 +1152,7 @@ func TestAccResourceVSphereVirtualMachine_modifyAnnotation(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBasic(),
@@ -1179,7 +1179,7 @@ func TestAccResourceVSphereVirtualMachine_growDisk(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigGrowDisk(10),
@@ -1206,7 +1206,7 @@ func TestAccResourceVSphereVirtualMachine_swapSCSIBus(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBasic(),
@@ -1233,7 +1233,7 @@ func TestAccResourceVSphereVirtualMachine_extraConfig(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigExtraConfig("foo", "bar"),
@@ -1261,7 +1261,7 @@ func TestAccResourceVSphereVirtualMachine_extraConfigSwapKeys(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigExtraConfig("foo", "bar"),
@@ -1289,7 +1289,7 @@ func TestAccResourceVSphereVirtualMachine_attachExistingVmdk(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigExistingVmdk(),
@@ -1310,7 +1310,7 @@ func TestAccResourceVSphereVirtualMachine_attachExistingVmdkTaint(t *testing.T) 
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigExistingVmdk(),
@@ -1338,7 +1338,7 @@ func TestAccResourceVSphereVirtualMachine_resourcePoolMove(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBasic(),
@@ -1366,7 +1366,7 @@ func TestAccResourceVSphereVirtualMachine_vAppContainerAndFolder(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccResourceVSphereVirtualMachineConfigVAppAndFolder(),
@@ -1384,7 +1384,7 @@ func TestAccResourceVSphereVirtualMachine_vAppContainerMove(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigOutOfVAppContainer(),
@@ -1418,7 +1418,7 @@ func TestAccResourceVSphereVirtualMachine_inFolder(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigInFolder(),
@@ -1438,7 +1438,7 @@ func TestAccResourceVSphereVirtualMachine_moveToFolder(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBasic(),
@@ -1464,7 +1464,7 @@ func TestAccResourceVSphereVirtualMachine_staticMAC(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigStaticMAC(),
@@ -1484,7 +1484,7 @@ func TestAccResourceVSphereVirtualMachine_singleTag(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigSingleTag(),
@@ -1504,7 +1504,7 @@ func TestAccResourceVSphereVirtualMachine_multipleTags(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigMultiTag(),
@@ -1524,7 +1524,7 @@ func TestAccResourceVSphereVirtualMachine_switchTags(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigSingleTag(),
@@ -1554,7 +1554,7 @@ func TestAccResourceVSphereVirtualMachine_renamedDiskInPlaceOfExisting(t *testin
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBasic(),
@@ -1628,7 +1628,7 @@ func TestAccResourceVSphereVirtualMachine_blockVAppSettingsOnNonClones(t *testin
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccResourceVSphereVirtualMachineVAppPropertiesNonClone(),
@@ -1646,7 +1646,7 @@ func TestAccResourceVSphereVirtualMachine_blockVAppSettingsOnNonClonesAfterCreat
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBasic(),
@@ -1676,7 +1676,7 @@ func TestAccResourceVSphereVirtualMachine_blockDiskLabelStartingWithOrphanedPref
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccResourceVSphereVirtualMachineConfigBadOrphanedLabel(),
@@ -1695,7 +1695,7 @@ func TestAccResourceVSphereVirtualMachine_createIntoEmptyClusterNoEnvironmentBro
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccResourceVSphereVirtualMachineConfigBasicEmptyCluster(),
@@ -1713,7 +1713,7 @@ func TestAccResourceVSphereVirtualMachine_cloneFromTemplate(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigClone(),
@@ -1733,7 +1733,7 @@ func TestAccResourceVSphereVirtualMachine_clonePoweredOn(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigClonePoweredOn(),
@@ -1753,7 +1753,7 @@ func TestAccResourceVSphereVirtualMachine_cloneCustomizeWithNewResourcePool(t *t
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigCloneWithNewResourcePool(),
@@ -1775,7 +1775,7 @@ func TestAccResourceVSphereVirtualMachine_cloneCustomizeForceNewWithDatastore(t 
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBase(),
@@ -1826,7 +1826,7 @@ func TestAccResourceVSphereVirtualMachine_cloneModifyDiskAndSCSITypeAtSameTime(t
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigCloneChangeDiskAndSCSI(),
@@ -1865,7 +1865,7 @@ func TestAccResourceVSphereVirtualMachine_cloneMultiNICWithSameGateway(t *testin
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigCloneMultiNICSameGateway(),
@@ -1885,7 +1885,7 @@ func TestAccResourceVSphereVirtualMachine_cloneMultiNICFromSingleNICTemplate(t *
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigCloneMultiNIC(),
@@ -1905,7 +1905,7 @@ func TestAccResourceVSphereVirtualMachine_cloneMultiNICSRIOVFromVMXNET3Template(
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigCloneMultiNICVMXNET3(),
@@ -1925,7 +1925,7 @@ func TestAccResourceVSphereVirtualMachine_cloneWithDifferentTimezone(t *testing.
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigCloneTimeZone("America/Vancouver"),
@@ -1946,7 +1946,7 @@ func TestAccResourceVSphereVirtualMachine_cloneBlockESXi(t *testing.T) {
 			testAccSkipIfNotEsxi(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccResourceVSphereVirtualMachineConfigClone(),
@@ -1969,7 +1969,7 @@ func TestAccResourceVSphereVirtualMachine_cloneWithBadTimezone(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccResourceVSphereVirtualMachineConfigCloneTimeZone("Pacific Standard Time"),
@@ -2011,7 +2011,7 @@ func TestAccResourceVSphereVirtualMachine_cloneWithBadSizeWithLinkedClone(t *tes
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccResourceVSphereVirtualMachineConfigBadSizeLinked(),
@@ -2030,7 +2030,7 @@ func TestAccResourceVSphereVirtualMachine_cloneWithBadSizeWithoutLinkedClone(t *
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccResourceVSphereVirtualMachineConfigBadSizeUnlinked(),
@@ -2048,7 +2048,7 @@ func TestAccResourceVSphereVirtualMachine_cloneIntoEmptyCluster(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigCloneEmptyClusterNoVM(),
@@ -2069,7 +2069,7 @@ func TestAccResourceVSphereVirtualMachine_cloneWithDifferentHostname(t *testing.
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigCloneHostname(),
@@ -2089,7 +2089,7 @@ func TestAccResourceVSphereVirtualMachine_cloneWithDiskTypeChange(t *testing.T) 
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigCloneChangedDiskType(),
@@ -2111,7 +2111,7 @@ func TestAccResourceVSphereVirtualMachine_cloneOnDsCuster(t *testing.T) {
 			testAccDsClusterRequiredPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigCloneChangedDiskTypeDsCluster(),
@@ -2131,7 +2131,7 @@ func TestAccResourceVSphereVirtualMachine_cpuHotAdd(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				// Starting config
@@ -2162,7 +2162,7 @@ func TestAccResourceVSphereVirtualMachine_memoryHotAdd(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				// Starting config
@@ -2193,7 +2193,7 @@ func TestAccResourceVSphereVirtualMachine_dualStackIPv4AndIPv6(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigDualStack(),
@@ -2214,7 +2214,7 @@ func TestAccResourceVSphereVirtualMachine_hostCheck(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigHostCheck(os.Getenv("TF_VAR_VSPHERE_ESXI1")),
@@ -2242,7 +2242,7 @@ func TestAccResourceVSphereVirtualMachine_hostVMotion(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigHostVMotion(os.Getenv("TF_VAR_VSPHERE_ESXI1")),
@@ -2270,7 +2270,7 @@ func TestAccResourceVSphereVirtualMachine_resourcePoolVMotion(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigResourcePoolVMotion(os.Getenv("TF_VAR_VSPHERE_RESOURCE_POOL")),
@@ -2298,7 +2298,7 @@ func TestAccResourceVSphereVirtualMachine_storageVMotionGlobalSetting(t *testing
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBase(),
@@ -2334,7 +2334,7 @@ func TestAccResourceVSphereVirtualMachine_storageVMotionSingleDisk(t *testing.T)
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBase(),
@@ -2369,7 +2369,7 @@ func TestAccResourceVSphereVirtualMachine_storageVMotionPinDatastore(t *testing.
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBase(),
@@ -2404,7 +2404,7 @@ func TestAccResourceVSphereVirtualMachine_storageVMotionRenamedVirtualMachine(t 
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBase(),
@@ -2447,7 +2447,7 @@ func TestAccResourceVSphereVirtualMachine_storageVMotionLinkedClones(t *testing.
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBase(),
@@ -2486,7 +2486,7 @@ func TestAccResourceVSphereVirtualMachine_storageVMotionBlockExternallyAttachedD
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigStorageVMotionAttachedDisk(os.Getenv("TF_VAR_VSPHERE_NFS_DS_NAME")),
@@ -2517,7 +2517,7 @@ func TestAccResourceVSphereVirtualMachine_singleCustomAttribute(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigWithCustomAttribute(),
@@ -2538,7 +2538,7 @@ func TestAccResourceVSphereVirtualMachine_multiCustomAttribute(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigWithMultiCustomAttribute(),
@@ -2559,7 +2559,7 @@ func TestAccResourceVSphereVirtualMachine_switchCustomAttribute(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigWithCustomAttribute(),
@@ -2587,7 +2587,7 @@ func TestAccResourceVSphereVirtualMachine_multipleDisksAtDifferentSCSISlotsImpor
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigMultiHighBus(),
@@ -2628,7 +2628,7 @@ func TestAccResourceVSphereVirtualMachine_cloneImport(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigClone(),
@@ -2710,7 +2710,7 @@ func TestAccResourceVSphereVirtualMachine_interpolatedDisk(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBase(),
@@ -2734,7 +2734,7 @@ func TestAccResourceVSphereVirtualMachine_deployOvfFromUrl(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineDeployOvfFromURL(vmName),
@@ -2753,7 +2753,7 @@ func TestAccResourceVSphereVirtualMachine_deployOvaFromUrl(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineDeployOvaFromURL(),
@@ -2778,7 +2778,7 @@ func TestAccResourceVSphereVirtualMachine_cloneWithCustomizationSpec(t *testing.
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigCloneWithCustomizationSpec(goscName),
@@ -2799,7 +2799,7 @@ func TestAccResourceVSphereVirtualMachine_SRIOV(t *testing.T) {
 			testAccSriovPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineSriov(),
@@ -2819,7 +2819,7 @@ func TestAccResourceVSphereVirtualMachine_createMemoryReservationLockedToMax(t *
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineCreateMemoryLockToMax(),
@@ -2884,7 +2884,7 @@ func TestAccResourceVSphereVirtualMachine_cpuTopology(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigBareHardwareVersion(20),
@@ -2931,7 +2931,7 @@ func TestAccResourceVSphereVirtualMachine_vAppExternalPort(t *testing.T) {
 				"TF_VAR_VSPHERE_EXT_PORT_ID"})
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVirtualMachineCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVirtualMachineVAppExternalPort(),

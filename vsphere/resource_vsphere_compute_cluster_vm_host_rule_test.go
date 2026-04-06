@@ -27,7 +27,7 @@ func TestAccResourceVSphereComputeClusterVMHostRule_basic(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterVMHostRuleExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterVMHostRuleExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterVMHostRuleConfigAffinity(),
@@ -96,7 +96,7 @@ func TestAccResourceVSphereComputeClusterVMHostRule_antiAffinity(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterVMHostRuleExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterVMHostRuleExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterVMHostRuleConfigAntiAffinity(),
@@ -123,7 +123,7 @@ func TestAccResourceVSphereComputeClusterVMHostRule_updateEnabled(t *testing.T) 
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterVMHostRuleExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterVMHostRuleExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterVMHostRuleConfigAffinity(),
@@ -164,7 +164,7 @@ func TestAccResourceVSphereComputeClusterVMHostRule_updateAffinity(t *testing.T)
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterVMHostRuleExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterVMHostRuleExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterVMHostRuleConfigAffinity(),

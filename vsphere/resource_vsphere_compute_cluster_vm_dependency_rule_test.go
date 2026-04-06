@@ -27,7 +27,7 @@ func TestAccResourceVSphereComputeClusterVMDependencyRule_basic(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterVMDependencyRuleExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterVMDependencyRuleExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterVMDependencyRuleConfigBasic(),
@@ -94,7 +94,7 @@ func TestAccResourceVSphereComputeClusterVMDependencyRule_altGroup(t *testing.T)
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterVMDependencyRuleExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterVMDependencyRuleExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterVMDependencyRuleConfigAltGroup(),
@@ -120,7 +120,7 @@ func TestAccResourceVSphereComputeClusterVMDependencyRule_updateEnabled(t *testi
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterVMDependencyRuleExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterVMDependencyRuleExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterVMDependencyRuleConfigBasic(),
@@ -159,7 +159,7 @@ func TestAccResourceVSphereComputeClusterVMDependencyRule_updateGroup(t *testing
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereComputeClusterVMDependencyRuleExists(false),
+		CheckDestroy:             testAccResourceVSphereComputeClusterVMDependencyRuleExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereComputeClusterVMDependencyRuleConfigBasic(),

@@ -23,7 +23,7 @@ func TestAccResourceVSphereGOSC_windows_basic(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccGOSCExists(goscResourceName, goscName, false),
+		CheckDestroy:             testAccGOSCExists(goscResourceName, goscName, false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccGOSCWindows(goscResourceName, goscName),
@@ -42,7 +42,7 @@ func TestAccResourceVSphereGOSC_windows_workGroup(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccGOSCExists(goscResourceName, goscName, false),
+		CheckDestroy:             testAccGOSCExists(goscResourceName, goscName, false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccGOSCWindowsAllPropsWorkGroup(goscResourceName, goscName),
@@ -61,7 +61,7 @@ func TestAccResourceVSphereGOSC_linux(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccGOSCExists(goscResourceName, goscName, false),
+		CheckDestroy:             testAccGOSCExists(goscResourceName, goscName, false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccGOSCLinux(goscResourceName, goscName),
@@ -80,7 +80,7 @@ func TestAccResourceVSphereGOSC_sysprep(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccGOSCExists(goscResourceName, goscName, false),
+		CheckDestroy:             testAccGOSCExists(goscResourceName, goscName, false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccGOSCWindowsPrep(goscResourceName, goscName),

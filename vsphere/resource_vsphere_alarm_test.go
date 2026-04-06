@@ -40,7 +40,7 @@ func TestAccResourceVsphereAlarm_basicEvent(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceAlarmCheckExists(false),
+		CheckDestroy:             testAccResourceAlarmCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVsphereAlarmConfigBasicEvent(),
@@ -105,7 +105,7 @@ func TestAccResourceVsphereAlarm_snmpAction(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceAlarmCheckExists(false),
+		CheckDestroy:             testAccResourceAlarmCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVsphereAlarmConfigSnmpAction(),
@@ -150,7 +150,7 @@ func TestAccResourceVsphereAlarm_advancedAction(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceAlarmCheckExists(false),
+		CheckDestroy:             testAccResourceAlarmCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVsphereAlarmConfigAdvancedAction(),
@@ -194,7 +194,7 @@ func TestAccResourceVsphereAlarm_emailAction(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceAlarmCheckExists(false),
+		CheckDestroy:             testAccResourceAlarmCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVsphereAlarmConfigEmailAction(),
@@ -241,7 +241,7 @@ func TestAccResourceVsphereAlarm_metricExpression(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceAlarmCheckExists(false),
+		CheckDestroy:             testAccResourceAlarmCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVsphereAlarmConfigMetricExpression(),
@@ -284,7 +284,7 @@ func TestAccResourceVsphereAlarm_stateExpression(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceAlarmCheckExists(false),
+		CheckDestroy:             testAccResourceAlarmCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVsphereAlarmConfigStateExpression(),

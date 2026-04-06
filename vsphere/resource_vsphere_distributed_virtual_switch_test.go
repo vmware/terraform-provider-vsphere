@@ -31,7 +31,7 @@ func TestAccResourceVSphereDistributedVirtualSwitch_basic(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
+		CheckDestroy:             testAccResourceVSphereDistributedVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereDistributedVirtualSwitchConfig(),
@@ -67,7 +67,7 @@ func TestAccResourceVSphereDistributedVirtualSwitch_noHosts(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
+		CheckDestroy:             testAccResourceVSphereDistributedVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereDistributedVirtualSwitchConfigNoHosts(),
@@ -86,7 +86,7 @@ func TestAccResourceVSphereDistributedVirtualSwitch_removeNIC(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
+		CheckDestroy:             testAccResourceVSphereDistributedVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereDistributedVirtualSwitchConfig(),
@@ -111,7 +111,7 @@ func TestAccResourceVSphereDistributedVirtualSwitch_standbyWithExplicitFailoverO
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
+		CheckDestroy:             testAccResourceVSphereDistributedVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereDistributedVirtualSwitchConfigStandbyLink(),
@@ -133,7 +133,7 @@ func TestAccResourceVSphereDistributedVirtualSwitch_basicToStandbyWithFailover(t
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
+		CheckDestroy:             testAccResourceVSphereDistributedVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereDistributedVirtualSwitchConfig(),
@@ -161,7 +161,7 @@ func TestAccResourceVSphereDistributedVirtualSwitch_upgradeVersion(t *testing.T)
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
+		CheckDestroy:             testAccResourceVSphereDistributedVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereDistributedVirtualSwitchConfigStaticVersion(testAccResourceVSphereDistributedVirtualSwitchLowerVersion),
@@ -188,7 +188,7 @@ func TestAccResourceVSphereDistributedVirtualSwitch_networkResourceControl(t *te
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
+		CheckDestroy:             testAccResourceVSphereDistributedVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereDistributedVirtualSwitchConfigNetworkResourceControl(),
@@ -211,7 +211,7 @@ func TestAccResourceVSphereDistributedVirtualSwitch_explicitUplinks(t *testing.T
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
+		CheckDestroy:             testAccResourceVSphereDistributedVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereDistributedVirtualSwitchConfigUplinks(),
@@ -231,7 +231,7 @@ func TestAccResourceVSphereDistributedVirtualSwitch_modifyUplinks(t *testing.T) 
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
+		CheckDestroy:             testAccResourceVSphereDistributedVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereDistributedVirtualSwitchConfig(),
@@ -270,7 +270,7 @@ func TestAccResourceVSphereDistributedVirtualSwitch_inFolder(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
+		CheckDestroy:             testAccResourceVSphereDistributedVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereDistributedVirtualSwitchConfigInFolder(),
@@ -290,7 +290,7 @@ func TestAccResourceVSphereDistributedVirtualSwitch_singleTag(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
+		CheckDestroy:             testAccResourceVSphereDistributedVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereDistributedVirtualSwitchConfigSingleTag(),
@@ -310,7 +310,7 @@ func TestAccResourceVSphereDistributedVirtualSwitch_modifyTags(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
+		CheckDestroy:             testAccResourceVSphereDistributedVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereDistributedVirtualSwitchConfigSingleTag(),
@@ -337,7 +337,7 @@ func TestAccResourceVSphereDistributedVirtualSwitch_netflow(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
+		CheckDestroy:             testAccResourceVSphereDistributedVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereDistributedVirtualSwitchConfigNetflow(),
@@ -357,7 +357,7 @@ func TestAccResourceVSphereDistributedVirtualSwitch_vlanRanges(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
+		CheckDestroy:             testAccResourceVSphereDistributedVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereDistributedVirtualSwitchConfigMultiVlanRange(),
@@ -378,7 +378,7 @@ func TestAccResourceVSphereDistributedVirtualSwitch_singleCustomAttribute(t *tes
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
+		CheckDestroy:             testAccResourceVSphereDistributedVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereDistributedVirtualSwitchConfigSingleCustomAttribute(),
@@ -398,7 +398,7 @@ func TestAccResourceVSphereDistributedVirtualSwitch_multiCustomAttribute(t *test
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereDistributedVirtualSwitchExists(false),
+		CheckDestroy:             testAccResourceVSphereDistributedVirtualSwitchExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereDistributedVirtualSwitchConfigSingleCustomAttribute(),

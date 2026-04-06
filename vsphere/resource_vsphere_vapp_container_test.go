@@ -29,7 +29,7 @@ func TestAccResourceVSphereVAppContainer_basic(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVAppContainerCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVAppContainerCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVAppContainerConfigBasic(),
@@ -80,7 +80,7 @@ func TestAccResourceVSphereVAppContainer_childImport(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVAppContainerCheckExistsInner("child", false),
+		CheckDestroy:             testAccResourceVSphereVAppContainerCheckExistsInner("child", false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVAppContainerConfigChildImport(),
@@ -119,7 +119,7 @@ func TestAccResourceVSphereVAppContainer_vmBasic(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVAppContainerCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVAppContainerCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVAppContainerConfigVM(),
@@ -139,7 +139,7 @@ func TestAccResourceVSphereVAppContainer_vmMoveIntoVApp(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVAppContainerCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVAppContainerCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVAppContainerConfigVMOutsideVApp(),
@@ -166,7 +166,7 @@ func TestAccResourceVSphereVAppContainer_vmSDRS(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVAppContainerCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVAppContainerCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVAppContainerConfigVMSdrs(),
@@ -187,7 +187,7 @@ func TestAccResourceVSphereVAppContainer_vmClone(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVAppContainerCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVAppContainerCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVAppContainerConfigVMClone(),
@@ -208,7 +208,7 @@ func TestAccResourceVSphereVAppContainer_vmCloneSDRS(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVAppContainerCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVAppContainerCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVAppContainerConfigVMSdrsClone(),
@@ -229,7 +229,7 @@ func TestAccResourceVSphereVAppContainer_vmMoveIntoVAppSDRS(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereVAppContainerCheckExists(false),
+		CheckDestroy:             testAccResourceVSphereVAppContainerCheckExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereVAppContainerConfigVMSdrsNoVApp(),

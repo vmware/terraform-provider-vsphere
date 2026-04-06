@@ -37,7 +37,7 @@ func TestAccResourceVSphereHost_basic(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccVSphereHostDestroy,
+		CheckDestroy:             testAccVSphereHostDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVSphereHostConfig(),
@@ -73,7 +73,7 @@ func TestAccResourceVSphereHost_rootFolder(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccVSphereHostDestroy,
+		CheckDestroy:             testAccVSphereHostDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testaccvspherehostconfigRootfolder(),
@@ -93,7 +93,7 @@ func TestAccResourceVSphereHost_connection(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccVSphereHostDestroy,
+		CheckDestroy:             testAccVSphereHostDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testaccvspherehostconfigConnection(false),
@@ -120,7 +120,7 @@ func TestAccResourceVSphereHost_maintenance(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccVSphereHostDestroy,
+		CheckDestroy:             testAccVSphereHostDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testaccvspherehostconfigMaintenance(true),
@@ -147,7 +147,7 @@ func TestAccResourceVSphereHost_lockdown(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccVSphereHostDestroy,
+		CheckDestroy:             testAccVSphereHostDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testaccvspherehostconfigLockdown("strict"),
@@ -181,7 +181,7 @@ func TestAccResourceVSphereHost_lockdown_invalid(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccVSphereHostDestroy,
+		CheckDestroy:             testAccVSphereHostDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config:      testaccvspherehostconfigLockdown("invalidvalue"),
@@ -200,7 +200,7 @@ func TestAccResourceVSphereHost_emptyLicense(t *testing.T) {
 			testAccCheckEnvVariables(t, []string{"ESX_HOSTNAME", "ESX_USERNAME", "ESX_PASSWORD"})
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccVSphereHostDestroy,
+		CheckDestroy:             testAccVSphereHostDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testaccvspherehostconfigEmptylicense(),
@@ -402,9 +402,9 @@ func TestAccResourceVSphereHostNtpService(t *testing.T) {
 		t.Run(fmt.Sprintf("Enabled=%t,Policy=%s", config.Enabled, config.Policy), func(t *testing.T) {
 			testAccSkipUnstable(t)
 			resource.Test(t, resource.TestCase{
-				PreCheck:     func() { testAccPreCheck(t) },
+				PreCheck:                 func() { testAccPreCheck(t) },
 				ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-				CheckDestroy: testAccVSphereHostDestroy,
+				CheckDestroy:             testAccVSphereHostDestroy,
 				Steps: []resource.TestStep{
 					{
 						Config: testAccVSphereHostConfigNtpdServices(config),
@@ -459,7 +459,7 @@ func TestAccResourceVSphereHostNTPServers(t *testing.T) {
 			testAccCheckEnvVariables(t, []string{"ESX_HOSTNAME", "ESX_USERNAME", "ESX_PASSWORD"})
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccVSphereHostDestroy,
+		CheckDestroy:             testAccVSphereHostDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccVSphereHostConfigNtpServers(ntpServersSlice),

@@ -23,7 +23,7 @@ func TestAccResourceVSphereTag_basic(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereTagExists(false),
+		CheckDestroy:             testAccResourceVSphereTagExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereTagConfigBasic,
@@ -73,7 +73,7 @@ func TestAccResourceVSphereTag_changeName(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereTagExists(false),
+		CheckDestroy:             testAccResourceVSphereTagExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereTagConfigBasic,
@@ -99,7 +99,7 @@ func TestAccResourceVSphereTag_changeDescription(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereTagExists(false),
+		CheckDestroy:             testAccResourceVSphereTagExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereTagConfigBasic,
@@ -125,7 +125,7 @@ func TestAccResourceVSphereTag_detachAllTags(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccResourceVSphereTagExists(false),
+		CheckDestroy:             testAccResourceVSphereTagExists(false),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccResourceVSphereTagConfigOnFolderAttached(),

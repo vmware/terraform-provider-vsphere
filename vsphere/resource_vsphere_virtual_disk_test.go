@@ -26,7 +26,7 @@ func TestAccResourceVSphereVirtualDisk_basic(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccVSphereVirtualDiskExists("vsphere_virtual_disk.foo", false),
+		CheckDestroy:             testAccVSphereVirtualDiskExists("vsphere_virtual_disk.foo", false),
 		Steps: []resource.TestStep{
 			{
 				Config: testacccheckvspherevirtualdiskconfigBasic(rString),
@@ -47,7 +47,7 @@ func TestAccResourceVSphereVirtualDisk_extend(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccVSphereVirtualDiskExists("vsphere_virtual_disk.foo", false),
+		CheckDestroy:             testAccVSphereVirtualDiskExists("vsphere_virtual_disk.foo", false),
 		Steps: []resource.TestStep{
 			{
 				Config: testacccheckvspherevirtualdiskconfigBasic(rString),
@@ -130,7 +130,7 @@ func TestAccResourceVSphereVirtualDisk_withParent(t *testing.T) {
 			testAccPreCheck(t)
 		},
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		CheckDestroy: testAccVSphereVirtualDiskExists("vsphere_virtual_disk.foo", false),
+		CheckDestroy:             testAccVSphereVirtualDiskExists("vsphere_virtual_disk.foo", false),
 		Steps: []resource.TestStep{
 			{
 				Config: testacccheckvspherevirtuadiskconfigWithparent(rString),

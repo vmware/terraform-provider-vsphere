@@ -4,7 +4,11 @@
 
 package vsphere
 
-import "github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+import (
+	"fmt"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+)
 
 func dataSourceVSphereTagCategory() *schema.Resource {
 	return &schema.Resource{
@@ -13,7 +17,20 @@ func dataSourceVSphereTagCategory() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Description: "The display name of the category.",
-				Required:    true,
+				Optional:    true,
+				ExactlyOneOf: []string{
+					"id",
+					"name",
+				},
+			},
+			"id": {
+				Type:        schema.TypeString,
+				Description: "The unique identifier of the category.",
+				Optional:    true,
+				ExactlyOneOf: []string{
+					"id",
+					"name",
+				},
 			},
 			"description": {
 				Type:        schema.TypeString,
@@ -39,6 +56,17 @@ func dataSourceVSphereTagCategoryRead(d *schema.ResourceData, meta interface{}) 
 	tm, err := meta.(*Client).TagsManager()
 	if err != nil {
 		return err
+	}
+
+	if id, ok := d.GetOk("id"); ok {
+		d.SetId(id.(string))
+		return resourceVSphereTagCategoryRead(d, meta)
+	}
+
+	name := d.Get("name").(string)
+
+	if name == "" {
+		return fmt.Errorf("either id or name must be provided")
 	}
 
 	id, err := tagCategoryByName(tm, d.Get("name").(string))

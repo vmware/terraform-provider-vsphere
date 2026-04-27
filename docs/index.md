@@ -295,7 +295,7 @@ click [here][vsphere-docs-esxi-mob].
 
 ## Bug Reports and Contributing
 
-For more information how how to submit bug reports, feature requests, or
+For more information on how to submit bug reports, feature requests, or
 details on how to make your own contributions to the provider, see the vSphere
 provider [project page][tf-vsphere-project-page].
 

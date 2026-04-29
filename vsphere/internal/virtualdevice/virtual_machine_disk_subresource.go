@@ -1701,15 +1701,20 @@ func (r *DiskSubresource) DiffGeneral() error {
 		return err
 	}
 
-	// Enforce the maximum unit number, which is the current value of
-	// scsi_controller_count * 15 - 1.
+	// Enforce the maximum unit number based on SCSI controller type.
+	// unit_number is a flat 0-based index across all controllers. Each SCSI
+	// controller reserves 1 unit for itself, so usable slots per controller:
+	//   LSI Logic / LSI Logic SAS: 16 total - 1 reserved = 15 usable
+	//   PVSCSI (ParaVirtual):      64 total - 1 reserved = 63 usable
 	switch r.Get("controller_type").(string) {
 	case "scsi":
 		ctlrCount := r.rdd.Get("scsi_controller_count").(int)
-		maxUnit := ctlrCount*15 - 1
+		scsiType := r.rdd.Get("scsi_type").(string)
+		usable := scsiUsableUnitsPerController(scsiType)
+		maxUnit := ctlrCount*usable - 1
 		currentUnit := r.Get("unit_number").(int)
 		if currentUnit > maxUnit {
-			return fmt.Errorf("unit_number on disk %q too high (%d) - maximum value is %d with %d SCSI controller(s)", name, currentUnit, maxUnit, ctlrCount)
+			return fmt.Errorf("unit_number on disk %q too high (%d) - maximum value is %d with %d SCSI controller(s) of type %s", name, currentUnit, maxUnit, ctlrCount, scsiType)
 		}
 	case "sata":
 		ctlrCount := r.rdd.Get("sata_controller_count").(int)
@@ -2032,6 +2037,29 @@ func (r *DiskSubresource) assignBackingInfo(disk *types.VirtualDisk) error {
 	return nil
 }
 
+// scsiControllerType returns the SubresourceControllerType string for a
+// concrete SCSI controller device, allowing callers to determine the controller
+// sub-type from the device itself rather than relying on the global scsi_type.
+func scsiControllerType(dev types.BaseVirtualDevice) string {
+	switch dev.(type) {
+	case *types.ParaVirtualSCSIController:
+		return SubresourceControllerTypeParaVirtual
+	default:
+		return SubresourceControllerTypeLsiLogic
+	}
+}
+
+// scsiUsableUnitsPerController returns the number of usable disk slots per
+// SCSI controller based on the controller sub-type. PVSCSI controllers support
+// 64 devices (63 usable after reserving one for the controller), while LSI
+// Logic and LSI Logic SAS controllers support 16 devices (15 usable).
+func scsiUsableUnitsPerController(scsiType string) int {
+	if scsiType == SubresourceControllerTypeParaVirtual {
+		return 63
+	}
+	return 15
+}
+
 // assignDisk takes a unit number and assigns it correctly to a controller on
 // the SCSI bus. An error is returned if the assigned unit number is taken.
 func (r *DiskSubresource) assignDisk(l object.VirtualDeviceList, disk *types.VirtualDisk) (types.BaseVirtualController, error) {
@@ -2041,11 +2069,13 @@ func (r *DiskSubresource) assignDisk(l object.VirtualDeviceList, disk *types.Vir
 	switch r.Get("controller_type").(string) {
 	case "scsi":
 		// Figure out the bus number, and look up the SCSI controller that matches
-		// that. You can attach 15 disks to a SCSI controller, and we allow a maximum
-		// of 30 devices.
-		bus := number / 15
+		// that. The number of usable slots per controller depends on the SCSI
+		// controller sub-type (15 for LSI Logic/SAS, 63 for PVSCSI).
+		scsiType := r.rdd.Get("scsi_type").(string)
+		usable := scsiUsableUnitsPerController(scsiType)
+		bus := number / usable
 		// Also determine the unit number on that controller.
-		unit := int32(math.Mod(float64(number), 15))
+		unit := int32(math.Mod(float64(number), float64(usable)))
 
 		// Find the controller.
 		ctlr, err = r.ControllerForCreateUpdate(l, SubresourceControllerTypeSCSI, bus)
@@ -2053,8 +2083,8 @@ func (r *DiskSubresource) assignDisk(l object.VirtualDeviceList, disk *types.Vir
 			return nil, err
 		}
 
-		// Build the unit list.
-		units := make([]bool, 16)
+		// Build the unit list. Total slots = usable + 1 (reserved controller unit).
+		units := make([]bool, usable+1)
 		// Reserve the SCSI unit number
 		scsiUnit := ctlr.(types.BaseVirtualSCSIController).GetVirtualSCSIController().ScsiCtlrUnitNumber
 		units[scsiUnit] = true
@@ -2202,7 +2232,11 @@ func (r *Subresource) findControllerInfo(l object.VirtualDeviceList, disk *types
 		if unit > sc.GetVirtualSCSIController().ScsiCtlrUnitNumber {
 			unit--
 		}
-		unit += 15 * sc.GetVirtualSCSIController().BusNumber
+		// Determine usable units from the actual controller type, not the
+		// global scsi_type setting, to handle mixed-controller VMs correctly.
+		scsiType := scsiControllerType(ctlr)
+		usable := int32(scsiUsableUnitsPerController(scsiType))
+		unit += usable * sc.GetVirtualSCSIController().BusNumber
 		return int(unit), ctlr.(types.BaseVirtualController), nil
 	case types.BaseVirtualSATAController:
 		unit := *disk.UnitNumber

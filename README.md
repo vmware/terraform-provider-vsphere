@@ -67,7 +67,7 @@ If you would like to submit a pull request, please read the [contribution guidel
 
 ## Support
 
-The Terraform Provider for VMware vSphere is supported by Broadcom and the provider community. For bugs and feature requests please open a GitHub Issue and label it appropriately or contact Broadcom support.
+Because this Terraform provider is developed as an open-source project and follows standard GitHub community practices, we encourage customers to submit bug reports and enhancement requests directly in the project's GitHub repository. However, we recognize that some situations may require formal technical support through our Global Support Services (GSS) process. In those cases, please open a case through the Broadcom support portal, referencing the provider, the provider version, and any related GitHub issue(s). When opening your case, please select VMware ESXi as the Product and choose VCF Terraform from the components drop-down menu.
 
 ## License
 

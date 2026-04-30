@@ -1,4 +1,1 @@
-As Terraform is an open-source project that adheres to community GitHub standards,
-we encourage customers to log standard issues and enhancement requests directly within the repository.
-However, we recognize that certain situations require a formal technical support path through our established Global Support (GSS) channels.
-If you believe this is the case, please open a case via the Broadcom support portal and reference the respective Terraform provider and GitHub issue.
+Because this Terraform provider is developed as an open-source project and follows standard GitHub community practices, we encourage customers to submit bug reports and enhancement requests directly in the project's GitHub repository. However, we recognize that some situations may require formal technical support through our Global Support Services (GSS) process. In those cases, please open a case through the Broadcom support portal with references the provider, the provider version, and any related GitHub issue(s).

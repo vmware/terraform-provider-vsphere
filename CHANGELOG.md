@@ -1,5 +1,70 @@
 # <!-- markdownlint-disable first-line-h1 no-inline-html -->
 
+## v2.16.0
+
+> Release Date: 2026-05-12
+
+BUG FIX:
+
+- `r/virtual_machine`: Return error when vMotion task fails (#2595)
+- `r/virtual_machine`: Clone VM by specifying storage policy (#2598)
+- `r/virtual_machine`: GPU post-deploy processing (#2650)
+- `r/virtual_machine`: Handle reboots when evc changes (#2651)
+- `r/virtual_machine`: Remove artificial upper bound for disk unit_number (#2665)
+- `r/virtual_machine`: Add `external_port_id` to the schema for `d/virtual_machine` (#2667)
+- `r/virtual_machine`: Don't destroy VMs when adding network_interface blocks to a `clone` block (#2668)
+- `r/virtual_machine`: Fixed recognition of subresource IDE, SATA disks (#2622)
+- `r/configuration_profile`: Create and update operations (#2660)
+- `r/content_library_item`: Do not read entire iso file into memory (#2673)
+
+DOCUMENTATION:
+
+- `r/virtual_machine`: Add `memory_reservation_locked_to_max` to `r/virtual_machine` documentation (#2594)
+- `r/virtual_machine`: Fix typo in `r/virtual_machine` (#2654)
+- `d/virtual_machine`: Add `mixed` value for `scsi_bus_sharing` in`d/virtual_machine` (#2672)
+- `r/virtual_machine`: Update `memory_reservation_locked_to_max` (#2693)
+- `r/virtual_machine`: Add a note about the relationship between auto_logon and auto_logon_count (#2694)
+- `r/virtual_machine`: Update virtual_machine.md (#2700)
+- Update `README.md` (#2593)
+- Update support notice (#2710)
+- Update supported versions (#2632)
+- Add section for session limits (#2644)
+
+FEATURES:
+
+- `d/network`: Add support for project VPCs in network data source (#2606)
+- `r/alarm`: Add support for alarms (#2600)
+- `r/cluster`: Add support for Cluster and VM Enhanced vMotion Compatibility (EVC) (#2649)
+- `r/virtual_machine`: Support CPU Topology assigned at power on (#2636)
+- `r/virtual_machine`: Add support for video card settings (#2648)
+- `r/supervisor_v2`: Implement a new Supervisor resource on newer vSphere APIs (#2646)
+- `r/tag`: Add id-based lookup support for `d/vsphere_tag` and `d/vsphere_tag_category` (#2686)
+- `r/zone`: Add support for vSphere Zones (#2625)
+
+IMPROVEMENTS:
+
+- `d/virtual_machine`: Return tags and custom attributes in `d/vsphere_virtual_machine` (#2652)
+- `r/cluster`: Increase max ESXI per cluster (#2676)
+- `r/virtual_machine`: Add `external_id `attribute to virtual machine's `network_interface` object (#2655)
+- Handle errors on deferred close (#2596)
+- Stabilize and enable more acceptance tests (#2662)
+
+CHORE:
+
+- `provider`: Bump `actions/checkout` from 5.0.0 to 6.0.2.
+- `provider`: Bump `actions/github-script` from 7.0.0 to 9.0.0.
+- `provider`: Bump `actions/labeler` from 5.0.0 to 6.1.0.
+- `provider`: Bump `actions/setup-go` from 5.5.0 to 6.4.0.
+- `provider`: Bump `actions/stale` from 9.1.0 to 10.2.0.
+- `provider`: Bump `github.com/cloudflare/circl` from 1.6.1 to 1.6.3. (#2685)
+- `provider`: Bump `github.com/hashicorp/terraform-plugin-sdk/v2` from 2.37.0 to 2.40.1.
+- `provider`: Bump `github.com/hashicorp/terraform-plugin-testing` from 1.13.3 to 1.16.0.
+- `provider`: Bump `github.com/vmware/govmomi` from v0.53.0-alpha to 0.53.1.
+- `provider`: Bump `go` from 1.24.12 to 1.26.1.
+- `provider`: Bump `golang.org/x/crypto` from 0.42.0 to 0.45.0. (#2627)
+- `provider`: Bump `golangci/golangci-lint-action` from 8.0.0 to 9.2.0.
+- `provider`: Bump `goreleaser/goreleaser-action` from 6.4.0 to 7.2.1.
+
 ## v2.15.2
 
 > Release Date: 2026-03-26

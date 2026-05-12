@@ -4,6 +4,9 @@ terraform-provider-vsphere*
 # Ignore distribution directories.
 dist/
 
+# Ignore release notes generated during the release workflow.
+RELEASE_NOTES.md
+
 # Ignore editor directories.
 .idea/
 .vscode/

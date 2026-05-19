@@ -14,7 +14,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/mitchellh/copystructure"
+	"github.com/huandu/go-clone"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/vim25/types"
@@ -981,7 +981,7 @@ func AppendDeviceChangeSpec(
 	ops ...types.BaseVirtualDeviceConfigSpec,
 ) []types.BaseVirtualDeviceConfigSpec {
 	for _, op := range ops {
-		c := copystructure.Must(copystructure.Copy(op)).(types.BaseVirtualDeviceConfigSpec)
+		c := clone.Clone(op).(types.BaseVirtualDeviceConfigSpec)
 		spec = append(spec, c)
 	}
 	return spec

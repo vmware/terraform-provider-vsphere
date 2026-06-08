@@ -1,5 +1,11 @@
 # <!-- markdownlint-disable first-line-h1 no-inline-html -->
 
+## Unreleased
+
+FEATURES:
+
+- `r/virtual_machine`: Added a new optional `datastore_path` attribute that lets users place virtual machine metadata files (`.vmx`, `.nvram`, logs, etc.) into a `/`-joined sub-folder of the selected datastore instead of the datastore root. Works for both standard datastore and `datastore_cluster_id` (Storage DRS) deployments.
+
 ## v2.16.0
 
 > Release Date: 2026-05-12

@@ -97,6 +97,11 @@ func resourceVSphereVirtualMachine() *schema.Resource {
 			ConflictsWith: []string{"datastore_id"},
 			Description:   "The ID of a datastore cluster to put the virtual machine in.",
 		},
+		"datastore_path": {
+			Type:        schema.TypeString,
+			Optional:    true,
+			Description: "A '/' joined relative path within the datastore where the virtual machine metadata files (VMX, NVRAM, logs, etc.) will be placed. If empty, the files are placed at the datastore root.",
+		},
 		"datacenter_id": {
 			Type:        schema.TypeString,
 			Optional:    true,
@@ -1400,7 +1405,7 @@ func resourceVSphereVirtualMachineCreateBareWithSDRS(
 	}
 
 	timeout := meta.(*Client).timeout
-	vm, err := storagepod.CreateVM(client, fo, spec, pool, hs, pod, timeout)
+	vm, err := storagepod.CreateVM(client, fo, spec, pool, hs, pod, d.Get("datastore_path").(string), timeout)
 	if err != nil {
 		return nil, fmt.Errorf("error creating virtual machine on datastore cluster %q: %s", pod.Name(), err)
 	}
@@ -1426,7 +1431,7 @@ func resourceVSphereVirtualMachineCreateBareStandard(
 		return nil, fmt.Errorf("error locating datastore for VM: %s", err)
 	}
 	spec.Files = &types.VirtualMachineFileInfo{
-		VmPathName: fmt.Sprintf("[%s]", ds.Name()),
+		VmPathName: buildVMPathName(ds.Name(), d.Get("datastore_path").(string)),
 	}
 
 	timeout := meta.(*Client).timeout
@@ -2244,3 +2249,16 @@ func NewOvfHelperParamsFromVMResource(d *schema.ResourceData) *ovfdeploy.OvfHelp
 	}
 	return ovfParams
 }
+
+// buildVMPathName composes a vSphere datastore path of the form "[datastore]"
+// or "[datastore] sub/folder/" depending on whether dsPath is set. The dsPath
+// is expected to be a "/" joined relative path within the datastore. Leading
+// and trailing slashes as well as surrounding whitespace are tolerated.
+func buildVMPathName(dsName, dsPath string) string {
+	dsPath = strings.Trim(strings.TrimSpace(dsPath), "/")
+	if dsPath == "" {
+		return fmt.Sprintf("[%s]", dsName)
+	}
+	return fmt.Sprintf("[%s] %s/", dsName, dsPath)
+}
+

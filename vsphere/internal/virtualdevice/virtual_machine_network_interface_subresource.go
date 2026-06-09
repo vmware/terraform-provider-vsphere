@@ -14,7 +14,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/mitchellh/copystructure"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/vim25/types"
@@ -576,11 +575,7 @@ func NetworkInterfacePostCloneOperation(d *schema.ResourceData, c *govmomi.Clien
 			continue
 		}
 		sm := srcSet[i].(map[string]interface{})
-		nc, err := copystructure.Copy(sm)
-		if err != nil {
-			return nil, nil, fmt.Errorf("error copying source network interface state data at index %d: %s", i, err)
-		}
-		nm := nc.(map[string]interface{})
+		nm := structure.CopyMap(sm)
 		for k, v := range cm {
 			// Skip key and device_address here
 			switch k {

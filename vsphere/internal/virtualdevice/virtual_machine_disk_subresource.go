@@ -16,7 +16,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/mitchellh/copystructure"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/vim25/types"
@@ -355,11 +354,7 @@ func diskApplyOperationCreateUpdate(
 			// changes are handled during storage vMotion later on during the
 			// update phase. keep_on_remove is a Terraform-only attribute and only
 			// needs to be committed to state.
-			omc, err := copystructure.Copy(oldData)
-			if err != nil {
-				return fmt.Errorf("%s: error generating copy of old disk data: %s", r.Addr(), err)
-			}
-			oldCopy := omc.(map[string]interface{})
+			oldCopy := structure.CopyMap(oldData)
 			oldCopy["datastore_id"] = newData["datastore_id"]
 			oldCopy["keep_on_remove"] = newData["keep_on_remove"]
 			if reflect.DeepEqual(oldCopy, newData) {
@@ -696,11 +691,7 @@ nextNew:
 		if ne != nil {
 			continue
 		}
-		nv, err := copystructure.Copy(ods[ni])
-		if err != nil {
-			return fmt.Errorf("disk.%d: error making updated diff of deleted entry: %s", ni, err)
-		}
-		nm := nv.(map[string]interface{})
+		nm := structure.CopyMap(ods[ni].(map[string]interface{}))
 		switch {
 		case nm["keep_on_remove"].(bool):
 			fallthrough
@@ -1151,18 +1142,12 @@ func DiskPostCloneOperation(d *schema.ResourceData, c *govmomi.Client, l object.
 		}
 		// Copy the source set into old. This allows us to patch a copy of the
 		// product of this set with the source, creating a diff.
-		old, err := copystructure.Copy(src)
-		if err != nil {
-			return nil, nil, fmt.Errorf("error copying source set for disk at unit_number %d: %s", src["unit_number"].(int), err)
-		}
-		rOld := NewDiskSubresource(c, d, old.(map[string]interface{}), nil, i)
+		old := structure.CopyMap(src)
+		rOld := NewDiskSubresource(c, d, old, nil, i)
 		if err := rOld.Read(l); err != nil {
 			return nil, nil, fmt.Errorf("%s: %s", rOld.Addr(), err)
 		}
-		newValue, err := copystructure.Copy(rOld.Data())
-		if err != nil {
-			return nil, nil, fmt.Errorf("error copying current device state for disk at unit_number %d: %s", src["unit_number"].(int), err)
-		}
+		newValue := structure.CopyMap(rOld.Data())
 		for k, v := range src {
 			// Skip label, path (path will always be computed here as cloned disks
 			// are not being attached externally), name, datastore_id, and uuid. Also
@@ -1179,9 +1164,9 @@ func DiskPostCloneOperation(d *schema.ResourceData, c *govmomi.Client, l object.
 					continue
 				}
 			}
-			newValue.(map[string]interface{})[k] = v
+			newValue[k] = v
 		}
-		rNew := NewDiskSubresource(c, d, newValue.(map[string]interface{}), rOld.Data(), i)
+		rNew := NewDiskSubresource(c, d, newValue, rOld.Data(), i)
 		if !reflect.DeepEqual(rNew.Data(), rOld.Data()) {
 			uspec, err := rNew.Update(l)
 			if err != nil {

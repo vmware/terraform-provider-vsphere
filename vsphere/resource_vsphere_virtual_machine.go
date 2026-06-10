@@ -2261,4 +2261,3 @@ func buildVMPathName(dsName, dsPath string) string {
 	}
 	return fmt.Sprintf("[%s] %s/", dsName, dsPath)
 }
-

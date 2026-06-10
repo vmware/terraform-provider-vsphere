@@ -1,5 +1,15 @@
 # <!-- markdownlint-disable first-line-h1 no-inline-html -->
 
+## v2.16.1
+
+> Release Date: 2026-06-10
+
+CHORE:
+
+- `provider`: Bump `go` from 1.26.1 to 1.26.3.
+- `provider`: Bump `github.com/vmware/govmomi` from 0.53.1 to 0.54.1.
+* `technical-debt`: replace `mitchellh/copystructure` with internal helper functions (#2727)
+
 ## v2.16.0
 
 > Release Date: 2026-05-12

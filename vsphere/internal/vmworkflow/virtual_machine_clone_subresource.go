@@ -7,6 +7,7 @@ package vmworkflow
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -236,6 +237,24 @@ func ExpandVirtualMachineCloneSpec(d *schema.ResourceData, c *govmomi.Client) (t
 			return spec, nil, fmt.Errorf("error locating datastore for VM: %s", err)
 		}
 		spec.Location.Datastore = types.NewReference(ds.Reference())
+
+		// Add support for datastore_path during clone operations
+		if dsPath, ok := d.GetOk("datastore_path"); ok {
+			dsPathStr := strings.Trim(strings.TrimSpace(dsPath.(string)), "/")
+			var vmPathName string
+			if dsPathStr == "" {
+				vmPathName = fmt.Sprintf("[%s]", ds.Name())
+			} else {
+				vmPathName = fmt.Sprintf("[%s] %s/", ds.Name(), dsPathStr)
+			}
+
+			if spec.Config == nil {
+				spec.Config = &types.VirtualMachineConfigSpec{}
+			}
+			spec.Config.Files = &types.VirtualMachineFileInfo{
+				VmPathName: vmPathName,
+			}
+		}
 	}
 
 	tUUID := d.Get("clone.0.template_uuid").(string)

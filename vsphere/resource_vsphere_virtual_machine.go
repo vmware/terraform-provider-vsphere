@@ -100,6 +100,7 @@ func resourceVSphereVirtualMachine() *schema.Resource {
 		"datastore_path": {
 			Type:        schema.TypeString,
 			Optional:    true,
+			ForceNew:    true,
 			Description: "A '/' joined relative path within the datastore where the virtual machine metadata files (VMX, NVRAM, logs, etc.) will be placed. If empty, the files are placed at the datastore root.",
 		},
 		"datacenter_id": {

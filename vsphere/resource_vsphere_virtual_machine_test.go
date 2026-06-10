@@ -3862,6 +3862,49 @@ func testAccResourceVSphereVirtualMachineVtpm(
 	}
 }
 
+func TestAccResourceVSphereVirtualMachine_datastorePath(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			RunSweepers()
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceVSphereVirtualMachineConfigDatastorePath(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccResourceVSphereVirtualMachineCheckExists(true),
+					// Verifies that the attribute was successfully saved to state
+					resource.TestCheckResourceAttrSet("vsphere_virtual_machine.vm", "datastore_path"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccResourceVSphereVirtualMachine_cloneDatastorePath(t *testing.T) {
+	testAccSkipUnstable(t) // Standard practice for clone tests in this provider
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			RunSweepers()
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceVSphereVirtualMachineConfigCloneDatastorePath(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccResourceVSphereVirtualMachineCheckExists(true),
+					// Verifies that the attribute was successfully saved to state
+					resource.TestCheckResourceAttrSet("vsphere_virtual_machine.vm", "datastore_path"),
+				),
+			},
+		},
+	})
+}
+
 func testAccResourceVSphereVirtualMachineConfigBase() string {
 	return testhelper.CombineConfigs(
 		testhelper.ConfigDataRootDC1(),
@@ -6357,7 +6400,7 @@ resource "vsphere_virtual_machine" "vm" {
 	)
 }
 
-func testAccResourceVSphereVirtualMachineConfigCloneDatastorePath(datastore string) string {
+func testAccResourceVSphereVirtualMachineConfigCloneDatastorePath() string {
 	return fmt.Sprintf(`
 
 

@@ -3960,6 +3960,8 @@ resource "vsphere_virtual_machine" "vm" {
   datastore_id     = data.vsphere_datastore.rootds1.id
   datastore_path   = "testacc-test-path"
 
+  wait_for_guest_net_timeout = 0
+
   num_cpus = 2
   memory   = 2048
   guest_id = "other3xLinuxGuest"

@@ -648,6 +648,8 @@ The following options are general virtual machine and provider workflow options:
 
   ~> **NOTE:** When used together with `datastore_cluster_id`, the path is applied to the datastore that Storage DRS selects for the virtual machine.
 
+  ~> **NOTE:** This property is ignored when deploying from OVF/OVA or a content library item.
+
 
 
 * `datacenter_id` - (Optional) The datacenter ID. Required only when deploying an OVF/OVA template.

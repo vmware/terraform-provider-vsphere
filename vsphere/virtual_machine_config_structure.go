@@ -12,7 +12,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/mitchellh/copystructure"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/vim25/types"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/spbm"
@@ -799,11 +798,7 @@ func expandVAppConfig(d *schema.ResourceData, client *govmomi.Client) (*types.Vm
 	if len(newVApps) > 0 && newVApps[0] != nil {
 		newVApp := newVApps[0].(map[string]interface{})
 		if props, ok := newVApp["properties"].(map[string]interface{}); ok {
-			propsCopy, err := copystructure.Copy(props)
-			if err != nil {
-				return nil, fmt.Errorf("while extracting vapp properties into a new map: %s", err)
-			}
-			newMap = propsCopy.(map[string]interface{})
+			newMap = structure.CopyMap(props)
 		}
 	}
 

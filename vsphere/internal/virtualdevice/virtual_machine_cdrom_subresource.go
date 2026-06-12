@@ -11,7 +11,6 @@ import (
 	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/mitchellh/copystructure"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/vim25/types"
@@ -350,19 +349,16 @@ func CdromPostCloneOperation(d *schema.ResourceData, c *govmomi.Client, l object
 			continue
 		}
 		sm := srcSet[i].(map[string]interface{})
-		nm, err := copystructure.Copy(sm)
-		if err != nil {
-			return nil, nil, fmt.Errorf("error copying source CDROM device state data at index %d: %s", i, err)
-		}
+		nm := structure.CopyMap(sm)
 		for k, v := range cm {
 			// Skip key and device_address here
 			switch k {
 			case "key", "device_address":
 				continue
 			}
-			nm.(map[string]interface{})[k] = v
+			nm[k] = v
 		}
-		r := NewCdromSubresource(c, d, nm.(map[string]interface{}), sm, i)
+		r := NewCdromSubresource(c, d, nm, sm, i)
 		if !reflect.DeepEqual(sm, nm) {
 			// Update
 			cspec, err := r.Update(l)

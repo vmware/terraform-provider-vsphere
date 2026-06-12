@@ -6,6 +6,16 @@ FEATURES:
 
 - `r/virtual_machine`: Added a new optional `datastore_path` attribute that lets users place virtual machine metadata files (`.vmx`, `.nvram`, logs, etc.) into a `/`-joined sub-folder of the selected datastore instead of the datastore root. Works for both standard datastore and `datastore_cluster_id` (Storage DRS) deployments.
 
+## v2.16.1
+
+> Release Date: 2026-06-10
+
+CHORE:
+
+- `provider`: Bump `go` from 1.26.1 to 1.26.3.
+- `provider`: Bump `github.com/vmware/govmomi` from 0.53.1 to 0.54.1.
+* `technical-debt`: replace `mitchellh/copystructure` with internal helper functions (#2727)
+
 ## v2.16.0
 
 > Release Date: 2026-05-12

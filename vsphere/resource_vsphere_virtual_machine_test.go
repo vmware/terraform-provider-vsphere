@@ -3862,6 +3862,49 @@ func testAccResourceVSphereVirtualMachineVtpm(
 	}
 }
 
+func TestAccResourceVSphereVirtualMachine_datastorePath(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			RunSweepers()
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceVSphereVirtualMachineConfigDatastorePath(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccResourceVSphereVirtualMachineCheckExists(true),
+					// Verifies that the attribute was successfully saved to state
+					resource.TestCheckResourceAttrSet("vsphere_virtual_machine.vm", "datastore_path"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccResourceVSphereVirtualMachine_cloneDatastorePath(t *testing.T) {
+	testAccSkipUnstable(t) // Standard practice for clone tests in this provider
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			RunSweepers()
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceVSphereVirtualMachineConfigCloneDatastorePath(),
+				Check: resource.ComposeTestCheckFunc(
+					testAccResourceVSphereVirtualMachineCheckExists(true),
+					// Verifies that the attribute was successfully saved to state
+					resource.TestCheckResourceAttrSet("vsphere_virtual_machine.vm", "datastore_path"),
+				),
+			},
+		},
+	})
+}
+
 func testAccResourceVSphereVirtualMachineConfigBase() string {
 	return testhelper.CombineConfigs(
 		testhelper.ConfigDataRootDC1(),
@@ -3883,6 +3926,41 @@ resource "vsphere_virtual_machine" "vm" {
   name             = "testacc-test"
   resource_pool_id = vsphere_resource_pool.pool1.id
   datastore_id     = data.vsphere_datastore.rootds1.id
+
+  num_cpus = 2
+  memory   = 2048
+  guest_id = "other3xLinuxGuest"
+  firmware = "efi"
+
+  network_interface {
+    network_id = data.vsphere_network.network1.id
+  }
+
+  disk {
+    label = "disk0"
+    size  = 1
+    io_reservation = 1
+  }
+}
+`,
+
+		testAccResourceVSphereVirtualMachineConfigBase(),
+	)
+}
+
+func testAccResourceVSphereVirtualMachineConfigDatastorePath() string {
+	return fmt.Sprintf(`
+
+
+%s  // Mix and match config
+
+resource "vsphere_virtual_machine" "vm" {
+  name             = "testacc-test"
+  resource_pool_id = vsphere_resource_pool.pool1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
+  datastore_path   = "testacc-test-path"
+
+  wait_for_guest_net_timeout = 0
 
   num_cpus = 2
   memory   = 2048
@@ -6288,6 +6366,62 @@ resource "vsphere_virtual_machine" "vm" {
   name             = "testacc-test"
   resource_pool_id = vsphere_resource_pool.pool1.id
   datastore_id     = data.vsphere_datastore.rootds1.id
+
+  num_cpus = 2
+  memory   = 2048
+  guest_id = data.vsphere_virtual_machine.template.guest_id
+
+  wait_for_guest_net_timeout = 0
+
+  network_interface {
+    network_id = data.vsphere_network.network1.id
+    adapter_type = data.vsphere_virtual_machine.template.network_interface_types[0]
+  }
+
+  disk {
+    label            = "disk0"
+    size = data.vsphere_virtual_machine.template.disks.0.size
+    eagerly_scrub = data.vsphere_virtual_machine.template.disks.0.eagerly_scrub
+    thin_provisioned = data.vsphere_virtual_machine.template.disks.0.thin_provisioned
+  }
+
+  clone {
+    template_uuid = data.vsphere_virtual_machine.template.id
+    linked_clone = var.linked_clone != "" ? "true" : "false"
+  }
+
+  cdrom {
+    client_device = true
+  }
+}
+`,
+
+		testAccResourceVSphereVirtualMachineConfigBase(),
+		os.Getenv("TF_VAR_VSPHERE_TEMPLATE"),
+		os.Getenv("TF_VAR_VSPHERE_USE_LINKED_CLONE"),
+	)
+}
+
+func testAccResourceVSphereVirtualMachineConfigCloneDatastorePath() string {
+	return fmt.Sprintf(`
+
+
+%s  // Mix and match config
+
+data "vsphere_virtual_machine" "template" {
+  name          = "%s"
+  datacenter_id = data.vsphere_datacenter.rootdc1.id
+}
+
+variable "linked_clone" {
+  default = "%s"
+}
+
+resource "vsphere_virtual_machine" "vm" {
+  name             = "testacc-test"
+  resource_pool_id = vsphere_resource_pool.pool1.id
+  datastore_id     = data.vsphere_datastore.rootds1.id
+  datastore_path   = "testacc-test-path"
 
   num_cpus = 2
   memory   = 2048

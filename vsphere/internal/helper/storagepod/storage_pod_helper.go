@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/vmware/govmomi"
@@ -200,6 +201,7 @@ func CreateVM(
 	pool *object.ResourcePool,
 	host *object.HostSystem,
 	pod *object.StoragePod,
+	dsPath string,
 	timeout time.Duration,
 ) (*object.VirtualMachine, error) {
 	sdrsEnabled, err := StorageDRSEnabled(pod)
@@ -214,6 +216,18 @@ func CreateVM(
 		fmt.Sprintf("%s/%s", fo.InventoryPath, spec.Name),
 		pod.Name(),
 	)
+	// If a datastore-relative path was supplied, pre-populate spec.Files so that
+	// the SDRS placement places the VM metadata files in that sub-folder. The
+	// datastore name is left blank ("[]") because SDRS will choose the actual
+	// datastore as part of placement.
+	if normalized := normalizeVMSubPath(dsPath); normalized != "" {
+		if spec.Files == nil {
+			spec.Files = &types.VirtualMachineFileInfo{}
+		}
+		if spec.Files.VmPathName == "" {
+			spec.Files.VmPathName = fmt.Sprintf("[] %s/", normalized)
+		}
+	}
 	sps := types.StoragePlacementSpec{
 		Type:         string(types.StoragePlacementSpecPlacementTypeCreate),
 		ResourcePool: types.NewReference(pool.Reference()),
@@ -240,7 +254,7 @@ func CreateVM(
 		case viapi.IsManagedObjectNotFoundError(err):
 			// This isn't a vApp container, so continue with normal SDRS work flow.
 		case err == nil:
-			return createVAppVMFromSPS(client, placement, spec, sps, vc, timeout)
+			return createVAppVMFromSPS(client, placement, spec, sps, vc, dsPath, timeout)
 		default:
 			return nil, err
 		}
@@ -445,6 +459,7 @@ func createVAppVMFromSPS(
 	spec types.VirtualMachineConfigSpec,
 	sps types.StoragePlacementSpec,
 	vc *object.VirtualApp,
+	dsPath string,
 	timeout time.Duration,
 ) (*object.VirtualMachine, error) {
 	ds, err := datastore.FromID(client, placement.Recommendations[0].Action[0].(*types.StoragePlacementAction).Destination.Reference().Value)
@@ -452,7 +467,7 @@ func createVAppVMFromSPS(
 		return nil, err
 	}
 	spec.Files = &types.VirtualMachineFileInfo{
-		VmPathName: fmt.Sprintf("[%s]", ds.Name()),
+		VmPathName: BuildVMPathName(ds.Name(), dsPath),
 	}
 	var f *object.Folder
 	f, err = folder.FromID(client, sps.Folder.Reference().Value)
@@ -529,4 +544,22 @@ func IsMember(pod *object.StoragePod, ds *object.Datastore) (bool, error) {
 		return false, nil
 	}
 	return true, nil
+}
+
+// normalizeVMSubPath trims surrounding whitespace and leading/trailing
+// slashes from a datastore-relative path. An empty string is returned when
+// no meaningful path remains.
+func normalizeVMSubPath(p string) string {
+	return strings.Trim(strings.TrimSpace(p), "/")
+}
+
+// BuildVMPathName composes a vSphere datastore path of the form "[datastore]"
+// or "[datastore] sub/folder/" depending on whether dsPath is set. The dsPath
+// is expected to be a "/" joined relative path within the datastore.
+func BuildVMPathName(dsName, dsPath string) string {
+	dsPath = normalizeVMSubPath(dsPath)
+	if dsPath == "" {
+		return fmt.Sprintf("[%s]", dsName)
+	}
+	return fmt.Sprintf("[%s] %s/", dsName, dsPath)
 }

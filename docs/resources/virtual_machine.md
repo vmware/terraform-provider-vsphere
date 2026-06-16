@@ -640,6 +640,18 @@ The following options are general virtual machine and provider workflow options:
 
 ~> **NOTE:** The `datastore_cluster_id` setting applies to the entire virtual machine resource. You cannot assign individual individual disks to datastore clusters. In addition, you cannot use the [`attach`](#attach) setting to attach external disks on virtual machines that are assigned to datastore clusters.
 
+* `datastore_path` - (Optional) A `/`-joined relative path within the selected datastore (or datastore cluster member) in which to store the virtual machine metadata files (`.vmx`, `.nvram`, log files, etc.). When omitted or empty, the files are placed at the datastore root (the default vSphere behavior, typically a folder named after the virtual machine). Leading and trailing slashes are tolerated and ignored.
+
+  Example: `datastore_path = "tenants/acme/web-tier"` produces a VMX path of `[datastore-name] tenants/acme/web-tier/<vm-name>.vmx`.
+
+  ~> **NOTE:** This setting only affects where the VM configuration/metadata files are created at VM creation time. It does not move files for an existing virtual machine and does not control the placement of virtual disks (use the `datastore_id` setting on a `disk` sub-resource for that). Any intermediate folders must either already exist or be creatable by the user under which the provider is authenticated.
+
+  ~> **NOTE:** When used together with `datastore_cluster_id`, the path is applied to the datastore that Storage DRS selects for the virtual machine.
+
+  ~> **NOTE:** This property is ignored when deploying from OVF/OVA or a content library item.
+
+
+
 * `datacenter_id` - (Optional) The datacenter ID. Required only when deploying an OVF/OVA template.
 
 * `disk` - (Required) A specification for a virtual disk device on the virtual machine. See [disk options](#disk-options) for more information.

@@ -1125,12 +1125,24 @@ func expandVirtualMachineConfigSpecChanged(d *schema.ResourceData, client *govmo
 	}
 
 	isVMConfigSpecChanged := !reflect.DeepEqual(oldSpec, newSpec)
-	// Don't include the hardware version in the UpdateSpec. It is only needed
-	// when creating new VMs.
-	newSpec.Version = ""
+	sanitizeConfigSpec(&newSpec, info)
 
 	// Return the new spec and compare
 	return newSpec, isVMConfigSpecChanged, nil
+}
+
+func sanitizeConfigSpec(spec *types.VirtualMachineConfigSpec, info *types.VirtualMachineConfigInfo) {
+	// Don't include the hardware version in the UpdateSpec. It is only needed
+	// when creating new VMs.
+	spec.Version = ""
+
+	// Don't set NumCoresPerSocket to 0 if auto assignment is already enabled because
+	// this would cause vCenter to require a VM reboot
+	cpuAutoAssignCurrent := info.Hardware.AutoCoresPerSocket != nil && *info.Hardware.AutoCoresPerSocket
+	cpuAutoAssignRequested := spec.NumCoresPerSocket != nil && *spec.NumCoresPerSocket == 0
+	if cpuAutoAssignCurrent && cpuAutoAssignRequested {
+		spec.NumCoresPerSocket = nil
+	}
 }
 
 // getMemoryReservationLockedToMax determines if the memory_reservation is not

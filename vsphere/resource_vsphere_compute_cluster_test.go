@@ -1169,7 +1169,7 @@ resource "vsphere_host" "host4" {
   datacenter = data.vsphere_datacenter.rootdc1.id
 
   lifecycle {
-    ignore_changes = ["services", "cluster"]
+    ignore_changes = ["services", "cluster", "thumbprint"]
   }
 }
 

@@ -97,7 +97,7 @@ The following attributes are exported:
 * `id` - The UUID of the virtual machine or template.
 * `folder` - The inventory folder path of the virtual machine. This is the
   parent folder containing the virtual machine, relative to the vSphere
-  inventory. For example: `/DC1/vm/Production/Linux`.
+  inventory. For example, given a default datacenter of `default-dc`, a folder of type `vm` (denoting a virtual machine folder), and a supplied folder of `example-vm-folder`, the resulting path would be `/default-dc/vm/example-vm-folder`.
 * `guest_id` - The guest ID of the virtual machine or template.
 * `alternate_guest_name` - The alternate guest name of the virtual machine when
   `guest_id` is a non-specific operating system, like `otherGuest` or

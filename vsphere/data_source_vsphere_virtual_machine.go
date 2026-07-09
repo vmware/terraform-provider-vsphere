@@ -34,6 +34,7 @@ func dataSourceVSphereVirtualMachine() *schema.Resource {
 		"folder": {
 			Type:          schema.TypeString,
 			Optional:      true,
+			Computed:      true,
 			Description:   "The name of the folder the virtual machine is in. Allows distinguishing virtual machines with the same name in different folder paths",
 			StateFunc:     folder.NormalizePath,
 			ConflictsWith: []string{"uuid", "moid"},
@@ -309,6 +310,11 @@ func dataSourceVSphereVirtualMachineRead(d *schema.ResourceData, meta interface{
 	if err != nil {
 		return fmt.Errorf("error fetching virtual machine properties: %s", err)
 	}
+
+	// Expose the VM inventory folder path as a computed attribute.
+	// InventoryPath contains the full inventory object path including the VM name,
+	// so use path.Dir() to extract only the parent folder path.
+	_ = d.Set("folder", path.Dir(vm.InventoryPath))
 
 	if props.Config == nil {
 		return fmt.Errorf("no configuration returned for virtual machine %q", vm.InventoryPath)

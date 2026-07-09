@@ -178,13 +178,13 @@ func resourceVSphereFileRead(d *schema.ResourceData, meta interface{}) error {
 
 	dc, err := finder.Datacenter(context.TODO(), f.datacenter)
 	if err != nil {
-		return fmt.Errorf("error %s", err)
+		return fmt.Errorf("error finding datacenter %s", err)
 	}
 	finder = finder.SetDatacenter(dc)
 
 	ds, err := getDatastore(finder, f.datastore)
 	if err != nil {
-		return fmt.Errorf("error %s", err)
+		return fmt.Errorf("error finding datastore %s", err)
 	}
 
 	_, err = ds.Stat(context.TODO(), f.destinationFile)
@@ -248,12 +248,12 @@ func resourceVSphereFileUpdate(d *schema.ResourceData, meta interface{}) error {
 		finder = finder.SetDatacenter(dcOld)
 		dsOld, err := getDatastore(finder, oldDatastore)
 		if err != nil {
-			return fmt.Errorf("error %s", err)
+			return fmt.Errorf("error finding old datastore %s", err)
 		}
 		finder = finder.SetDatacenter(dcNew)
 		dsNew, err := getDatastore(finder, newDatastore)
 		if err != nil {
-			return fmt.Errorf("error %s", err)
+			return fmt.Errorf("error finding new datastore %s", err)
 		}
 
 		// Move file between old/new datacenter, datastore, and path.
@@ -332,20 +332,20 @@ func createFile(client *govmomi.Client, f *file) error {
 
 	dstDatacenter, err := finder.Datacenter(context.TODO(), f.datacenter)
 	if err != nil {
-		return fmt.Errorf("error %s", err)
+		return fmt.Errorf("error finding destination datacenter %s", err)
 	}
 	finder = finder.SetDatacenter(dstDatacenter)
 
 	dstDatastore, err := getDatastore(finder, f.datastore)
 	if err != nil {
-		return fmt.Errorf("error %s", err)
+		return fmt.Errorf("error finding destination datastore %s", err)
 	}
 	dstDfm := dstDatastore.NewFileManager(dstDatacenter, false)
 
 	if f.createDirectories {
 		err = createDirectory(dstDfm, f)
 		if err != nil {
-			return fmt.Errorf("error %s", err)
+			return fmt.Errorf("error creating directory %s", err)
 		}
 	}
 
@@ -353,18 +353,18 @@ func createFile(client *govmomi.Client, f *file) error {
 	case f.copyFile:
 		srcDatacenter, err := finder.Datacenter(context.TODO(), f.sourceDatacenter)
 		if err != nil {
-			return fmt.Errorf("error %s", err)
+			return fmt.Errorf("error finding source datacenter %s", err)
 		}
 		srcDatastore, err := getDatastore(finder, f.sourceDatastore)
 		if err != nil {
-			return fmt.Errorf("error %s", err)
+			return fmt.Errorf("error finding source datastore %s", err)
 		}
 		srcDfm := srcDatastore.NewFileManager(srcDatacenter, false)
 		srcDfm.DatacenterTarget = dstDatacenter
 		dstFilePath := dstDfm.Path(f.destinationFile)
 		err = srcDfm.Copy(context.TODO(), f.sourceFile, dstFilePath.String())
 		if err != nil {
-			return fmt.Errorf("error %s", err)
+			return fmt.Errorf("error copying file %s", err)
 		}
 	case path.Ext(f.sourceFile) == ".vmdk":
 		_, fileName := path.Split(f.destinationFile)
@@ -373,17 +373,17 @@ func createFile(client *govmomi.Client, f *file) error {
 
 		err = fileUpload(client, dstDatacenter, dstDatastore, f.sourceFile, tempDstFile)
 		if err != nil {
-			return fmt.Errorf("error %s", err)
+			return fmt.Errorf("error uploading vmdk file %s", err)
 		}
 		err = dstDfm.Move(context.TODO(), tempDstFile, f.destinationFile)
 		if err != nil {
-			return fmt.Errorf("error %s", err)
+			return fmt.Errorf("error moving vmdk file %s", err)
 		}
 
 	default:
 		err = fileUpload(client, dstDatacenter, dstDatastore, f.sourceFile, f.destinationFile)
 		if err != nil {
-			return fmt.Errorf("error %s", err)
+			return fmt.Errorf("error uploading file %s", err)
 		}
 	}
 
@@ -439,7 +439,7 @@ func fileUpload(client *govmomi.Client, dc *object.Datacenter, ds *object.Datast
 	var err error
 	source, err = url.PathUnescape(source)
 	if err != nil {
-		return err
+		return fmt.Errorf("error unescaping source path %s", err)
 	}
 
 	// Clean the source and destination paths.
@@ -462,7 +462,7 @@ func fileUpload(client *govmomi.Client, dc *object.Datacenter, ds *object.Datast
 	p := soap.DefaultUpload
 	err = client.UploadFile(context.TODO(), source, dsurl, &p)
 	if err != nil {
-		return err
+		return fmt.Errorf("error uploading file %s", err)
 	}
 
 	// Check for special characters in the original destination path.
@@ -475,14 +475,14 @@ func fileUpload(client *govmomi.Client, dc *object.Datacenter, ds *object.Datast
 			task, err := fm.MoveDatastoreFile(ctx, ds.Path(destination), dc, ds.Path(originalDestination), dc, false)
 			if err != nil {
 				cancel()
-				return err
+				return fmt.Errorf("error renaming uploaded file %s", err)
 			}
 
 			_, err = task.WaitForResult(ctx, nil)
 			cancel()
 
 			if err != nil {
-				return err
+				return fmt.Errorf("error waiting for rename task %s", err)
 			}
 
 			break

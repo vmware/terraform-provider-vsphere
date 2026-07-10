@@ -47,6 +47,51 @@ func generateSteps(cfgFunc genTfConfig, netstack string) []resource.TestStep {
 	return out
 }
 
+func TestAccResourceVSphereVNic_netstackVmotion(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccVSphereVNicDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVSphereVNicConfigNetstack("vmotion"),
+			},
+		},
+	})
+}
+
+func TestAccResourceVSphereVNic_netstackProvisioning(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccVSphereVNicDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVSphereVNicConfigNetstack("vSphereProvisioning"),
+			},
+		},
+	})
+}
+
+func TestAccResourceVSphereVNic_netstackDefault(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccVSphereVNicDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVSphereVNicConfigServices([]string{"management", "vsan"}),
+			},
+		},
+	})
+}
+
 func TestAccResourceVSphereVNic_dvs_default(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -382,6 +427,62 @@ func nicExists(client *govmomi.Client, nicID string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func testAccVSphereVNicConfigNetstack(netstack string) string {
+	return fmt.Sprintf(`
+%s
+
+	resource "vsphere_host_port_group" "p1" {
+	  name                     = "acc-test-pg"
+	  virtual_switch_name      = "vSwitch0"
+	  host_system_id           = data.vsphere_host.roothost3.id
+	}
+
+	resource "vsphere_vnic" "vmotion_vnic" {
+	  host      = data.vsphere_host.roothost3.id
+	  portgroup = vsphere_host_port_group.p1.name
+
+  	  ipv4 {
+        dhcp = true
+  	  }
+
+  	  netstack = %q
+	}
+	`, testhelper.CombineConfigs(
+		testhelper.ConfigDataRootDC1(),
+		testhelper.ConfigDataRootPortGroup1(),
+		testhelper.ConfigDataRootHost3()),
+		netstack)
+}
+
+func testAccVSphereVNicConfigServices(services []string) string {
+	servicesStr := strings.Join(services, "\", \"")
+	return fmt.Sprintf(`
+%s
+
+	resource "vsphere_host_port_group" "p1" {
+	  name                     = "acc-test-pg"
+	  virtual_switch_name      = "vSwitch0"
+	  host_system_id           = data.vsphere_host.roothost3.id
+	}
+
+	resource "vsphere_vnic" "vmotion_vnic" {
+	  host      = data.vsphere_host.roothost3.id
+	  portgroup = vsphere_host_port_group.p1.name
+
+	  ipv4 {
+        dhcp = true
+	  }
+
+	  netstack = "defaultTcpipStack"
+	  services = ["%s"]
+	}
+	`, testhelper.CombineConfigs(
+		testhelper.ConfigDataRootDC1(),
+		testhelper.ConfigDataRootPortGroup1(),
+		testhelper.ConfigDataRootHost3()),
+		servicesStr)
 }
 
 func testaccvspherevnicconfigHvs(netConfig string) string {

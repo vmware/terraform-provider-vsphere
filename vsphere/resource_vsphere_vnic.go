@@ -25,6 +25,8 @@ const (
 	vnicServiceTypeVsan       = "vsan"
 	vnicServiceTypeVmotion    = "vmotion"
 	vnicServiceTypeManagement = "management"
+
+	vnicNetStackDefault = "defaultTcpipStack"
 )
 
 var vnicServiceTypeAllowedValues = []string{
@@ -312,12 +314,13 @@ func BaseVMKernelSchema() map[string]*schema.Schema {
 			Type:        schema.TypeString,
 			Optional:    true,
 			Description: "TCP/IP stack setting for this interface. Possible values are 'defaultTcpipStack', 'vmotion', 'provisioning'",
-			Default:     "defaultTcpipStack",
+			Default:     vnicNetStackDefault,
 			ForceNew:    true,
 		},
 		"services": {
 			Type:        schema.TypeSet,
 			Optional:    true,
+			Computed:    true,
 			Description: "Enabled services setting for this interface. Current possible values are 'vmotion', 'management' and 'vsan'",
 			Elem: &schema.Schema{
 				Type:         schema.TypeString,
@@ -395,7 +398,7 @@ func updateVnicService(d *schema.ResourceData, hostID string, nicID string, meta
 }
 
 func precheckEnableServices(d *schema.ResourceData) error {
-	if d.Get("netstack").(string) != "defaultTcpipStack" && len(d.Get("services").(*schema.Set).List()) != 0 {
+	if d.Get("netstack").(string) != vnicNetStackDefault && len(d.Get("services").(*schema.Set).List()) != 0 {
 		return fmt.Errorf("services can only be configured when netstack is set to defaultTcpipStack")
 	}
 	return nil

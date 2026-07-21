@@ -26,11 +26,11 @@ privileges.
 
 ```hcl
 resource "vsphere_sso_user" "example" {
-  name          = "custom.user"
+  name          = "local.user"
   password      = "P@ssw0rd123!"
   first_name    = "Custom"
   last_name     = "User"
-  email_address = "custom.user@domain.local"
+  email_address = "local.user@example.com"
   description   = "Managed by Terraform"
 }
 ```

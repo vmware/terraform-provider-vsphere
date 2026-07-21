@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	testAccSSOUserName     = "acc-test-user"
+	testAccSSOUserName     = "local.user"
 	testAccSSOUserPassword = "AccTestP@ssw0rd!"
 	testAccSSOGroupName    = "acc-test-group"
 )
@@ -37,7 +37,7 @@ func TestAccResourceVSphereSSOUser_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("vsphere_sso_user.acc-test-user", "domain"),
 					resource.TestCheckResourceAttr("vsphere_sso_user.acc-test-user", "first_name", "Acc"),
 					resource.TestCheckResourceAttr("vsphere_sso_user.acc-test-user", "last_name", "Test"),
-					resource.TestCheckResourceAttr("vsphere_sso_user.acc-test-user", "email_address", "acc-test@example.com"),
+					resource.TestCheckResourceAttr("vsphere_sso_user.acc-test-user", "email_address", "local.user@example.com"),
 					resource.TestCheckResourceAttr("vsphere_sso_user.acc-test-user", "description", "Managed by Terraform acceptance test"),
 				),
 			},
@@ -86,7 +86,7 @@ resource "vsphere_sso_user" "acc-test-user" {
   password      = %q
   first_name    = "Acc"
   last_name     = "Test"
-  email_address = "acc-test@example.com"
+  email_address = "local.user@example.com"
   description   = "Managed by Terraform acceptance test"
 }
 `, testAccSSOUserName, testAccSSOUserPassword)

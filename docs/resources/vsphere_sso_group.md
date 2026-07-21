@@ -29,7 +29,7 @@ user from an external identity source, and a nested local group.
 
 ```hcl
 resource "vsphere_sso_user" "example" {
-  name     = "custom.user"
+  name     = "local.user"
   password = "P@ssw0rd123!"
 }
 
@@ -49,8 +49,8 @@ resource "vsphere_sso_group" "example" {
 
   # A user from an external identity source.
   member_user {
-    name   = "external.user"
-    domain = "domain.local"
+    name   = "john.doe"
+    domain = "example.com"
   }
 
   # A nested group in the local domain.

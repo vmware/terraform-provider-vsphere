@@ -17,13 +17,13 @@ sources.
 ```hcl
 # A user in the local (system) domain.
 data "vsphere_sso_user" "local" {
-  name = "custom.user"
+  name = "local.user"
 }
 
 # A user in an external identity source.
 data "vsphere_sso_user" "external" {
-  name   = "external.user"
-  domain = "domain.local"
+  name   = "john.doe"
+  domain = "example.com"
 }
 ```
 

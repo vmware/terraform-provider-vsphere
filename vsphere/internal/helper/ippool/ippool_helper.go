@@ -139,6 +139,50 @@ func Delete(client *govmomi.Client, dc types.ManagedObjectReference, id int32, f
 	return err
 }
 
+// NetworkConflict describes a network that is already associated with a
+// network protocol profile other than the one being configured.
+type NetworkConflict struct {
+	NetworkID string
+	PoolID    int32
+	PoolName  string
+}
+
+// NetworkConflicts checks the given datacenter for any existing IP pools
+// (other than excludePoolID) that already have one of networkIDs
+// associated with them. Associating a network with more than one IP pool
+// silently moves it away from its current pool, so callers should surface
+// any conflicts as an error rather than letting the API perform the move.
+// Pass excludePoolID as -1 when checking a not-yet-created pool.
+func NetworkConflicts(client *govmomi.Client, dc types.ManagedObjectReference, networkIDs []string, excludePoolID int32) ([]NetworkConflict, error) {
+	pools, err := List(client, dc)
+	if err != nil {
+		return nil, err
+	}
+
+	wanted := make(map[string]bool, len(networkIDs))
+	for _, id := range networkIDs {
+		wanted[id] = true
+	}
+
+	var conflicts []NetworkConflict
+	for _, pool := range pools {
+		if pool.Id == excludePoolID {
+			continue
+		}
+		for _, assoc := range pool.NetworkAssociation {
+			if assoc.Network == nil || !wanted[assoc.Network.Value] {
+				continue
+			}
+			conflicts = append(conflicts, NetworkConflict{
+				NetworkID: assoc.Network.Value,
+				PoolID:    pool.Id,
+				PoolName:  pool.Name,
+			})
+		}
+	}
+	return conflicts, nil
+}
+
 // ExpandNetworkAssociations resolves a list of network managed object IDs
 // (standard port groups, distributed port groups, or opaque networks) into
 // the association entries expected by the IP pool API.

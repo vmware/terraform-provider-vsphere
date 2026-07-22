@@ -5,6 +5,7 @@
 package vsphere
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"strings"
@@ -13,6 +14,7 @@ import (
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/vim25/types"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/ippool"
+	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/structure"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/viapi"
 )
 
@@ -27,6 +29,7 @@ func resourceVSphereDatacenterNetworkProtocolProfile() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			State: resourceVSphereDatacenterNetworkProtocolProfileImport,
 		},
+		CustomizeDiff: resourceVSphereDatacenterNetworkProtocolProfileCustomizeDiff,
 		Schema: map[string]*schema.Schema{
 			"datacenter_id": {
 				Type:        schema.TypeString,
@@ -132,11 +135,85 @@ func networkProtocolProfileIPConfigSchema(family string) *schema.Schema {
 	}
 }
 
+// networkIDSource is implemented by both *schema.ResourceData and
+// *schema.ResourceDiff, allowing validateNetworkAssociations to run both at
+// plan time (CustomizeDiff) and at apply time (Create/Update).
+type networkIDSource interface {
+	GetOk(key string) (interface{}, bool)
+	Id() string
+}
+
+// validateNetworkAssociations ensures that none of the networks configured
+// in network_ids are already associated with a different network protocol
+// profile. vSphere does not reject this: it silently moves the network's
+// association away from its current profile, which would surprise anyone
+// relying on that existing configuration.
+func validateNetworkAssociations(client *govmomi.Client, dc types.ManagedObjectReference, d networkIDSource) error {
+	v, ok := d.GetOk("network_ids")
+	if !ok {
+		return nil
+	}
+	set, ok := v.(*schema.Set)
+	if !ok || set.Len() == 0 {
+		return nil
+	}
+
+	var selfID int32 = -1
+	if id := d.Id(); id != "" {
+		parsed, err := strconv.ParseInt(id, 10, 32)
+		if err != nil {
+			return err
+		}
+		selfID = int32(parsed)
+	}
+
+	ids := make([]string, 0, set.Len())
+	for _, raw := range set.List() {
+		ids = append(ids, raw.(string))
+	}
+
+	conflicts, err := ippool.NetworkConflicts(client, dc, ids, selfID)
+	if err != nil {
+		return err
+	}
+	if len(conflicts) == 0 {
+		return nil
+	}
+
+	msgs := make([]string, 0, len(conflicts))
+	for _, c := range conflicts {
+		msgs = append(msgs, fmt.Sprintf("  - network %q is already associated with network protocol profile %q (id %d)", c.NetworkID, c.PoolName, c.PoolID))
+	}
+	return fmt.Errorf("cannot associate network(s) that are already assigned to another network protocol profile, as this would silently move them:\n%s", strings.Join(msgs, "\n"))
+}
+
+// resourceVSphereDatacenterNetworkProtocolProfileCustomizeDiff surfaces
+// network association conflicts as a plan-time error rather than letting
+// vSphere silently reassign the network at apply time.
+func resourceVSphereDatacenterNetworkProtocolProfileCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	client := meta.(*Client).vimClient
+
+	if !structure.ValuesAvailable("", []string{"datacenter_id", "network_ids"}, d) {
+		return nil
+	}
+
+	dc, err := datacenterFromID(client, d.Get("datacenter_id").(string))
+	if err != nil {
+		return err
+	}
+
+	return validateNetworkAssociations(client, dc.Reference(), d)
+}
+
 func resourceVSphereDatacenterNetworkProtocolProfileCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*Client).vimClient
 
 	dc, err := datacenterFromID(client, d.Get("datacenter_id").(string))
 	if err != nil {
+		return err
+	}
+
+	if err := validateNetworkAssociations(client, dc.Reference(), d); err != nil {
 		return err
 	}
 
@@ -188,6 +265,10 @@ func resourceVSphereDatacenterNetworkProtocolProfileUpdate(d *schema.ResourceDat
 
 	dc, err := datacenterFromID(client, d.Get("datacenter_id").(string))
 	if err != nil {
+		return err
+	}
+
+	if err := validateNetworkAssociations(client, dc.Reference(), d); err != nil {
 		return err
 	}
 

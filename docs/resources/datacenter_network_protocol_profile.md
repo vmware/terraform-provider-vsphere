@@ -20,6 +20,15 @@ provisioning and customization.
 ~> **NOTE:** Network protocol profiles are unsupported on direct ESXi host
 connections and require vCenter Server.
 
+~> **NOTE:** vCenter Server allows a network to be associated with only one
+network protocol profile at a time. If a network in `network_ids` is already
+associated with a different network protocol profile, vCenter Server will
+silently move it away from that profile rather than rejecting the request.
+To prevent this, the provider validates that none of the configured
+`network_ids` are already assigned to another network protocol profile, and
+will raise an error (both at plan time and apply time) if a conflict is
+found.
+
 ## Example Usage
 
 ```hcl

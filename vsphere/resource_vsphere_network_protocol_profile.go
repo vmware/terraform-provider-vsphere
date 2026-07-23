@@ -301,7 +301,7 @@ func resourceVSphereNetworkProtocolProfileDelete(d *schema.ResourceData, meta in
 		return err
 	}
 
-	if err := ippool.Delete(client, dc.Reference(), int32(id), false); err != nil {
+	if err := ippool.Delete(client, dc.Reference(), int32(id)); err != nil {
 		return fmt.Errorf("error deleting network protocol profile: %s", err)
 	}
 

@@ -120,9 +120,9 @@ func Update(client *govmomi.Client, dc types.ManagedObjectReference, pool types.
 	return err
 }
 
-// Delete destroys the IP pool with the given ID. force controls whether the
-// pool is destroyed even if it still has allocated addresses.
-func Delete(client *govmomi.Client, dc types.ManagedObjectReference, id int32, force bool) error {
+// Delete destroys the IP pool with the given ID. The pool is destroyed
+// even if it still has allocated addresses.
+func Delete(client *govmomi.Client, dc types.ManagedObjectReference, id int32) error {
 	m, err := manager(client)
 	if err != nil {
 		return err
@@ -134,7 +134,7 @@ func Delete(client *govmomi.Client, dc types.ManagedObjectReference, id int32, f
 		This:  *m,
 		Dc:    dc,
 		Id:    id,
-		Force: force,
+		Force: true,
 	})
 	return err
 }

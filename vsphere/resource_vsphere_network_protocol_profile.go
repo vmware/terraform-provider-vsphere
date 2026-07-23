@@ -18,18 +18,18 @@ import (
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/viapi"
 )
 
-const resourceVSphereDatacenterNetworkProtocolProfileName = "vsphere_datacenter_network_protocol_profile"
+const resourceVSphereNetworkProtocolProfileName = "vsphere_network_protocol_profile"
 
-func resourceVSphereDatacenterNetworkProtocolProfile() *schema.Resource {
+func resourceVSphereNetworkProtocolProfile() *schema.Resource {
 	return &schema.Resource{
-		Create: resourceVSphereDatacenterNetworkProtocolProfileCreate,
-		Read:   resourceVSphereDatacenterNetworkProtocolProfileRead,
-		Update: resourceVSphereDatacenterNetworkProtocolProfileUpdate,
-		Delete: resourceVSphereDatacenterNetworkProtocolProfileDelete,
+		Create: resourceVSphereNetworkProtocolProfileCreate,
+		Read:   resourceVSphereNetworkProtocolProfileRead,
+		Update: resourceVSphereNetworkProtocolProfileUpdate,
+		Delete: resourceVSphereNetworkProtocolProfileDelete,
 		Importer: &schema.ResourceImporter{
-			State: resourceVSphereDatacenterNetworkProtocolProfileImport,
+			State: resourceVSphereNetworkProtocolProfileImport,
 		},
-		CustomizeDiff: resourceVSphereDatacenterNetworkProtocolProfileCustomizeDiff,
+		CustomizeDiff: resourceVSphereNetworkProtocolProfileCustomizeDiff,
 		Schema: map[string]*schema.Schema{
 			"datacenter_id": {
 				Type:        schema.TypeString,
@@ -187,10 +187,10 @@ func validateNetworkAssociations(client *govmomi.Client, dc types.ManagedObjectR
 	return fmt.Errorf("cannot associate network(s) that are already assigned to another network protocol profile, as this would silently move them:\n%s", strings.Join(msgs, "\n"))
 }
 
-// resourceVSphereDatacenterNetworkProtocolProfileCustomizeDiff surfaces
+// resourceVSphereNetworkProtocolProfileCustomizeDiff surfaces
 // network association conflicts as a plan-time error rather than letting
 // vSphere silently reassign the network at apply time.
-func resourceVSphereDatacenterNetworkProtocolProfileCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+func resourceVSphereNetworkProtocolProfileCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
 	client := meta.(*Client).vimClient
 
 	if !structure.ValuesAvailable("", []string{"datacenter_id", "network_ids"}, d) {
@@ -205,7 +205,7 @@ func resourceVSphereDatacenterNetworkProtocolProfileCustomizeDiff(_ context.Cont
 	return validateNetworkAssociations(client, dc.Reference(), d)
 }
 
-func resourceVSphereDatacenterNetworkProtocolProfileCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceVSphereNetworkProtocolProfileCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*Client).vimClient
 
 	dc, err := datacenterFromID(client, d.Get("datacenter_id").(string))
@@ -228,10 +228,10 @@ func resourceVSphereDatacenterNetworkProtocolProfileCreate(d *schema.ResourceDat
 	}
 
 	d.SetId(strconv.Itoa(int(id)))
-	return resourceVSphereDatacenterNetworkProtocolProfileRead(d, meta)
+	return resourceVSphereNetworkProtocolProfileRead(d, meta)
 }
 
-func resourceVSphereDatacenterNetworkProtocolProfileRead(d *schema.ResourceData, meta interface{}) error {
+func resourceVSphereNetworkProtocolProfileRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*Client).vimClient
 
 	dc, err := datacenterFromID(client, d.Get("datacenter_id").(string))
@@ -260,7 +260,7 @@ func resourceVSphereDatacenterNetworkProtocolProfileRead(d *schema.ResourceData,
 	return flattenIPPool(d, pool)
 }
 
-func resourceVSphereDatacenterNetworkProtocolProfileUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceVSphereNetworkProtocolProfileUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*Client).vimClient
 
 	dc, err := datacenterFromID(client, d.Get("datacenter_id").(string))
@@ -281,10 +281,10 @@ func resourceVSphereDatacenterNetworkProtocolProfileUpdate(d *schema.ResourceDat
 		return fmt.Errorf("error updating network protocol profile: %s", err)
 	}
 
-	return resourceVSphereDatacenterNetworkProtocolProfileRead(d, meta)
+	return resourceVSphereNetworkProtocolProfileRead(d, meta)
 }
 
-func resourceVSphereDatacenterNetworkProtocolProfileDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceVSphereNetworkProtocolProfileDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*Client).vimClient
 
 	dc, err := datacenterFromID(client, d.Get("datacenter_id").(string))
@@ -309,7 +309,7 @@ func resourceVSphereDatacenterNetworkProtocolProfileDelete(d *schema.ResourceDat
 	return nil
 }
 
-func resourceVSphereDatacenterNetworkProtocolProfileImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceVSphereNetworkProtocolProfileImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	client := meta.(*Client).vimClient
 
 	parts := strings.SplitN(d.Id(), ":", 2)

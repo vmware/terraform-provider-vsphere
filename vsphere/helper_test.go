@@ -735,7 +735,7 @@ func testGetCustomAttribute(s *terraform.State, resourceName string) (*types.Cus
 }
 
 func testGetNetworkProtocolProfile(s *terraform.State, resourceName string) (*types.IpPool, error) {
-	tVars, err := testClientVariablesForResource(s, fmt.Sprintf("%s.%s", resourceVSphereDatacenterNetworkProtocolProfileName, resourceName))
+	tVars, err := testClientVariablesForResource(s, fmt.Sprintf("%s.%s", resourceVSphereNetworkProtocolProfileName, resourceName))
 	if err != nil {
 		return nil, err
 	}

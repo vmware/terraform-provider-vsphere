@@ -116,7 +116,7 @@ func Provider() *schema.Provider {
 			"vsphere_content_library_item":                     resourceVSphereContentLibraryItem(),
 			"vsphere_custom_attribute":                         resourceVSphereCustomAttribute(),
 			"vsphere_datacenter":                               resourceVSphereDatacenter(),
-			"vsphere_datacenter_network_protocol_profile":      resourceVSphereDatacenterNetworkProtocolProfile(),
+			"vsphere_network_protocol_profile":                 resourceVSphereNetworkProtocolProfile(),
 			"vsphere_datastore_cluster":                        resourceVSphereDatastoreCluster(),
 			"vsphere_datastore_cluster_vm_anti_affinity_rule":  resourceVSphereDatastoreClusterVMAntiAffinityRule(),
 			"vsphere_distributed_port_group":                   resourceVSphereDistributedPortGroup(),

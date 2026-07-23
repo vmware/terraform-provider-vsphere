@@ -14,24 +14,24 @@ import (
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/testhelper"
 )
 
-func TestAccResourceVSphereDatacenterNetworkProtocolProfile_basic(t *testing.T) {
+func TestAccResourceVSphereNetworkProtocolProfile_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			RunSweepers()
 			testAccPreCheck(t)
 		},
 		Providers:    testAccProviders,
-		CheckDestroy: testAccResourceVSphereDatacenterNetworkProtocolProfileExists(false),
+		CheckDestroy: testAccResourceVSphereNetworkProtocolProfileExists(false),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccResourceVSphereDatacenterNetworkProtocolProfileConfigBasic(),
+				Config: testAccResourceVSphereNetworkProtocolProfileConfigBasic(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccResourceVSphereDatacenterNetworkProtocolProfileExists(true),
-					testAccResourceVSphereDatacenterNetworkProtocolProfileHasName("testacc-profile"),
+					testAccResourceVSphereNetworkProtocolProfileExists(true),
+					testAccResourceVSphereNetworkProtocolProfileHasName("testacc-profile"),
 				),
 			},
 			{
-				ResourceName:      "vsphere_datacenter_network_protocol_profile.profile",
+				ResourceName:      "vsphere_network_protocol_profile.profile",
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateIdFunc: func(s *terraform.State) (string, error) {
@@ -42,22 +42,22 @@ func TestAccResourceVSphereDatacenterNetworkProtocolProfile_basic(t *testing.T) 
 					if profile == nil {
 						return "", errors.New("network protocol profile does not exist")
 					}
-					rs, ok := s.RootModule().Resources["vsphere_datacenter_network_protocol_profile.profile"]
+					rs, ok := s.RootModule().Resources["vsphere_network_protocol_profile.profile"]
 					if !ok {
 						return "", errors.New("resource not found in state")
 					}
 					return fmt.Sprintf("%s:%d", rs.Primary.Attributes["datacenter_id"], profile.Id), nil
 				},
-				Config: testAccResourceVSphereDatacenterNetworkProtocolProfileConfigBasic(),
+				Config: testAccResourceVSphereNetworkProtocolProfileConfigBasic(),
 				Check: resource.ComposeTestCheckFunc(
-					testAccResourceVSphereDatacenterNetworkProtocolProfileExists(true),
+					testAccResourceVSphereNetworkProtocolProfileExists(true),
 				),
 			},
 		},
 	})
 }
 
-func testAccResourceVSphereDatacenterNetworkProtocolProfileExists(expected bool) resource.TestCheckFunc {
+func testAccResourceVSphereNetworkProtocolProfileExists(expected bool) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		profile, err := testGetNetworkProtocolProfile(s, "profile")
 		if err != nil {
@@ -72,7 +72,7 @@ func testAccResourceVSphereDatacenterNetworkProtocolProfileExists(expected bool)
 	}
 }
 
-func testAccResourceVSphereDatacenterNetworkProtocolProfileHasName(expected string) resource.TestCheckFunc {
+func testAccResourceVSphereNetworkProtocolProfileHasName(expected string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		profile, err := testGetNetworkProtocolProfile(s, "profile")
 		if err != nil {
@@ -86,9 +86,9 @@ func testAccResourceVSphereDatacenterNetworkProtocolProfileHasName(expected stri
 	}
 }
 
-func testAccResourceVSphereDatacenterNetworkProtocolProfileConfigBasic() string {
+func testAccResourceVSphereNetworkProtocolProfileConfigBasic() string {
 	return testhelper.CombineConfigs(testhelper.ConfigDataRootDC1(), testhelper.ConfigDataRootPortGroup1(), `
-resource "vsphere_datacenter_network_protocol_profile" "profile" {
+resource "vsphere_network_protocol_profile" "profile" {
   name          = "testacc-profile"
   datacenter_id = data.vsphere_datacenter.rootdc1.id
   network_ids   = [data.vsphere_network.network1.id]

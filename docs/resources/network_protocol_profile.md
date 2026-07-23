@@ -1,14 +1,14 @@
 ---
 subcategory: "Networking"
-page_title: "VMware vSphere: vsphere_datacenter_network_protocol_profile"
-sidebar_current: "docs-vsphere-resource-networking-datacenter-network-protocol-profile"
+page_title: "VMware vSphere: vsphere_network_protocol_profile"
+sidebar_current: "docs-vsphere-resource-networking-network-protocol-profile"
 description: |-
   Provides a VMware vSphere network protocol profile resource. This can be used to manage network protocol profiles (IP pools) in vSphere.
 ---
 
-# vsphere_datacenter_network_protocol_profile
+# vsphere_network_protocol_profile
 
-The `vsphere_datacenter_network_protocol_profile` resource can be used to
+The `vsphere_network_protocol_profile` resource can be used to
 create and manage network protocol profiles, also known as IP pools. A
 network protocol profile defines a range of IP addresses, along with DNS,
 gateway, and proxy settings, that can be associated with one or more
@@ -41,7 +41,7 @@ data "vsphere_network" "network" {
   datacenter_id = data.vsphere_datacenter.datacenter.id
 }
 
-resource "vsphere_datacenter_network_protocol_profile" "profile" {
+resource "vsphere_network_protocol_profile" "profile" {
   name          = "example-profile"
   datacenter_id = data.vsphere_datacenter.datacenter.id
   network_ids   = [data.vsphere_network.network.id]
@@ -123,11 +123,11 @@ via the following command:
 [docs-import]: https://developer.hashicorp.com/terraform/cli/import
 
 ```shell
-terraform import vsphere_datacenter_network_protocol_profile.profile datacenter-21:example-profile
+terraform import vsphere_network_protocol_profile.profile datacenter-21:example-profile
 ```
 
 or, using the numeric ID:
 
 ```shell
-terraform import vsphere_datacenter_network_protocol_profile.profile datacenter-21:5
+terraform import vsphere_network_protocol_profile.profile datacenter-21:5
 ```

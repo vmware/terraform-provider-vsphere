@@ -365,7 +365,8 @@ func expandIPPool(client *govmomi.Client, d *schema.ResourceData) (*types.IpPool
 	}
 
 	if v, ok := d.GetOk("network_ids"); ok {
-		assocs, err := ippool.ExpandNetworkAssociations(client, v.(*schema.Set).List())
+		ids := structure.SliceInterfacesToStrings(v.(*schema.Set).List())
+		assocs, err := ippool.ExpandNetworkAssociations(client, ids)
 		if err != nil {
 			return nil, err
 		}

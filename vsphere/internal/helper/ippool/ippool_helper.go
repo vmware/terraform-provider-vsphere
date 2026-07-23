@@ -186,10 +186,9 @@ func NetworkConflicts(client *govmomi.Client, dc types.ManagedObjectReference, n
 // ExpandNetworkAssociations resolves a list of network managed object IDs
 // (standard port groups, distributed port groups, or opaque networks) into
 // the association entries expected by the IP pool API.
-func ExpandNetworkAssociations(client *govmomi.Client, ids []interface{}) ([]types.IpPoolAssociation, error) {
+func ExpandNetworkAssociations(client *govmomi.Client, ids []string) ([]types.IpPoolAssociation, error) {
 	assocs := make([]types.IpPoolAssociation, 0, len(ids))
-	for _, raw := range ids {
-		id := raw.(string)
+	for _, id := range ids {
 		net, err := network.FromID(client, id)
 		if err != nil {
 			return nil, err

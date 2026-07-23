@@ -23,6 +23,7 @@ import (
 	"github.com/vmware/govmomi/session"
 	"github.com/vmware/govmomi/session/cache"
 	"github.com/vmware/govmomi/session/keepalive"
+	"github.com/vmware/govmomi/ssoadmin"
 	"github.com/vmware/govmomi/vapi/rest"
 	"github.com/vmware/govmomi/vapi/tags"
 	"github.com/vmware/govmomi/vim25"
@@ -30,6 +31,7 @@ import (
 	"github.com/vmware/govmomi/vim25/soap"
 	"github.com/vmware/govmomi/vim25/types"
 	"github.com/vmware/govmomi/vsan"
+	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/ssohelper"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/viapi"
 )
 
@@ -49,6 +51,10 @@ type Client struct {
 
 	// The REST client used for tags and content library.
 	restClient *rest.Client
+
+	// The vCenter Single Sign-On admin client wrapper. Lazily authenticated on
+	// first use; see the ssohelper package.
+	ssoClient *ssohelper.SsoClient
 
 	// client timeout for certain operations
 	timeout time.Duration
@@ -83,6 +89,19 @@ func (c *Client) TagsManager() (*tags.Manager, error) {
 		return nil, fmt.Errorf("tags require %s or higher", tagsMinVersion)
 	}
 	return tags.NewManager(c.restClient), nil
+}
+
+// SSOAdminClient returns a logged-in vCenter Single Sign-On admin client,
+// performing the authentication handshake once and reusing the session on
+// subsequent calls. It requires a vCenter connection; the connecting user must
+// hold SSO administrator privileges. Because the client is only built on first
+// use, connections without SSO permission are unaffected unless an SSO resource
+// is actually used.
+func (c *Client) SSOAdminClient(ctx context.Context) (*ssoadmin.Client, error) {
+	if err := viapi.ValidateVirtualCenter(c.vimClient); err != nil {
+		return nil, err
+	}
+	return c.ssoClient.Client(ctx)
 }
 
 // Config holds the provider configuration, and delivers a populated
@@ -169,6 +188,11 @@ func (c *Config) Client() (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// Prepare the SSO admin client wrapper. This does not authenticate yet; the
+	// handshake is deferred until an SSO resource first needs it, so connections
+	// without SSO permission are not affected.
+	client.ssoClient = ssohelper.New(client.vimClient.Client, u.User)
 
 	log.Printf("[DEBUG] VMWare vSphere Client configured for URL: %s", c.VSphereServer)
 

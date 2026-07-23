@@ -23,11 +23,11 @@ var ErrNotVirtualCenter = errors.New("network protocol profiles (IP pools) are o
 
 // manager returns the managed object reference of the IP Pool Manager
 // singleton for the connected vCenter Server.
-func manager(client *govmomi.Client) (types.ManagedObjectReference, error) {
+func manager(client *govmomi.Client) (*types.ManagedObjectReference, error) {
 	if client.ServiceContent.IpPoolManager == nil {
-		return types.ManagedObjectReference{}, ErrNotVirtualCenter
+		return nil, ErrNotVirtualCenter
 	}
-	return *client.ServiceContent.IpPoolManager, nil
+	return client.ServiceContent.IpPoolManager, nil
 }
 
 // List returns all IP pools defined on the supplied datacenter.
@@ -40,7 +40,7 @@ func List(client *govmomi.Client, dc types.ManagedObjectReference) ([]types.IpPo
 	ctx, cancel := context.WithTimeout(context.Background(), provider.DefaultAPITimeout)
 	defer cancel()
 	resp, err := methods.QueryIpPools(ctx, client.Client, &types.QueryIpPools{
-		This: m,
+		This: *m,
 		Dc:   dc,
 	})
 	if err != nil {
@@ -92,7 +92,7 @@ func Create(client *govmomi.Client, dc types.ManagedObjectReference, pool types.
 	ctx, cancel := context.WithTimeout(context.Background(), provider.DefaultAPITimeout)
 	defer cancel()
 	resp, err := methods.CreateIpPool(ctx, client.Client, &types.CreateIpPool{
-		This: m,
+		This: *m,
 		Dc:   dc,
 		Pool: pool,
 	})
@@ -113,7 +113,7 @@ func Update(client *govmomi.Client, dc types.ManagedObjectReference, pool types.
 	ctx, cancel := context.WithTimeout(context.Background(), provider.DefaultAPITimeout)
 	defer cancel()
 	_, err = methods.UpdateIpPool(ctx, client.Client, &types.UpdateIpPool{
-		This: m,
+		This: *m,
 		Dc:   dc,
 		Pool: pool,
 	})
@@ -131,7 +131,7 @@ func Delete(client *govmomi.Client, dc types.ManagedObjectReference, id int32, f
 	ctx, cancel := context.WithTimeout(context.Background(), provider.DefaultAPITimeout)
 	defer cancel()
 	_, err = methods.DestroyIpPool(ctx, client.Client, &types.DestroyIpPool{
-		This:  m,
+		This:  *m,
 		Dc:    dc,
 		Id:    id,
 		Force: force,

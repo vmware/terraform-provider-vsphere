@@ -17,12 +17,12 @@ networks) within a datacenter. vCenter Server uses this configuration to
 automatically assign network settings to virtual machines during
 provisioning and customization.
 
-~> **NOTE:** Network protocol profiles are unsupported on direct ESXi host
-connections and require vCenter Server.
+~> **NOTE:** This resource requires vCenter and is not available on direct ESX
+connections.
 
-~> **NOTE:** vCenter Server allows a network to be associated with only one
+~> **NOTE:** vCenter allows a network to be associated with only one
 network protocol profile at a time. If a network in `network_ids` is already
-associated with a different network protocol profile, vCenter Server will
+associated with a different network protocol profile, vCenter will
 silently move it away from that profile rather than rejecting the request.
 To prevent this, the provider validates that none of the configured
 `network_ids` are already assigned to another network protocol profile, and

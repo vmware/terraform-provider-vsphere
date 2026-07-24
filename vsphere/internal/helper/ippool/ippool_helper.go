@@ -18,11 +18,11 @@ import (
 )
 
 // ErrNotVirtualCenter is returned when the connected endpoint does not expose
-// an IP Pool Manager, which is the case for direct ESXi host connections.
+// an IP Pool Manager, which is the case for direct ESX host connections.
 var ErrNotVirtualCenter = errors.New("network protocol profiles (IP pools) are only supported when connected to vCenter Server")
 
 // manager returns the managed object reference of the IP Pool Manager
-// singleton for the connected vCenter Server.
+// singleton for the connected vCenter.
 func manager(client *govmomi.Client) (*types.ManagedObjectReference, error) {
 	if client.ServiceContent.IpPoolManager == nil {
 		return nil, ErrNotVirtualCenter

@@ -4,6 +4,7 @@
 
 FEATURES:
 
+- `r/network_protocol_profile`: New resource to manage vSphere network protocol profiles (IP pools). Validates that configured `network_ids` are not already assigned to another network protocol profile, since vCenter Server would otherwise silently move them.
 - `r/virtual_machine`: Added a new optional `datastore_path` attribute that lets users place virtual machine metadata files (`.vmx`, `.nvram`, logs, etc.) into a `/`-joined sub-folder of the selected datastore instead of the datastore root. Works for both standard datastore and `datastore_cluster_id` (Storage DRS) deployments.
 
 ## v2.16.1

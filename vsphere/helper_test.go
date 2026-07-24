@@ -35,6 +35,7 @@ import (
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/dvportgroup"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/folder"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/hostsystem"
+	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/ippool"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/network"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/resourcepool"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/spbm"
@@ -731,6 +732,29 @@ func testGetCustomAttribute(s *terraform.State, resourceName string) (*types.Cus
 	field := fields.ByKey(int32(key))
 
 	return field, nil
+}
+
+func testGetNetworkProtocolProfile(s *terraform.State, resourceName string) (*types.IpPool, error) {
+	tVars, err := testClientVariablesForResource(s, fmt.Sprintf("%s.%s", resourceVSphereNetworkProtocolProfileName, resourceName))
+	if err != nil {
+		return nil, err
+	}
+
+	dcID, ok := tVars.resourceAttributes["datacenter_id"]
+	if !ok {
+		return nil, fmt.Errorf("network protocol profile resource %q has no datacenter_id", resourceName)
+	}
+	dc, err := datacenterFromID(tVars.client, dcID)
+	if err != nil {
+		return nil, err
+	}
+
+	id, err := strconv.ParseInt(tVars.resourceID, 10, 32)
+	if err != nil {
+		return nil, err
+	}
+
+	return ippool.FromID(tVars.client, dc.Reference(), int32(id))
 }
 
 func testResourceHasCustomAttributeValues(s *terraform.State, resourceType string, resourceName string, entity *mo.ManagedEntity) error {

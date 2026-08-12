@@ -116,21 +116,21 @@ The following arguments are supported:
   exceed this limit, even if there are available resources. Set to `-1` for
   unlimited.
   Default: `-1`
-* `memory_share_level` - (Optional) The CPU allocation level. The level is a
+* `memory_share_level` - (Optional) The memory allocation level. The level is a
   simplified view of shares. Levels map to a pre-determined set of numeric
   values for shares. Can be one of `low`, `normal`, `high`, or `custom`. When
   `low`, `normal`, or `high` are specified values in `memory_shares` will be
   ignored.  Default: `normal`
-* `memory_shares` - (Optional) The number of shares allocated for CPU. Used to
-  determine resource allocation in case of resource contention. If this is set,
-  `memory_share_level` must be `custom`.
-* `memory_reservation` - (Optional) Amount of CPU (MHz) that is guaranteed
+* `memory_shares` - (Optional) The number of shares allocated for memory. Used
+  to determine resource allocation in case of resource contention. If this is
+  set, `memory_share_level` must be `custom`.
+* `memory_reservation` - (Optional) Amount of memory (MB) that is guaranteed
   available to the vApp container. Default: `0`
 * `memory_expandable` - (Optional) Determines if the reservation on a vApp
   container can grow beyond the specified value if the parent resource pool has
   unreserved resources. Default: `true`
-* `memory_limit` - (Optional) The CPU utilization of a vApp container will not
-  exceed this limit, even if there are available resources. Set to `-1` for
+* `memory_limit` - (Optional) The memory utilization of a vApp container will
+  not exceed this limit, even if there are available resources. Set to `-1` for
   unlimited. Default: `-1`
 * `tags` - (Optional) The IDs of any tags to attach to this resource. See
   [here][docs-applying-tags] for a reference on how to apply tags.

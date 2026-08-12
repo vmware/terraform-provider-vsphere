@@ -33,7 +33,7 @@ machine. Check the [requirements][requirements] before proceeding.
 
 3. Add the following to your `~/.terraformrc`:
 
-   ```hcl
+   ```text
    provider_installation {
      dev_overrides {
        "vmware/vsphere" = "/Users/example/go/bin"

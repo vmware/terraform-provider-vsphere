@@ -29,6 +29,7 @@ import (
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/hostsystem"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/network"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/resourcepool"
+	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/storagepod"
 )
 
 func getTotalBytesRead(totalBytes *int64) int64 {
@@ -416,6 +417,7 @@ func CheckDeploymentOption(client *govmomi.Client, deploymentOption, ovfDescript
 type OvfHelper struct {
 	AllowUnverifiedSSL bool
 	Datastore          *object.Datastore
+	StoragePod         *object.StoragePod
 	DeploymentOption   string
 	DeployOva          bool
 	DiskProvisioning   string
@@ -433,6 +435,7 @@ type OvfHelper struct {
 type OvfHelperParams struct {
 	AllowUnverifiedSSL bool
 	DatastoreID        string
+	DatastoreClusterID string
 	DeploymentOption   string
 	DiskProvisioning   string
 	FilePath           string
@@ -495,16 +498,36 @@ func NewOvfHelper(client *govmomi.Client, o *OvfHelperParams) (*OvfHelper, error
 		ovfParams.HostSystem = hostObj
 	}
 
-	// Datastore
 	dsID := o.DatastoreID
-	if dsID == "" {
-		return nil, fmt.Errorf("data store ID is required for ovf deployment")
+	podID := o.DatastoreClusterID
+	if dsID == "" && podID == "" {
+		return nil, fmt.Errorf("one of datastore ID or datastore cluster ID is required for ovf deployment")
 	}
-	dsObj, err := datastore.FromID(client, dsID)
-	if err != nil {
-		return nil, fmt.Errorf("could not find datastore with ID %q: %s", dsID, err)
+	if dsID != "" {
+		dsObj, err := datastore.FromID(client, dsID)
+		if err != nil {
+			return nil, fmt.Errorf("could not find datastore with ID %q: %s", dsID, err)
+		}
+		ovfParams.Datastore = dsObj
+	} else {
+		pod, err := storagepod.FromID(client, podID)
+		if err != nil {
+			return nil, fmt.Errorf("could not find datastore cluster with ID %q: %s", podID, err)
+		}
+		sdrsEnabled, err := storagepod.StorageDRSEnabled(pod)
+		if err != nil {
+			return nil, fmt.Errorf("error checking Storage DRS on datastore cluster %q: %s", pod.Name(), err)
+		}
+		if !sdrsEnabled {
+			return nil, fmt.Errorf("storage DRS is not enabled on datastore cluster %q", pod.Name())
+		}
+		dsObj, err := storagepod.FirstMemberDatastore(client, pod)
+		if err != nil {
+			return nil, fmt.Errorf("could not pick a member datastore from cluster %q: %s", pod.Name(), err)
+		}
+		ovfParams.Datastore = dsObj
+		ovfParams.StoragePod = pod
 	}
-	ovfParams.Datastore = dsObj
 
 	// Network Mapping
 	networkMapping, err := GetNetworkMapping(client, o.NetworkMappings)
@@ -541,7 +564,6 @@ func (o *OvfHelper) GetImportSpec(client *govmomi.Client) (*types.OvfCreateImpor
 		return nil, fmt.Errorf("the given ovf file %s is empty", o.FilePath)
 	}
 
-	ovfManager := ovf.NewManager(client.Client)
 	deploymentOption := o.DeploymentOption
 	if deploymentOption != "" {
 		err := CheckDeploymentOption(client, deploymentOption, ovfDescriptor)
@@ -551,6 +573,23 @@ func (o *OvfHelper) GetImportSpec(client *govmomi.Client) (*types.OvfCreateImpor
 		importSpecParam.DeploymentOption = deploymentOption
 	}
 
+	is, err := o.createImportSpec(client, ovfDescriptor, importSpecParam)
+	if err != nil {
+		return nil, err
+	}
+
+	if o.StoragePod != nil {
+		is, err = o.refineImportSpecForStoragePod(client, ovfDescriptor, importSpecParam, is)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return is, nil
+}
+
+func (o *OvfHelper) createImportSpec(client *govmomi.Client, ovfDescriptor string, importSpecParam *types.OvfCreateImportSpecParams) (*types.OvfCreateImportSpecResult, error) {
+	ovfManager := ovf.NewManager(client.Client)
 	is, err := ovfManager.CreateImportSpec(context.Background(), ovfDescriptor,
 		o.ResourcePool.Reference(), o.Datastore.Reference(), importSpecParam)
 	if err != nil {
@@ -564,8 +603,32 @@ func (o *OvfHelper) GetImportSpec(client *govmomi.Client) (*types.OvfCreateImpor
 		allErrors := errors.Join(errs...)
 		return nil, fmt.Errorf("while creating import spec: %w", allErrors)
 	}
-
 	return is, nil
+}
+
+func (o *OvfHelper) refineImportSpecForStoragePod(
+	client *govmomi.Client,
+	ovfDescriptor string,
+	importSpecParam *types.OvfCreateImportSpecParams,
+	is *types.OvfCreateImportSpecResult,
+) (*types.OvfCreateImportSpecResult, error) {
+	vmImport, ok := is.ImportSpec.(*types.VirtualMachineImportSpec)
+	if !ok {
+		log.Printf("[DEBUG] OVF import spec is not a virtual machine import spec; deploying to probe datastore %q in cluster %q", o.Datastore.Name(), o.StoragePod.Name())
+		return is, nil
+	}
+
+	recommended, err := storagepod.RecommendDatastoreForCreate(client, o.StoragePod, vmImport.ConfigSpec, o.ResourcePool, o.HostSystem, o.Folder)
+	if err != nil {
+		return nil, fmt.Errorf("while recommending datastore from cluster %q: %s", o.StoragePod.Name(), err)
+	}
+	if recommended.Reference() == o.Datastore.Reference() {
+		return is, nil
+	}
+
+	log.Printf("[DEBUG] Storage DRS recommended datastore %q for OVF deployment (probe was %q)", recommended.Name(), o.Datastore.Name())
+	o.Datastore = recommended
+	return o.createImportSpec(client, ovfDescriptor, importSpecParam)
 }
 
 func (o *OvfHelper) DeployOvf(client *govmomi.Client, spec *types.OvfCreateImportSpecResult) error {

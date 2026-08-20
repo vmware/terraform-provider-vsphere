@@ -122,9 +122,18 @@ func dataSourceVSphereOvfVMTemplate() *schema.Resource {
 			Description: "The ID of an optional host system to pin the virtual machine to.",
 		},
 		"datastore_id": {
-			Type:        schema.TypeString,
-			Optional:    true,
-			Description: "The ID of the virtual machine's datastore. The virtual machine configuration is placed here, along with any virtual disks that are created without datastores.",
+			Type:          schema.TypeString,
+			Optional:      true,
+			ConflictsWith: []string{"datastore_cluster_id"},
+			AtLeastOneOf:  []string{"datastore_id", "datastore_cluster_id"},
+			Description:   "The ID of the virtual machine's datastore. The virtual machine configuration is placed here, along with any virtual disks that are created without datastores.",
+		},
+		"datastore_cluster_id": {
+			Type:          schema.TypeString,
+			Optional:      true,
+			ConflictsWith: []string{"datastore_id"},
+			AtLeastOneOf:  []string{"datastore_id", "datastore_cluster_id"},
+			Description:   "The ID of a datastore cluster to put the virtual machine in. Storage DRS must be enabled on the cluster.",
 		},
 		"folder": {
 			Type:        schema.TypeString,
@@ -146,6 +155,7 @@ func NewOvfHelperParamsFromVMDatasource(d *schema.ResourceData) *ovfdeploy.OvfHe
 	ovfParams := &ovfdeploy.OvfHelperParams{
 		AllowUnverifiedSSL: d.Get("allow_unverified_ssl_cert").(bool),
 		DatastoreID:        d.Get("datastore_id").(string),
+		DatastoreClusterID: d.Get("datastore_cluster_id").(string),
 		DeploymentOption:   d.Get("deployment_option").(string),
 		DiskProvisioning:   d.Get("disk_provisioning").(string),
 		FilePath:           d.Get("local_ovf_path").(string),

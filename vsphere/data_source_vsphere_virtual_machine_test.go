@@ -152,6 +152,29 @@ func TestAccDataSourceVSphereVirtualMachine_uuid(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceVSphereVirtualMachine_uuidWithDatacenter(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			RunSweepers()
+			testAccPreCheck(t)
+		},
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceVSphereVirtualMachineConfigUUIDDatacenter(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestMatchResourceAttr(
+						"data.vsphere_virtual_machine.vm",
+						"id",
+						regexp.MustCompile("^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$")),
+					resource.TestCheckResourceAttrSet("data.vsphere_virtual_machine.vm", "uuid"),
+					resource.TestCheckResourceAttrSet("data.vsphere_virtual_machine.vm", "instance_uuid"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccDataSourceVSphereVirtualMachine_moid(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -247,6 +270,19 @@ func testAccDataSourceVSphereVirtualMachineConfigUUID() string {
 
 data "vsphere_virtual_machine" "vm" {
   uuid = vsphere_virtual_machine.srcvm.uuid
+}
+`,
+		testAccDataSourceVSphereVirtualMachineConfigBase(),
+	)
+}
+
+func testAccDataSourceVSphereVirtualMachineConfigUUIDDatacenter() string {
+	return fmt.Sprintf(`
+%s
+
+data "vsphere_virtual_machine" "vm" {
+  uuid          = vsphere_virtual_machine.srcvm.uuid
+  datacenter_id = data.vsphere_datacenter.rootdc1.id
 }
 `,
 		testAccDataSourceVSphereVirtualMachineConfigBase(),

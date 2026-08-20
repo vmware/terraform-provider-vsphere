@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+BUG FIX:
+
+- `r/virtual_machine`: Scoped VM UUID lookup to a datacenter so replicas that share a BIOS UUID are not selected. `datacenter_id` is now allowed on non-OVF virtual machines; if unset, the datacenter is inferred from `resource_pool_id`. Added the same scope lookup applies `d/virtual_machine` UUID searches and `r/virtual_machine_snapshot`.
+
 FEATURES:
 
 - `r/network_protocol_profile`: New resource to manage vSphere network protocol profiles (IP pools). Validates that configured `network_ids` are not already assigned to another network protocol profile, since vCenter would otherwise silently move them.

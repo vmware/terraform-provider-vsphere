@@ -53,6 +53,10 @@ The following arguments are supported:
 are immutable and force a new resource if changed.
 
 * `virtual_machine_uuid` - (Required) The virtual machine UUID.
+* `datacenter_id` - (Optional) The [managed object reference
+  ID][docs-about-morefs] of the datacenter the virtual machine is located in.
+  Set this when more than one virtual machine may share the same BIOS UUID (for
+  example a source VM and a replica in another datacenter).
 * `snapshot_name` - (Required) The name of the snapshot.
 * `description` - (Required) A description for the snapshot.
 * `memory` - (Required) If set to `true`, a dump of the internal state of the

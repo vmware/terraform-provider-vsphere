@@ -182,6 +182,26 @@ func FromID(client *govmomi.Client, id string) (*object.ResourcePool, error) {
 	return obj.(*object.ResourcePool), nil
 }
 
+// Datacenter walks the resource pool's inventory ancestors and returns the
+// parent datacenter. This is used to scope VM UUID searches when datacenter_id
+// is not set explicitly.
+func Datacenter(client *govmomi.Client, pool *object.ResourcePool) (*object.Datacenter, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), provider.DefaultAPITimeout)
+	defer cancel()
+
+	ancestors, err := mo.Ancestors(ctx, client.Client, client.ServiceContent.PropertyCollector.Reference(), pool.Reference())
+	if err != nil {
+		return nil, fmt.Errorf("error fetching ancestors for resource pool %q: %s", pool.Reference().Value, err)
+	}
+	for _, ancestor := range ancestors {
+		if ancestor.Self.Type == "Datacenter" {
+			log.Printf("[DEBUG] Datacenter %q found for resource pool %q", ancestor.Self.Value, pool.Reference().Value)
+			return object.NewDatacenter(client.Client, ancestor.Self), nil
+		}
+	}
+	return nil, fmt.Errorf("could not find datacenter for resource pool %q", pool.Reference().Value)
+}
+
 // Properties retrieves the resource pool managed object from its higher-level object.
 func Properties(obj *object.ResourcePool) (*mo.ResourcePool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), provider.DefaultAPITimeout)

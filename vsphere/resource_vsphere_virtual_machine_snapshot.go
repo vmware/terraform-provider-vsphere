@@ -11,6 +11,8 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/vmware/govmomi"
+	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/vim25/types"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/virtualmachine"
 )
@@ -26,6 +28,12 @@ func resourceVSphereVirtualMachineSnapshot() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+			},
+			"datacenter_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "The ID of the datacenter the virtual machine is in. Used to scope UUID lookup when replicas share a BIOS UUID.",
 			},
 			"snapshot_name": {
 				Type:     schema.TypeString,
@@ -61,9 +69,21 @@ func resourceVSphereVirtualMachineSnapshot() *schema.Resource {
 	}
 }
 
+func virtualMachineForSnapshot(d *schema.ResourceData, client *govmomi.Client) (*object.VirtualMachine, error) {
+	var dc *object.Datacenter
+	if id := d.Get("datacenter_id").(string); id != "" {
+		var err error
+		dc, err = datacenterFromID(client, id)
+		if err != nil {
+			return nil, fmt.Errorf("cannot locate datacenter: %s", err)
+		}
+	}
+	return virtualmachine.FromUUIDInDatacenter(client, d.Get("virtual_machine_uuid").(string), dc)
+}
+
 func resourceVSphereVirtualMachineSnapshotCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*Client).vimClient
-	vm, err := virtualmachine.FromUUID(client, d.Get("virtual_machine_uuid").(string))
+	vm, err := virtualMachineForSnapshot(d, client)
 	if err != nil {
 		return fmt.Errorf("error while getting the virtual machine :%s", err)
 	}
@@ -91,7 +111,7 @@ func resourceVSphereVirtualMachineSnapshotCreate(d *schema.ResourceData, meta in
 
 func resourceVSphereVirtualMachineSnapshotDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*Client).vimClient
-	vm, err := virtualmachine.FromUUID(client, d.Get("virtual_machine_uuid").(string))
+	vm, err := virtualMachineForSnapshot(d, client)
 	if err != nil {
 		return fmt.Errorf("error while getting the virtual machine :%s", err)
 	}
@@ -137,7 +157,7 @@ func resourceVSphereVirtualMachineSnapshotDelete(d *schema.ResourceData, meta in
 
 func resourceVSphereVirtualMachineSnapshotRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*Client).vimClient
-	vm, err := virtualmachine.FromUUID(client, d.Get("virtual_machine_uuid").(string))
+	vm, err := virtualMachineForSnapshot(d, client)
 	if err != nil {
 		return fmt.Errorf("error while getting the virtual machine :%s", err)
 	}

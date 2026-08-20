@@ -119,9 +119,22 @@ func vmsByPath(client *govmomi.Client, path string) ([]*object.VirtualMachine, e
 	return vms, nil
 }
 
-// FromUUID locates a virtualMachine by its UUID.
+// FromUUID locates a virtual machine by its BIOS UUID across the entire inventory.
 func FromUUID(client *govmomi.Client, uuid string) (*object.VirtualMachine, error) {
-	log.Printf("[DEBUG] Locating virtual machine with UUID %q", uuid)
+	return FromUUIDInDatacenter(client, uuid, nil)
+}
+
+// FromUUIDInDatacenter locates a virtual machine by its BIOS UUID, optionally
+// scoped to a datacenter. A nil datacenter searches the entire inventory.
+// When more than one VM shares the UUID and no datacenter is provided, an
+// error is returned so the caller can set datacenter_id rather than silently
+// selecting a replica.
+func FromUUIDInDatacenter(client *govmomi.Client, uuid string, dc *object.Datacenter) (*object.VirtualMachine, error) {
+	if dc != nil {
+		log.Printf("[DEBUG] Locating virtual machine with UUID %q in datacenter %q", uuid, dc.Reference().Value)
+	} else {
+		log.Printf("[DEBUG] Locating virtual machine with UUID %q", uuid)
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), provider.DefaultAPITimeout)
 	defer cancel()
@@ -132,9 +145,9 @@ func FromUUID(client *govmomi.Client, uuid string) (*object.VirtualMachine, erro
 	expected := vmUUIDSearchIndexVersion
 	expected.Product = version.Product
 	if version.Older(expected) {
-		result, err = virtualMachineFromContainerView(ctx, client, uuid)
+		result, err = virtualMachineFromContainerView(ctx, client, uuid, dc)
 	} else {
-		result, err = virtualMachineFromSearchIndex(ctx, client, uuid)
+		result, err = virtualMachineFromSearchIndex(ctx, client, uuid, dc)
 	}
 
 	if err != nil {
@@ -158,22 +171,40 @@ func FromUUID(client *govmomi.Client, uuid string) (*object.VirtualMachine, erro
 	return vm.(*object.VirtualMachine), nil
 }
 
+// pickUUIDSearchResult selects a single SearchIndex result for a UUID lookup.
+func pickUUIDSearchResult(uuid string, results []object.Reference) (object.Reference, error) {
+	switch len(results) {
+	case 0:
+		return nil, newUUIDNotFoundError(fmt.Sprintf("virtual machine with UUID %q not found", uuid))
+	case 1:
+		return results[0], nil
+	default:
+		return nil, fmt.Errorf("multiple virtual machines with UUID %q found; set datacenter_id to scope the search to a specific datacenter", uuid)
+	}
+}
+
 // virtualMachineFromSearchIndex gets the virtual machine reference via the
 // SearchIndex MO and is the method used to fetch UUIDs on newer versions of
 // vSphere.
-func virtualMachineFromSearchIndex(ctx context.Context, client *govmomi.Client, uuid string) (object.Reference, error) {
+func virtualMachineFromSearchIndex(ctx context.Context, client *govmomi.Client, uuid string, dc *object.Datacenter) (object.Reference, error) {
 	log.Printf("[DEBUG] Using SearchIndex to look up UUID %q", uuid)
 	search := object.NewSearchIndex(client.Client)
-	result, err := search.FindByUuid(ctx, nil, uuid, true, structure.BoolPtr(false))
+	if dc != nil {
+		result, err := search.FindByUuid(ctx, dc, uuid, true, structure.BoolPtr(false))
+		if err != nil {
+			return nil, err
+		}
+		if result == nil {
+			return nil, newUUIDNotFoundError(fmt.Sprintf("virtual machine with UUID %q not found", uuid))
+		}
+		return result, nil
+	}
+
+	results, err := search.FindAllByUuid(ctx, nil, uuid, true, structure.BoolPtr(false))
 	if err != nil {
 		return nil, err
 	}
-
-	if result == nil {
-		return nil, newUUIDNotFoundError(fmt.Sprintf("virtual machine with UUID %q not found", uuid))
-	}
-
-	return result, nil
+	return pickUUIDSearchResult(uuid, results)
 }
 
 // virtualMachineFromContainerView is a compatibility method that is
@@ -181,11 +212,16 @@ func virtualMachineFromSearchIndex(ctx context.Context, client *govmomi.Client, 
 // FindByUuid method correctly. This is mainly to facilitate the ability to use
 // FromUUID to find both templates in addition to virtual machines, which
 // historically was not supported by FindByUuid.
-func virtualMachineFromContainerView(ctx context.Context, client *govmomi.Client, uuid string) (object.Reference, error) {
+func virtualMachineFromContainerView(ctx context.Context, client *govmomi.Client, uuid string, dc *object.Datacenter) (object.Reference, error) {
 	log.Printf("[DEBUG] Using ContainerView to look up UUID %q", uuid)
 	m := view.NewManager(client.Client)
 
-	v, err := m.CreateContainerView(ctx, client.ServiceContent.RootFolder, []string{"VirtualMachine"}, true)
+	container := client.ServiceContent.RootFolder
+	if dc != nil {
+		container = dc.Reference()
+	}
+
+	v, err := m.CreateContainerView(ctx, container, []string{"VirtualMachine"}, true)
 	if err != nil {
 		return nil, err
 	}
@@ -211,14 +247,11 @@ func virtualMachineFromContainerView(ctx context.Context, client *govmomi.Client
 		}
 	}
 
-	switch {
-	case len(vms) == 0:
-		return nil, newUUIDNotFoundError(fmt.Sprintf("virtual machine with UUID %q not found", uuid))
-	case len(vms) > 1:
-		return nil, fmt.Errorf("multiple virtual machines with UUID %q found", uuid)
+	refs := make([]object.Reference, 0, len(vms))
+	for _, vm := range vms {
+		refs = append(refs, object.NewReference(client.Client, vm.Self))
 	}
-
-	return object.NewReference(client.Client, vms[0].Self), nil
+	return pickUUIDSearchResult(uuid, refs)
 }
 
 // FromMOID locates a virtualMachine by its managed

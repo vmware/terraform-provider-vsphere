@@ -28,7 +28,7 @@ func dataSourceVSphereVirtualMachine() *schema.Resource {
 	s := map[string]*schema.Schema{
 		"datacenter_id": {
 			Type:        schema.TypeString,
-			Description: "The managed object ID of the datacenter the virtual machine is in. This is not required when using ESXi directly, or if there is only one datacenter in your infrastructure.",
+			Description: "The managed object ID of the datacenter the virtual machine is in. This is not required when using ESXi directly, or if there is only one datacenter in your infrastructure. For UUID lookups, set this when more than one virtual machine may share the same BIOS UUID.",
 			Optional:    true,
 		},
 		"folder": {
@@ -277,7 +277,15 @@ func dataSourceVSphereVirtualMachineRead(d *schema.ResourceData, meta interface{
 
 	if uuid != "" {
 		log.Printf("[DEBUG] Looking for VM or template by UUID %q", uuid)
-		vm, err = virtualmachine.FromUUID(client, uuid)
+		var dc *object.Datacenter
+		if dcID, ok := d.GetOk("datacenter_id"); ok {
+			dc, err = datacenterFromID(client, dcID.(string))
+			if err != nil {
+				return fmt.Errorf("cannot locate datacenter: %s", err)
+			}
+			log.Printf("[DEBUG] Datacenter for VM/template UUID search: %s", dc.InventoryPath)
+		}
+		vm, err = virtualmachine.FromUUIDInDatacenter(client, uuid, dc)
 	} else if moid != "" {
 		log.Printf("[DEBUG] Looking for VM or template by MOID %q", moid)
 		vm, err = virtualmachine.FromMOID(client, moid)

@@ -652,7 +652,8 @@ The following options are general virtual machine and provider workflow options:
 
 
 
-* `datacenter_id` - (Optional) The datacenter ID. Required only when deploying an OVF/OVA template.
+* `datacenter_id` - (Optional) The datacenter ID. Required when deploying an OVF/OVA template. For other virtual machines, this is used to scope UUID lookup when replicas (for example Veeam replicas) share a BIOS UUID. If omitted, the datacenter is inferred from `resource_pool_id`. This cannot distinguish two virtual machines that share a UUID in the same datacenter.
+
 
 * `disk` - (Required) A specification for a virtual disk device on the virtual machine. See [disk options](#disk-options) for more information.
 

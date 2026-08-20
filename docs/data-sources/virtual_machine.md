@@ -59,8 +59,8 @@ The following arguments are supported:
 * `name` - (Optional) The name of the virtual machine. This can be a name or the
   full path relative to the datacenter. This is required if a UUID lookup is not
   performed.
-* `uuid` - (Optional) Specify this field for a UUID lookup, `name` and
-  `datacenter_id` are not required if this is specified.
+* `uuid` - (Optional) Specify this field for a UUID lookup, `name` is not
+  required if this is specified.
 * `folder` - (Optional) The name of the virtual machine folder where the virtual
   machine is located. The `name` argument is limited to 80 characters. If the
   `name` argument includes the full path to the virtual machine and exceeds the
@@ -68,6 +68,8 @@ The following arguments are supported:
 * `datacenter_id` - (Optional) The [managed object reference
   ID][docs-about-morefs] of the datacenter the virtual machine is located in.
   This can be omitted if the search path used in `name` is an absolute path. For
+  UUID lookups, set this when more than one virtual machine may share the same
+  BIOS UUID (for example a source VM and a replica in another datacenter). For
   default datacenters, use the `id` attribute from an empty `vsphere_datacenter`
   data source.
 * `scsi_controller_scan_count` - (Optional) The number of SCSI controllers to

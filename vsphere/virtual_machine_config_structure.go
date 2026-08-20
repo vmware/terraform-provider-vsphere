@@ -813,7 +813,7 @@ func expandVAppConfig(d *schema.ResourceData, client *govmomi.Client) (*types.Vm
 		}
 		return nil, nil
 	}
-	vm, _ := virtualmachine.FromUUID(client, d.Id())
+	vm, _ := virtualMachineFromResourceData(d, client)
 	vmProps, _ := virtualmachine.Properties(vm)
 	if vmProps.Config.VAppConfig == nil {
 		return nil, fmt.Errorf("this VM lacks a vApp configuration and cannot have vApp properties set on it")

@@ -211,6 +211,7 @@ resource "vsphere_virtual_machine" "vm" {
 resource "vsphere_virtual_machine_snapshot" "snapshot" {
   count                = var.snapshot_enabled == "true" ? 1 : 0 
   virtual_machine_uuid = vsphere_virtual_machine.vm.uuid
+  datacenter_id        = data.vsphere_datacenter.rootdc1.id
   snapshot_name        = "terraform-test-snapshot"
   description          = "Managed by Terraform"
   memory               = true

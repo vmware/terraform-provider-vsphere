@@ -106,7 +106,7 @@ func resourceVSphereVirtualMachine() *schema.Resource {
 		"datacenter_id": {
 			Type:        schema.TypeString,
 			Optional:    true,
-			Description: "The ID of the datacenter where the VM is to be created.",
+			Description: "The ID of the datacenter where the VM is located. Used to scope UUID lookup when replicas share a BIOS UUID. Required when deploying from ovf.",
 		},
 		"folder": {
 			Type:        schema.TypeString,
@@ -446,11 +446,36 @@ func resourceVSphereVirtualMachineCreate(d *schema.ResourceData, meta interface{
 	return resourceVSphereVirtualMachineRead(d, meta)
 }
 
+// virtualMachineDatacenterFromResourceData returns the datacenter used to scope
+// UUID lookup. datacenter_id wins when set; otherwise the datacenter is
+// inferred from resource_pool_id.
+func virtualMachineDatacenterFromResourceData(d *schema.ResourceData, client *govmomi.Client) (*object.Datacenter, error) {
+	if id := d.Get("datacenter_id").(string); id != "" {
+		return datacenterFromID(client, id)
+	}
+	if rpID, ok := d.GetOk("resource_pool_id"); ok && rpID.(string) != "" {
+		pool, err := resourcepool.FromID(client, rpID.(string))
+		if err != nil {
+			return nil, fmt.Errorf("cannot locate resource pool %q to determine datacenter: %s", rpID, err)
+		}
+		return resourcepool.Datacenter(client, pool)
+	}
+	return nil, nil
+}
+
+func virtualMachineFromResourceData(d *schema.ResourceData, client *govmomi.Client) (*object.VirtualMachine, error) {
+	dc, err := virtualMachineDatacenterFromResourceData(d, client)
+	if err != nil {
+		return nil, err
+	}
+	return virtualmachine.FromUUIDInDatacenter(client, d.Id(), dc)
+}
+
 func resourceVSphereVirtualMachineRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] %s: Reading state of virtual machine", resourceVSphereVirtualMachineIDString(d))
 	client := meta.(*Client).vimClient
 	id := d.Id()
-	vm, err := virtualmachine.FromUUID(client, id)
+	vm, err := virtualMachineFromResourceData(d, client)
 	if err != nil {
 		var notFoundError *virtualmachine.UUIDNotFoundError
 		if errors.As(err, &notFoundError) {
@@ -675,7 +700,7 @@ func resourceVSphereVirtualMachineUpdate(d *schema.ResourceData, meta interface{
 	}
 
 	id := d.Id()
-	vm, err := virtualmachine.FromUUID(client, id)
+	vm, err := virtualMachineFromResourceData(d, client)
 	if err != nil {
 		return fmt.Errorf("cannot locate virtual machine with UUID %q: %s", id, err)
 	}
@@ -958,7 +983,7 @@ func resourceVSphereVirtualMachineDelete(d *schema.ResourceData, meta interface{
 	client := meta.(*Client).vimClient
 	timeout := meta.(*Client).timeout
 	id := d.Id()
-	vm, err := virtualmachine.FromUUID(client, id)
+	vm, err := virtualMachineFromResourceData(d, client)
 	if err != nil {
 		return fmt.Errorf("cannot locate virtual machine with UUID %q: %s", id, err)
 	}
@@ -1031,10 +1056,6 @@ func resourceVSphereVirtualMachineCustomizeDiff(_ context.Context, d *schema.Res
 	// tree, and therefore cannot have its VM folder set.
 	if _, ok := d.GetOk("folder"); ok && vappcontainer.IsVApp(client, d.Get("resource_pool_id").(string)) {
 		return fmt.Errorf("cannot set folder while VM is in a vApp container")
-	}
-
-	if len(d.Get("ovf_deploy").([]interface{})) == 0 && d.Get("datacenter_id").(string) != "" {
-		return fmt.Errorf("data center id is to be set only when deploying from ovf")
 	}
 
 	if len(d.Get("ovf_deploy").([]interface{})) > 0 {
@@ -1680,7 +1701,7 @@ func resourceVSphereVirtualMachinePostDeployChanges(d *schema.ResourceData, meta
 	// The VM has been reconfigured, we need to refresh some objects holding
 	// The current state of the vm
 
-	vm, err = virtualmachine.FromUUID(client, vprops.Config.Uuid)
+	vm, err = virtualMachineFromResourceData(d, client)
 	if err != nil {
 		return resourceVSphereVirtualMachineRollbackCreate(
 			d,
@@ -1998,7 +2019,7 @@ func resourceVSphereVirtualMachineUpdateLocation(d *schema.ResourceData, meta in
 	// A little bit of duplication of VM object data is done here to keep the
 	// method signature lean.
 	id := d.Id()
-	vm, err := virtualmachine.FromUUID(client, id)
+	vm, err := virtualMachineFromResourceData(d, client)
 	if err != nil {
 		return fmt.Errorf("cannot locate virtual machine with UUID %q: %s", id, err)
 	}

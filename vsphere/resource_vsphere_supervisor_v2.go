@@ -761,6 +761,7 @@ func haProxySchema() *schema.Resource {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The password for the data plane API server.",
+				Sensitive:   true,
 			},
 			"ca_chain": {
 				Type:        schema.TypeString,
@@ -839,6 +840,7 @@ func nsxAdvancedSchema() *schema.Resource {
 				Required:     true,
 				Description:  "Password",
 				ValidateFunc: validation.StringIsNotEmpty,
+				Sensitive:    true,
 			},
 			"ca_chain": {
 				Type:         schema.TypeString,
@@ -953,6 +955,7 @@ func registrySchema() *schema.Resource {
 				Required:     true,
 				Description:  "The password of the image registry.",
 				ValidateFunc: validation.StringIsNotEmpty,
+				Sensitive:    true,
 			},
 			"ca_chain": {
 				Type:         schema.TypeString,

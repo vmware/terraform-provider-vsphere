@@ -62,10 +62,11 @@ func resourceVSphereContentLibrary() *schema.Resource {
 						Optional: true,
 					},
 					"password": {
-						Type:     schema.TypeString,
-						ForceNew: true,
-						Computed: true,
-						Optional: true,
+						Type:      schema.TypeString,
+						ForceNew:  true,
+						Computed:  true,
+						Optional:  true,
+						Sensitive: true,
 					},
 					"published": {
 						Type:     schema.TypeBool,
@@ -108,10 +109,11 @@ func resourceVSphereContentLibrary() *schema.Resource {
 						Optional: true,
 					},
 					"password": {
-						Type:     schema.TypeString,
-						ForceNew: true,
-						Computed: true,
-						Optional: true,
+						Type:      schema.TypeString,
+						ForceNew:  true,
+						Computed:  true,
+						Optional:  true,
+						Sensitive: true,
 					},
 					"on_demand": {
 						Type:     schema.TypeBool,

@@ -380,6 +380,105 @@ func RelocateVM(
 	return err
 }
 
+// FirstMemberDatastore returns the first usable datastore that is a child of
+// the given StoragePod. Members that are inaccessible or in maintenance mode
+// are skipped.
+func FirstMemberDatastore(client *govmomi.Client, pod *object.StoragePod) (*object.Datastore, error) {
+	props, err := Properties(pod)
+	if err != nil {
+		return nil, fmt.Errorf("error reading datastore cluster %q: %s", pod.Name(), err)
+	}
+	for _, ref := range props.ChildEntity {
+		if ref.Type != "Datastore" {
+			continue
+		}
+		ds, err := datastore.FromID(client, ref.Value)
+		if err != nil {
+			return nil, fmt.Errorf("error fetching member datastore %q of cluster %q: %s", ref.Value, pod.Name(), err)
+		}
+		dprops, err := datastore.Properties(ds)
+		if err != nil {
+			return nil, fmt.Errorf("error reading member datastore %q of cluster %q: %s", ds.Name(), pod.Name(), err)
+		}
+		if !datastoreUsableForPlacement(dprops) {
+			continue
+		}
+		return ds, nil
+	}
+	return nil, fmt.Errorf("datastore cluster %q has no usable member datastores (all members are inaccessible or in maintenance mode)", pod.Name())
+}
+
+func datastoreUsableForPlacement(dprops *mo.Datastore) bool {
+	if !dprops.Summary.Accessible {
+		return false
+	}
+	switch types.DatastoreSummaryMaintenanceModeState(dprops.Summary.MaintenanceMode) {
+	case types.DatastoreSummaryMaintenanceModeStateInMaintenance, types.DatastoreSummaryMaintenanceModeStateEnteringMaintenance:
+		return false
+	}
+	return true
+}
+
+// RecommendDatastoreForCreate asks Storage DRS for a create-placement
+// recommendation and returns the recommended destination datastore.
+func RecommendDatastoreForCreate(
+	client *govmomi.Client,
+	pod *object.StoragePod,
+	spec types.VirtualMachineConfigSpec,
+	pool *object.ResourcePool,
+	host *object.HostSystem,
+	fo *object.Folder,
+) (*object.Datastore, error) {
+	sdrsEnabled, err := StorageDRSEnabled(pod)
+	if err != nil {
+		return nil, err
+	}
+	if !sdrsEnabled {
+		return nil, fmt.Errorf("storage DRS is not enabled on datastore cluster %q", pod.Name())
+	}
+
+	recSpec := spec
+	if spec.Files != nil {
+		files := *spec.Files
+		files.VmPathName = "[]"
+		recSpec.Files = &files
+	}
+
+	sps := types.StoragePlacementSpec{
+		Type:         string(types.StoragePlacementSpecPlacementTypeCreate),
+		ResourcePool: types.NewReference(pool.Reference()),
+		PodSelectionSpec: types.StorageDrsPodSelectionSpec{
+			StoragePod:      types.NewReference(pod.Reference()),
+			InitialVmConfig: expandVMPodConfigForPlacement(recSpec.DeviceChange, pod),
+		},
+		ConfigSpec: &recSpec,
+	}
+	if fo != nil {
+		sps.Folder = types.NewReference(fo.Reference())
+	}
+	if host != nil {
+		sps.Host = types.NewReference(host.Reference())
+	}
+
+	placement, err := recommendSDRS(client, sps, provider.DefaultAPITimeout)
+	if err != nil {
+		return nil, err
+	}
+	return datastoreFromPlacement(client, placement)
+}
+
+func datastoreFromPlacement(client *govmomi.Client, placement *types.StoragePlacementResult) (*object.Datastore, error) {
+	recommendation := getTopRecommendation(placement.Recommendations)
+	if len(recommendation.Action) < 1 {
+		return nil, fmt.Errorf("no storage DRS placement actions were found for the requested action")
+	}
+	action, ok := recommendation.Action[0].(*types.StoragePlacementAction)
+	if !ok {
+		return nil, fmt.Errorf("unexpected storage DRS recommendation action type %T", recommendation.Action[0])
+	}
+	return datastore.FromID(client, action.Destination.Reference().Value)
+}
+
 func recommendAndApplySDRS(
 	client *govmomi.Client,
 	sps types.StoragePlacementSpec,

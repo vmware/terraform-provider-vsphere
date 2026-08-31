@@ -202,6 +202,8 @@ Virtual machines can be deployed from OVF/OVA using either the local path and re
 
 ~> **NOTE:** An OVF/OVA deployment requires vCenter Server and is not supported on direct ESXi host connections.
 
+~> **NOTE:** OVF/OVA deployment supports both [`datastore_id`](#datastore_id) and [`datastore_cluster_id`](#datastore_cluster_id). When `datastore_cluster_id` is specified, Storage DRS must be enabled on the cluster and is used to select the member datastore for initial placement.
+
 The following example demonstrates a scenario deploying a simple OVF/OVA, using both the local path and remote URL options.
 
 **Example**:
@@ -304,6 +306,32 @@ resource "vsphere_virtual_machine" "vmFromLocalOvf" {
       "guestinfo.ntp"       = "ntp.example.com",
       "guestinfo.password"  = "VMware1!",
       "guestinfo.ssh"       = "True"
+    }
+  }
+}
+```
+
+To deploy an OVF/OVA onto a datastore cluster, set `datastore_cluster_id` instead of `datastore_id`. Storage DRS must be enabled on the cluster.
+
+```hcl
+data "vsphere_datastore_cluster" "datastore_cluster" {
+  name          = "datastore-cluster-01"
+  datacenter_id = data.vsphere_datacenter.datacenter.id
+}
+
+resource "vsphere_virtual_machine" "vmFromOvfDatastoreCluster" {
+  name                 = "ovf-sdrs-foo"
+  datacenter_id        = data.vsphere_datacenter.datacenter.id
+  datastore_cluster_id = data.vsphere_datastore_cluster.datastore_cluster.id
+  resource_pool_id     = data.vsphere_resource_pool.default.id
+
+  wait_for_guest_net_timeout = 0
+  wait_for_guest_ip_timeout  = 0
+
+  ovf_deploy {
+    remote_ovf_url = "https://example.com/foo.ova"
+    ovf_network_map = {
+      "Network 1" = data.vsphere_network.network.id
     }
   }
 }
@@ -1499,6 +1527,8 @@ The `ovf_deploy` block is used to create a new virtual machine from an OVF/OVA t
 See the [Deploying from OVF example](#deploying-vm-from-an-ovf-ova-template) for a usage synopsis.
 
 ~> **NOTE:** Changing options in the `ovf_deploy` block after creation forces a new resource.
+
+~> **NOTE:** Use either `datastore_id` or `datastore_cluster_id` at the resource level to choose placement. `datastore_cluster_id` requires Storage DRS to be enabled on the target datastore cluster.
 
 The options available in the `ovf_deploy` block are:
 

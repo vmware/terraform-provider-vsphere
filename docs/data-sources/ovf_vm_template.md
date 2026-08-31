@@ -189,9 +189,15 @@ The following arguments are supported:
   the virtual machine.
 * `host_system_id` - (Required) The ID of the ESXi host system to deploy the
   virtual machine.
-* `datastore_id` - (Required) The ID of the virtual machine's datastore. The
+* `datastore_id` - (Optional) The ID of the virtual machine's datastore. The
   virtual machine configuration is placed here, along with any virtual disks
-  that are created without datastores.
+  that are created without datastores. Conflicts with `datastore_cluster_id`.
+* `datastore_cluster_id` - (Optional) The ID of a datastore cluster in which to
+  place the virtual machine. Storage DRS must be enabled on the cluster.
+  Conflicts with `datastore_id`.
+
+~> **NOTE:** One of `datastore_id` or `datastore_cluster_id` must be specified.
+
 * `folder` - (Required) The name of the folder in which to place the virtual
   machine.
 * `local_ovf_path` - (Optional) The absolute path to the OVF/OVA file on the

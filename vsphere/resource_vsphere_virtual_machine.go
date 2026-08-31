@@ -2236,6 +2236,7 @@ func NewOvfHelperParamsFromVMResource(d *schema.ResourceData) *ovfdeploy.OvfHelp
 	ovfParams := &ovfdeploy.OvfHelperParams{
 		AllowUnverifiedSSL: d.Get("ovf_deploy.0.allow_unverified_ssl_cert").(bool),
 		DatastoreID:        d.Get("datastore_id").(string),
+		DatastoreClusterID: d.Get("datastore_cluster_id").(string),
 		DeploymentOption:   d.Get("ovf_deploy.0.deployment_option").(string),
 		DiskProvisioning:   d.Get("ovf_deploy.0.disk_provisioning").(string),
 		FilePath:           d.Get("ovf_deploy.0.local_ovf_path").(string),

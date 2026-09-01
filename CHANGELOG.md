@@ -1,16 +1,34 @@
 # <!-- markdownlint-disable first-line-h1 no-inline-html -->
+## v2.17.0
 
-## Unreleased
+> Release Date: 2026-09-01
+
+BUG FIX:
+
+- `r/virtual_machine`: Do not reset `num_cores_per_socket` to 0 when no change is being made to the configuration. (#2732)
+- `r/file`: Create unique error messages. (#2742)
+- `r/vnic`: Mark `services` as computed. (#2743)
+
+DOCUMENTATION:
+
+- `r/resource_pool` / `r/vapp_container`: Fix memory attributes documentation. (#2756)
 
 FEATURES:
 
-- `r/network_protocol_profile`: New resource to manage vSphere network protocol profiles (IP pools). Validates that configured `network_ids` are not already assigned to another network protocol profile, since vCenter would otherwise silently move them.
-- `r/virtual_machine`: Added a new optional `datastore_path` attribute that lets users place virtual machine metadata files (`.vmx`, `.nvram`, logs, etc.) into a `/`-joined sub-folder of the selected datastore instead of the datastore root. Works for both standard datastore and `datastore_cluster_id` (Storage DRS) deployments.
+- `r/network_protocol_profile`: New resource to manage vSphere network protocol profiles (IP pools). (#2749)
+- `r/sso_user` / `r/sso_group`: New resources and data sources for vCenter Single Sign-On user and group management. (#2747)
+- `r/virtual_machine`: Added a new optional `datastore_path` attribute. (#2730)
 
-ENHANCEMENTS:
+IMPROVEMENTS:
 
-- `r/virtual_machine`: Support deploying an OVF/OVA to a datastore cluster via `datastore_cluster_id`. Storage DRS selects the member datastore used for initial placement.
-- `d/ovf_vm_template`: Support `datastore_cluster_id` when extracting OVF hardware settings.
+- `r/virtual_machine`: Support deploying an OVF/OVA to a datastore cluster via `datastore_cluster_id`. (#2760)
+- `d/ovf_vm_template`: Support `datastore_cluster_id` when extracting OVF hardware settings. (#2760)
+- `d/virtual_machine`: Expose the virtual machine `folder` attribute. (#2741)
+
+CHORE:
+
+- `provider`: Bump `github.com/vmware/govmomi` from 0.54.1 to 0.56.0.
+- `provider`: Bump `go` from 1.26.3 to 1.26.7.
 
 ## v2.16.1
 

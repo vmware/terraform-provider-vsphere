@@ -1793,7 +1793,7 @@ The following attributes are exported on the base level of this resource:
 
 An existing virtual machine can be [imported][docs-import] into the Terraform state by providing the full path to the virtual machine.
 
-[docs-import]: /docs/import/index.html
+[docs-import]: https://developer.hashicorp.com/terraform/cli/import
 
 **Examples**:
 

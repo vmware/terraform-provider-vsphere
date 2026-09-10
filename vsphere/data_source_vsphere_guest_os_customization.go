@@ -171,6 +171,7 @@ func dataSourceVSphereGuestOSCustomization() *schema.Resource {
 									"product_key": {
 										Type:        schema.TypeString,
 										Computed:    true,
+										Sensitive:   true,
 										Description: "The product key for this virtual machine.",
 									},
 								},

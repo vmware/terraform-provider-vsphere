@@ -1066,7 +1066,7 @@ resource "nsxt_policy_segment_port" "port" {
   }
 }
 
-# Locate the NSX-T segment's ID in vSphere 
+# Locate the NSX-T segment's ID in vSphere
 data "vsphere_network" "nsx_segment" {
   datacenter_id = data.vsphere_datacenter.datacenter.id
   name          = nsxt_policy_segment.segment.display_name
@@ -1085,7 +1085,7 @@ resource "vsphere_virtual_machine" "vm" {
   }
 
   network_interface {
-    # Reference the NSX-T segment ID in vSphere 
+    # Reference the NSX-T segment ID in vSphere
     network_id = data.vsphere_network.nsx_segment.id
 
     # Reference the user-configured attachment id, which will identify the NSX-T created port
@@ -1114,7 +1114,7 @@ The options are:
 
 * `ovf_mapping` - (Optional) Specifies which NIC in an OVF/OVA the `network_interface` should be associated. Only applies at creation when deploying from an OVF/OVA.
 
-* `external_port_id` - (Optional) The external port id to be bound to the VM port. This attribute will contain the port ID which was set by external network management plane. A user can choose to force a specific predefined port id which has been configured on the external network management plane. 
+* `external_port_id` - (Optional) The external port id to be bound to the VM port. This attribute will contain the port ID which was set by external network management plane. A user can choose to force a specific predefined port id which has been configured on the external network management plane.
 
 ### Video Card Options
 
@@ -1124,7 +1124,7 @@ is created automatically even if it is not included in the configuration.
 
 This means that
 * Creating a virtual machine with a `video_card` block in its configuration creates the video card device with the specified settings.
-* Adding a `video_card` block to an existing machine modifies the existing device. 
+* Adding a `video_card` block to an existing machine modifies the existing device.
 * Removing the `video_card` block from a virtual machine does not delete the device.
 
 Using the options under the `graphics_3d` section may result in a failure to power on the virtual machine.
@@ -1159,7 +1159,7 @@ The options are:
 * `graphics_3d` - 3D graphics options.
 
   * `renderer` - The 3D renderer - software, hardware or automatic.
-  
+
   * `memory` - The dedicated 3D graphics memory in megabytes.
 
 #### Using SR-IOV Network Interfaces
@@ -1793,7 +1793,7 @@ The following attributes are exported on the base level of this resource:
 
 An existing virtual machine can be [imported][docs-import] into the Terraform state by providing the full path to the virtual machine.
 
-[docs-import]: /docs/import/index.html
+[docs-import]: https://developer.hashicorp.com/terraform/cli/import
 
 **Examples**:
 

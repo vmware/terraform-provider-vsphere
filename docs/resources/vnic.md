@@ -125,7 +125,7 @@ Configures the IPv6 settings of the network interface. Either DHCP or Autoconfig
 An existing vNic can be [imported][docs-import] into this resource
 via supplying the vNic's ID. An example is below:
 
-[docs-import]: /docs/import/index.html
+[docs-import]: https://developer.hashicorp.com/terraform/cli/import
 
 ```shell
 terraform import vsphere_vnic.vnic host-123_vmk2

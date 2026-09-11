@@ -138,7 +138,7 @@ The following attributes are exported:
 An existing host port group can be [imported][docs-import] into this resource
 using the host port group's ID. An example is below:
 
-[docs-import]: /docs/import/index.html
+[docs-import]: https://developer.hashicorp.com/terraform/cli/import
 
 ```shell
 terraform import vsphere_host_port_group.management tf-HostPortGroup:host-123:management

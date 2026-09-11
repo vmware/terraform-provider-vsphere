@@ -1,4 +1,22 @@
 # <!-- markdownlint-disable first-line-h1 no-inline-html -->
+
+## v2.17.1
+
+> Release Date: Not Releases
+
+BUG FIX:
+
+- `d/vsphere_guest_os_customization`: Set `product_key` as a senstive. (#2767)
+
+DOCUMENTATION:
+
+- Updated the Terraform import (`[docs-import]`) link the the direct product documentation URL. (#2769)
+
+CHORE:
+
+- `provider`: Bump `google.golang.org/grpc` from v1.82.1 to v1.83.2. (#2766)
+- `provider`: Bump `go` from 1.26.7 to 1.26.8. (#2768)
+
 ## v2.17.0
 
 > Release Date: 2026-09-01

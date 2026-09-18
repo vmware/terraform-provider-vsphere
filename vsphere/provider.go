@@ -164,6 +164,7 @@ func Provider() *schema.Provider {
 			"vsphere_configuration_profile":      dataSourceVSphereConfigurationProfile(),
 			"vsphere_content_library":            dataSourceVSphereContentLibrary(),
 			"vsphere_content_library_item":       dataSourceVSphereContentLibraryItem(),
+			"vsphere_content_library_items":      dataSourceVSphereContentLibraryItems(),
 			"vsphere_custom_attribute":           dataSourceVSphereCustomAttribute(),
 			"vsphere_datacenter":                 dataSourceVSphereDatacenter(),
 			"vsphere_datastore":                  dataSourceVSphereDatastore(),

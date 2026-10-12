@@ -6,11 +6,13 @@ package vsphere
 
 import (
 	"context"
+	"net/http"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/govmomi/vapi/namespace"
+	"github.com/vmware/govmomi/vapi/rest"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/structure"
 )
 
@@ -159,7 +161,38 @@ func resourceVSphereNamespaceDelete(ctx context.Context, d *schema.ResourceData,
 	c := meta.(*Client).restClient
 	m := namespace.NewManager(c)
 
-	return diag.FromErr(m.DeleteNamespace(ctx, d.Id()))
+	if err := m.DeleteNamespace(ctx, d.Id()); err != nil {
+		return diag.FromErr(err)
+	}
+
+	return waitForNamespaceDeletion(ctx, d, meta)
+}
+
+func waitForNamespaceDeletion(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	c := meta.(*Client).restClient
+	m := namespace.NewManager(c)
+
+	name := d.Get("name").(string)
+
+	tickerCtx, cancel := context.WithTimeout(ctx, time.Minute*time.Duration(1))
+	defer cancel()
+	ticker := time.NewTicker(time.Second * time.Duration(5))
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-tickerCtx.Done():
+			return diag.Errorf("timed out waiting for namespace to be deleted: %s", name)
+		case <-ticker.C:
+			_, err := m.GetNamespaceV2(ctx, name)
+			if rest.IsStatusError(err, http.StatusNotFound) {
+				return nil
+			}
+			if err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
 }
 
 func waitForNamespaceCreation(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

@@ -5,14 +5,13 @@
 package vsphere
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func TestAccDataSourceVSphereNamespace_basic(t *testing.T) {
-	// cannot run on the standard testbed
-	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
@@ -37,9 +36,11 @@ func TestAccDataSourceVSphereNamespace_basic(t *testing.T) {
 }
 
 func testAccDataSourceVSphereNamespaceConfigBasic() string {
-	return `
+	return fmt.Sprintf(`
+%s
+
 data vsphere_namespace "namespace" {
-  name = "test-acc-namespace"
+  name = vsphere_namespace.namespace.name
 }
-`
+`, testAccResourceVSphereNamespaceConfigVmService())
 }

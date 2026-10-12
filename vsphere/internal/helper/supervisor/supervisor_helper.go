@@ -116,6 +116,82 @@ func WaitForSupervisorDisable(ctx context.Context, d *schema.ResourceData, m *na
 	}
 }
 
+func GetSupervisorIDByClusterID(ctx context.Context, m *namespace.Manager, clusterID string) (string, error) {
+	summaries, err := m.GetSupervisorSummaries(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	for _, s := range summaries.Items {
+		topology, err := m.GetSupervisorTopology(ctx, s.Supervisor)
+		if err != nil {
+			return "", err
+		}
+
+		if isClusterInSupervisor(topology, clusterID) {
+			return s.Supervisor, nil
+		}
+	}
+
+	return "", fmt.Errorf("could not find supervisor for cluster %s", clusterID)
+}
+
+func GetSupervisorIDByName(ctx context.Context, m *namespace.Manager, name string) (string, error) {
+	summaries, err := m.GetSupervisorSummaries(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	var matches []string
+	for _, s := range summaries.Items {
+		if s.Info.Name == name {
+			matches = append(matches, s.Supervisor)
+		}
+	}
+
+	if len(matches) == 0 {
+		return "", fmt.Errorf("could not find supervisor with name %q", name)
+	}
+
+	if len(matches) > 1 {
+		return "", fmt.Errorf("found multiple supervisors with name %q: %v", name, matches)
+	}
+
+	return matches[0], nil
+}
+
+func FlattenSupervisorSummary(d *schema.ResourceData, summary namespace.SupervisorSummaryInfo) {
+	_ = d.Set("name", summary.Name)
+	_ = d.Set("config_status", summary.ConfigStatus.String())
+	_ = d.Set("kubernetes_status", summary.KubernetesStatus.String())
+	_ = d.Set("cpu_usage", summary.Stats.CpuUsed)
+	_ = d.Set("memory_usage", summary.Stats.MemoryUsed)
+	_ = d.Set("storage_usage", summary.Stats.StorageUsed)
+}
+
+func FlattenSupervisorTopology(d *schema.ResourceData, topology []namespace.SupervisorTopologyInfo) {
+	zones := make([]interface{}, len(topology))
+	for i, t := range topology {
+		zones[i] = map[string]interface{}{
+			"zone":     t.Zone,
+			"clusters": t.Clusters,
+		}
+	}
+	_ = d.Set("zones", zones)
+}
+
+func isClusterInSupervisor(topologies []namespace.SupervisorTopologyInfo, clusterID string) bool {
+	for _, topology := range topologies {
+		for _, cluster := range topology.Clusters {
+			if cluster == clusterID {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 func buildControlPlane(d *schema.ResourceData) (namespace.ControlPlane, error) {
 	controlPlaneProperty := d.Get("control_plane").([]interface{})
 	controlPlaneData := controlPlaneProperty[0].(map[string]interface{})

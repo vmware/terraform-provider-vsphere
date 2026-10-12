@@ -15,6 +15,7 @@ func TestAccDataSourceVSphereNamespace_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
+			testAccCheckEnvVariables(t, []string{"TF_VAR_SUPERVISOR"})
 		},
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{

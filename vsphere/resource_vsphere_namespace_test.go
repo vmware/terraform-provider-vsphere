@@ -17,6 +17,7 @@ func TestAccResourceVSphereNamespace_basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
+			testAccCheckEnvVariables(t, []string{"TF_VAR_SUPERVISOR", "TF_VAR_STORAGE_POLICY"})
 		},
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -35,6 +36,7 @@ func TestAccResourceVSphereNamespace_storagePolicy(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
+			testAccCheckEnvVariables(t, []string{"TF_VAR_SUPERVISOR", "TF_VAR_STORAGE_POLICY"})
 		},
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -54,6 +56,7 @@ func TestAccResourceVSphereNamespace_vmService(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
+			testAccCheckEnvVariables(t, []string{"TF_VAR_SUPERVISOR", "TF_VAR_STORAGE_POLICY"})
 		},
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -76,6 +79,7 @@ func TestAccResourceVSphereNamespace_update(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
+			testAccCheckEnvVariables(t, []string{"TF_VAR_SUPERVISOR", "TF_VAR_STORAGE_POLICY"})
 		},
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -110,31 +114,38 @@ func TestAccResourceVSphereNamespace_update(t *testing.T) {
 
 func testAccResourceVSphereNamespaceConfigBasic() string {
 	return fmt.Sprintf(`
+%s
+
 resource vsphere_namespace "namespace" {
   name       = "test-acc-namespace"
-  supervisor = "435a6f10-ffd2-44f4-a2a8-65b4059b0b5f"
+  supervisor = data.vsphere_supervisor.supervisor.id
 }
-`)
+`, testAccDataSourceVSphereSupervisorConfigName())
 }
 
 func testAccResourceVSphereNamespaceConfigStoragePolicy() string {
 	return fmt.Sprintf(`
+%s
+
 data vsphere_storage_policy image_policy {
   name = "%s"
 }
 
 resource vsphere_namespace "namespace" {
   name       = "test-acc-namespace"
-  supervisor = "435a6f10-ffd2-44f4-a2a8-65b4059b0b5f"
+  supervisor = data.vsphere_supervisor.supervisor.id
 
   storage_policies = [data.vsphere_storage_policy.image_policy.id]
 }
 `,
+		testAccDataSourceVSphereSupervisorConfigName(),
 		os.Getenv("TF_VAR_STORAGE_POLICY"))
 }
 
 func testAccResourceVSphereNamespaceConfigVmService() string {
 	return fmt.Sprintf(`
+%s
+
 %s
 
 data vsphere_storage_policy image_policy {
@@ -172,7 +183,7 @@ resource "vsphere_content_library" "library_subscribed" {
 
 resource vsphere_namespace "namespace" {
   name       = "test-acc-namespace"
-  supervisor = "435a6f10-ffd2-44f4-a2a8-65b4059b0b5f"
+  supervisor = data.vsphere_supervisor.supervisor.id
 
   vm_service {
     content_libraries = [vsphere_content_library.library_subscribed.id]
@@ -183,6 +194,7 @@ resource vsphere_namespace "namespace" {
 }
 `,
 		testAccResourceVSphereNamespaceConfigBase(),
+		testAccDataSourceVSphereSupervisorConfigName(),
 		os.Getenv("TF_VAR_STORAGE_POLICY"))
 }
 

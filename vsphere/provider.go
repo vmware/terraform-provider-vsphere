@@ -188,6 +188,7 @@ func Provider() *schema.Provider {
 			"vsphere_sso_group":                  dataSourceVSphereSSOGroup(),
 			"vsphere_sso_user":                   dataSourceVSphereSSOUser(),
 			"vsphere_storage_policy":             dataSourceVSphereStoragePolicy(),
+			"vsphere_supervisor":                 dataSourceVSphereSupervisor(),
 			"vsphere_tag":                        dataSourceVSphereTag(),
 			"vsphere_tag_category":               dataSourceVSphereTagCategory(),
 			"vsphere_vapp_container":             dataSourceVSphereVAppContainer(),

@@ -61,7 +61,7 @@ func TestAccResourceVSphereNamespace_vmService(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccResourceVSphereNamespaceConfigVmService(),
+				Config: testAccResourceVSphereNamespaceConfigVMService(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "id"),
 					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "supervisor"),
@@ -99,7 +99,7 @@ func TestAccResourceVSphereNamespace_update(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccResourceVSphereNamespaceConfigVmService(),
+				Config: testAccResourceVSphereNamespaceConfigVMService(),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "id"),
 					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "supervisor"),
@@ -142,7 +142,7 @@ resource vsphere_namespace "namespace" {
 		os.Getenv("TF_VAR_STORAGE_POLICY"))
 }
 
-func testAccResourceVSphereNamespaceConfigVmService() string {
+func testAccResourceVSphereNamespaceConfigVMService() string {
 	return fmt.Sprintf(`
 %s
 

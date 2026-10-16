@@ -43,5 +43,5 @@ func testAccDataSourceVSphereNamespaceConfigBasic() string {
 data vsphere_namespace "namespace" {
   name = vsphere_namespace.namespace.name
 }
-`, testAccResourceVSphereNamespaceConfigVmService())
+`, testAccResourceVSphereNamespaceConfigVMService())
 }

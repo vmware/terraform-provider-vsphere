@@ -6,11 +6,11 @@ package vsphere
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/govmomi/vapi/namespace"
+	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/supervisor"
 )
 
 func dataSourceVSphereNamespace() *schema.Resource {
@@ -89,7 +89,7 @@ func dataSourceVSphereNamespaceRead(ctx context.Context, d *schema.ResourceData,
 
 	_ = d.Set("config_status", data.ConfigStatus)
 
-	supervisorID, err := getSupervisorID(ctx, m, data.ClusterId)
+	supervisorID, err := supervisor.GetSupervisorIDByClusterID(ctx, m, data.ClusterId)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -117,36 +117,4 @@ func flattenNamespaceInfo(d *schema.ResourceData, info namespace.NamespacesInsta
 		storagePolicies[i] = storageSpec.Policy
 	}
 	_ = d.Set("storage_policies", storagePolicies)
-}
-
-func getSupervisorID(ctx context.Context, m *namespace.Manager, clusterID string) (string, error) {
-	summaries, err := m.GetSupervisorSummaries(ctx)
-	if err != nil {
-		return "", err
-	}
-
-	for _, s := range summaries.Items {
-		topology, err := m.GetSupervisorTopology(ctx, s.Supervisor)
-		if err != nil {
-			return "", err
-		}
-
-		if isClusterInSupervisor(topology, clusterID) {
-			return s.Supervisor, nil
-		}
-	}
-
-	return "", fmt.Errorf("could not find supervisor for cluster %s", clusterID)
-}
-
-func isClusterInSupervisor(topologies []namespace.SupervisorTopologyInfo, clusterID string) bool {
-	for _, topology := range topologies {
-		for _, cluster := range topology.Clusters {
-			if cluster == clusterID {
-				return true
-			}
-		}
-	}
-
-	return false
 }

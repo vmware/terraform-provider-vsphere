@@ -120,6 +120,25 @@ func dataSourceVSphereNamespace() *schema.Resource {
 					},
 				},
 			},
+			"zone": {
+				Type:        schema.TypeSet,
+				Description: "The vSphere Zones of the vSphere Namespace",
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Description: "The identifier of the vSphere Zone",
+							Computed:    true,
+						},
+						"type": {
+							Type:        schema.TypeString,
+							Description: "The type of the vSphere Zone",
+							Computed:    true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -147,6 +166,7 @@ func dataSourceVSphereNamespaceRead(ctx context.Context, d *schema.ResourceData,
 
 	_ = d.Set("storage_policy", namespacehelper.FlattenStorageSpecs(data.StorageSpecs))
 	_ = d.Set("access", namespacehelper.FlattenAccessList(data.AccessList))
+	_ = d.Set("zone", namespacehelper.FlattenZoneInfos(data.Zones))
 
 	d.SetId(name)
 

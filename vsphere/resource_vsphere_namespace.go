@@ -17,6 +17,7 @@ import (
 	"github.com/vmware/govmomi/vapi/rest"
 	namespacehelper "github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/namespace"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/structure"
+	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/viapi"
 )
 
 var namespaceAccessSubjectTypeAllowedValues = []string{
@@ -36,6 +37,7 @@ func resourceVSphereNamespace() *schema.Resource {
 		ReadContext:   resourceVSphereNamespaceRead,
 		UpdateContext: resourceVSphereNamespaceUpdate,
 		DeleteContext: resourceVSphereNamespaceDelete,
+		CustomizeDiff: resourceVSphereNamespaceCustomizeDiff,
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
@@ -126,8 +128,72 @@ func resourceVSphereNamespace() *schema.Resource {
 					},
 				},
 			},
+			"zone": {
+				Type:        schema.TypeSet,
+				Description: "The vSphere Zones of the vSphere Namespace. Requires vCenter 9.0.0 or later",
+				Optional:    true,
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Description: "The identifier of the vSphere Zone",
+							Required:    true,
+						},
+						"cpu_limit": {
+							Type:        schema.TypeInt,
+							Description: "The CPU limit, in megahertz (MHz), for the vSphere Namespace in this zone. 0 or unset means no zone limit",
+							Optional:    true,
+						},
+						"cpu_reservation": {
+							Type:        schema.TypeInt,
+							Description: "The CPU reservation, in megahertz (MHz), for the vSphere Namespace in this zone. 0 or unset means no reservation",
+							Optional:    true,
+						},
+						"memory_limit": {
+							Type:        schema.TypeInt,
+							Description: "The memory limit, in mebibytes (MiB), for the vSphere Namespace in this zone. 0 or unset means no zone limit",
+							Optional:    true,
+						},
+						"memory_reservation": {
+							Type:        schema.TypeInt,
+							Description: "The memory reservation, in mebibytes (MiB), for the vSphere Namespace in this zone. 0 or unset means no reservation",
+							Optional:    true,
+						},
+						"disallow_unreserved_direct_path_usage": {
+							Type:        schema.TypeBool,
+							Description: "Whether workloads that do not use a reserved VM class are disallowed from using a DirectPath device",
+							Optional:    true,
+						},
+						"vm_reservation": {
+							Type:        schema.TypeSet,
+							Description: "The VM class instances reserved for the vSphere Namespace in this zone",
+							Optional:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"reserved_vm_class": {
+										Type:        schema.TypeString,
+										Description: "The identifier of the VM class",
+										Required:    true,
+									},
+									"count": {
+										Type:        schema.TypeInt,
+										Description: "The number of VM class instances to reserve",
+										Required:    true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 	}
+}
+
+func resourceVSphereNamespaceCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	version := viapi.ParseVersionFromClient(meta.(*Client).vimClient)
+	return namespacehelper.ValidateVersionRequirements(version, d)
 }
 
 func resourceVSphereNamespaceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -146,6 +212,10 @@ func resourceVSphereNamespaceCreate(ctx context.Context, d *schema.ResourceData,
 
 	if accessList := namespacehelper.ExpandAccessList(d); len(accessList) > 0 {
 		spec.AccessList = &accessList
+	}
+
+	if zones := namespacehelper.ExpandZones(d); len(zones) > 0 {
+		spec.Zones = &zones
 	}
 
 	if err := m.CreateNamespaceV2(ctx, spec); err != nil {
@@ -186,6 +256,7 @@ func resourceVSphereNamespaceRead(ctx context.Context, d *schema.ResourceData, m
 
 	_ = d.Set("storage_policy", namespacehelper.FlattenStorageSpecs(data.StorageSpecs))
 	_ = d.Set("access", namespacehelper.FlattenAccessList(data.AccessList))
+	_ = d.Set("zone", namespacehelper.FlattenZones(d, data.Zones))
 
 	d.SetId(name)
 
@@ -206,6 +277,11 @@ func resourceVSphereNamespaceUpdate(ctx context.Context, d *schema.ResourceData,
 	if d.HasChange("access") {
 		accessList := namespacehelper.ExpandAccessList(d)
 		spec.AccessList = &accessList
+	}
+
+	if d.HasChange("zone") {
+		zones := namespacehelper.ExpandZones(d)
+		spec.Zones = &zones
 	}
 
 	if vmServiceSpec := getVMServiceSpec(d); vmServiceSpec != nil {

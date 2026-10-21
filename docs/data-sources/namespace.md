@@ -55,5 +55,8 @@ The following attributes are exported:
   * `domain` - The domain of the identity source that owns the subject.
   * `role` - The role of the subject in the vSphere Namespace.
   * `identity_provider` - The identifier of the identity provider.
+* `zone` - The vSphere Zones of the vSphere Namespace. Requires vCenter 9.0.0 or later. Limits and reservations are not returned by vCenter, so they are not exported.
+  * `name` - The identifier of the vSphere Zone.
+  * `type` - The type of the vSphere Zone.
 
 ~> **NOTE:** In v2.18.0, `storage_policy` superseded the `storage_policies` attribute. To upgrade, replace references to `data.vsphere_namespace.example.storage_policies` with `[for s in data.vsphere_namespace.example.storage_policy : s.policy]`.

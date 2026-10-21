@@ -86,6 +86,40 @@ func dataSourceVSphereNamespace() *schema.Resource {
 					},
 				},
 			},
+			"access": {
+				Type:        schema.TypeSet,
+				Description: "The users and groups with access to the vSphere Namespace",
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"subject_type": {
+							Type:        schema.TypeString,
+							Description: "The type of the subject: USER or GROUP",
+							Computed:    true,
+						},
+						"subject": {
+							Type:        schema.TypeString,
+							Description: "The name of the user or group, without the domain",
+							Computed:    true,
+						},
+						"domain": {
+							Type:        schema.TypeString,
+							Description: "The domain of the identity source that owns the subject",
+							Computed:    true,
+						},
+						"role": {
+							Type:        schema.TypeString,
+							Description: "The role of the subject in the vSphere Namespace",
+							Computed:    true,
+						},
+						"identity_provider": {
+							Type:        schema.TypeString,
+							Description: "The identifier of the identity provider",
+							Computed:    true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -112,6 +146,7 @@ func dataSourceVSphereNamespaceRead(ctx context.Context, d *schema.ResourceData,
 	_ = d.Set("vm_service", []map[string]interface{}{vmService})
 
 	_ = d.Set("storage_policy", namespacehelper.FlattenStorageSpecs(data.StorageSpecs))
+	_ = d.Set("access", namespacehelper.FlattenAccessList(data.AccessList))
 
 	d.SetId(name)
 

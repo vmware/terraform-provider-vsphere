@@ -32,6 +32,13 @@ resource "vsphere_namespace" "example" {
     policy = "1bb87d1e-49a5-49f8-ad4a-7094be13d4a0"
     limit  = 102400
   }
+
+  access {
+    subject_type = "USER"
+    subject      = "administrator"
+    domain       = "vsphere.local"
+    role         = "OWNER"
+  }
 }
 ```
 
@@ -47,6 +54,12 @@ The following arguments are supported:
 * `storage_policy` - (Optional) The storage policies that will be available in the vSphere Namespace. Specify one block per storage policy.
   * `policy` - (Required) The identifier of the storage policy.
   * `limit` - (Optional) The maximum storage, in mebibytes (MiB), that the vSphere Namespace can use for the storage policy. Unset or `0` means no limit.
+* `access` - (Optional) The users and groups with access to the vSphere Namespace. Specify one block per subject.
+  * `subject_type` - (Required) The type of the subject. One of `USER` or `GROUP`.
+  * `subject` - (Required) The name of the user or group, without the domain.
+  * `domain` - (Required) The domain of the identity source that owns the subject.
+  * `role` - (Required) The role of the subject in the vSphere Namespace. One of `OWNER`, `EDIT` or `VIEW`.
+  * `identity_provider` - (Optional) The identifier of the identity provider. If unset, vCenter Single Sign-On is used.
 
 ~> **NOTE:** In v2.18.0, `storage_policy` superseded the `storage_policies` argument. To upgrade, replace
 

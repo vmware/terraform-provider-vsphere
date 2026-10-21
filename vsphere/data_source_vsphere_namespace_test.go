@@ -36,6 +36,39 @@ func TestAccDataSourceVSphereNamespace_basic(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceVSphereNamespace_accessList(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccCheckEnvVariables(t, []string{"TF_VAR_SUPERVISOR"})
+		},
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceVSphereNamespaceConfigFor(testAccResourceVSphereNamespaceConfigAccess("EDIT")),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.vsphere_namespace.namespace", "access.#", "1"),
+					resource.TestCheckTypeSetElemNestedAttrs("data.vsphere_namespace.namespace", "access.*", map[string]string{
+						"subject_type": "USER",
+						"subject":      "acc-namespace-user",
+						"role":         "EDIT",
+					}),
+				),
+			},
+		},
+	})
+}
+
+func testAccDataSourceVSphereNamespaceConfigFor(namespaceConfig string) string {
+	return fmt.Sprintf(`
+%s
+
+data vsphere_namespace "namespace" {
+  name = vsphere_namespace.namespace.name
+}
+`, namespaceConfig)
+}
+
 func testAccDataSourceVSphereNamespaceConfigBasic() string {
 	return fmt.Sprintf(`
 %s

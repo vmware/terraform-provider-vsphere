@@ -69,6 +69,38 @@ func TestAccResourceVSphereNamespace_storagePolicy(t *testing.T) {
 	})
 }
 
+func TestAccResourceVSphereNamespace_access(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccCheckEnvVariables(t, []string{"TF_VAR_SUPERVISOR"})
+		},
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceVSphereNamespaceConfigAccess("EDIT"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "access.#", "1"),
+					resource.TestCheckTypeSetElemNestedAttrs("vsphere_namespace.namespace", "access.*", map[string]string{
+						"subject_type": "USER",
+						"subject":      "acc-namespace-user",
+						"role":         "EDIT",
+					}),
+				),
+			},
+			{
+				Config: testAccResourceVSphereNamespaceConfigAccess("VIEW"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "access.#", "1"),
+					resource.TestCheckTypeSetElemNestedAttrs("vsphere_namespace.namespace", "access.*", map[string]string{
+						"role": "VIEW",
+					}),
+				),
+			},
+		},
+	})
+}
+
 func TestAccResourceVSphereNamespace_vmService(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -165,6 +197,31 @@ resource vsphere_namespace "namespace" {
 		testAccDataSourceVSphereSupervisorConfigName(),
 		os.Getenv("TF_VAR_STORAGE_POLICY"),
 		limitAttr)
+}
+
+func testAccResourceVSphereNamespaceConfigAccess(role string) string {
+	return fmt.Sprintf(`
+%s
+
+resource vsphere_sso_user "user" {
+  name     = "acc-namespace-user"
+  password = "AccTestP@ssw0rd!"
+}
+
+resource vsphere_namespace "namespace" {
+  name       = "test-acc-namespace"
+  supervisor = data.vsphere_supervisor.supervisor.id
+
+  access {
+    subject_type = "USER"
+    subject      = vsphere_sso_user.user.name
+    domain       = vsphere_sso_user.user.domain
+    role         = "%s"
+  }
+}
+`,
+		testAccDataSourceVSphereSupervisorConfigName(),
+		role)
 }
 
 func testAccResourceVSphereNamespaceConfigVMService() string {

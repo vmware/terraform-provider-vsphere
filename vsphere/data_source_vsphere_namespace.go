@@ -177,6 +177,26 @@ func dataSourceVSphereNamespace() *schema.Resource {
 					},
 				},
 			},
+			"vsphere_network": {
+				Type:        schema.TypeList,
+				Description: "The vSphere networking configuration. Requires vCenter 9.1.0 or later",
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"default_workload_network": {
+							Type:        schema.TypeString,
+							Description: "The Supervisor network used by workloads that do not specify a network",
+							Computed:    true,
+						},
+						"networks": {
+							Type:        schema.TypeSet,
+							Description: "The Supervisor networks associated with the vSphere Namespace",
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -206,6 +226,7 @@ func dataSourceVSphereNamespaceRead(ctx context.Context, d *schema.ResourceData,
 	_ = d.Set("access", namespacehelper.FlattenAccessList(data.AccessList))
 	_ = d.Set("zone", namespacehelper.FlattenZoneInfos(data.Zones))
 	_ = d.Set("vpc_network", namespacehelper.FlattenVpcNetwork(data.NetworkSpec))
+	_ = d.Set("vsphere_network", namespacehelper.FlattenVsphereNetwork(data.NetworkSpec))
 
 	d.SetId(name)
 

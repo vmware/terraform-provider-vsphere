@@ -193,11 +193,12 @@ func resourceVSphereNamespace() *schema.Resource {
 				},
 			},
 			"vpc_network": {
-				Type:        schema.TypeList,
-				Description: "The NSX VPC network configuration",
-				Optional:    true,
-				Computed:    true,
-				MaxItems:    1,
+				Type:          schema.TypeList,
+				Description:   "The NSX VPC network configuration",
+				Optional:      true,
+				Computed:      true,
+				MaxItems:      1,
+				ConflictsWith: []string{"vsphere_network"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"vpc": {
@@ -229,6 +230,31 @@ func resourceVSphereNamespace() *schema.Resource {
 									},
 								},
 							},
+						},
+					},
+				},
+			},
+			"vsphere_network": {
+				Type:          schema.TypeList,
+				Description:   "The vSphere networking configuration. Requires vCenter 9.1.0 or later",
+				Optional:      true,
+				Computed:      true,
+				MaxItems:      1,
+				ConflictsWith: []string{"vpc_network"},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"default_workload_network": {
+							Type:        schema.TypeString,
+							Description: "The Supervisor network used by workloads that do not specify a network. Must be one of networks",
+							Required:    true,
+							ForceNew:    true,
+						},
+						"networks": {
+							Type:        schema.TypeSet,
+							Description: "The Supervisor networks associated with the vSphere Namespace, including default_workload_network",
+							Required:    true,
+							MinItems:    1,
+							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
 					},
 				},
@@ -265,6 +291,9 @@ func resourceVSphereNamespaceCreate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	spec.NetworkSpec = namespacehelper.ExpandNetworkSpecCreate(d)
+	if networks := namespacehelper.ExpandNetworks(d); len(networks) > 0 {
+		spec.Networks = &networks
+	}
 
 	if err := m.CreateNamespaceV2(ctx, spec); err != nil {
 		return diag.FromErr(err)
@@ -306,6 +335,7 @@ func resourceVSphereNamespaceRead(ctx context.Context, d *schema.ResourceData, m
 	_ = d.Set("access", namespacehelper.FlattenAccessList(data.AccessList))
 	_ = d.Set("zone", namespacehelper.FlattenZones(d, data.Zones))
 	_ = d.Set("vpc_network", namespacehelper.FlattenVpcNetwork(data.NetworkSpec))
+	_ = d.Set("vsphere_network", namespacehelper.FlattenVsphereNetwork(data.NetworkSpec))
 
 	d.SetId(name)
 
@@ -333,7 +363,7 @@ func resourceVSphereNamespaceUpdate(ctx context.Context, d *schema.ResourceData,
 		spec.Zones = &zones
 	}
 
-	if d.HasChange("vpc_network") {
+	if d.HasChange("vpc_network") || d.HasChange("vsphere_network") {
 		spec.NetworkSpec = namespacehelper.ExpandNetworkSpecUpdate(d)
 	}
 

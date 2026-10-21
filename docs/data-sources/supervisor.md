@@ -36,6 +36,28 @@ data "vsphere_supervisor" "example" {
 }
 ```
 
+### Find the Supervisor network backed by a port group
+
+```hcl
+data "vsphere_network" "workload" {
+  name          = "workload-pg"
+  datacenter_id = data.vsphere_datacenter.datacenter.id
+}
+
+data "vsphere_supervisor" "example" {
+  name = "example-supervisor"
+}
+
+locals {
+  workload_network = one([
+    for network in data.vsphere_supervisor.example.workload_network :
+    network.network if network.portgroup == data.vsphere_network.workload.id
+  ])
+}
+```
+
+The name can be used in the `vsphere_network` block of the [`vsphere_namespace`](/docs/providers/vsphere/r/namespace.html) resource.
+
 ## Argument Reference
 
 Exactly one of the following arguments must be specified:
@@ -56,3 +78,11 @@ Exactly one of the following arguments must be specified:
 * `zones` - The vSphere Zones of the Supervisor.
   * `zone` - The ID of the vSphere Zone.
   * `clusters` - The IDs of the compute clusters in the vSphere Zone.
+* `workload_network` - The workload networks of the Supervisor.
+  * `network` - The name of the Supervisor network. Use it in the `vsphere_network` block of the [`vsphere_namespace`](/docs/providers/vsphere/r/namespace.html) resource.
+  * `network_provider` - The network provider of the Supervisor network, for example `VSPHERE_NETWORK`.
+  * `portgroup` - The ID of the distributed port group backing the Supervisor network. Empty for NSX-backed networks.
+  * `ip_assignment_mode` - The IP assignment mode of the Supervisor network. Empty for NSX-backed networks.
+  * `gateway` - The gateway of the Supervisor network. Empty for NSX-backed networks.
+  * `subnet_mask` - The subnet mask of the Supervisor network. Empty for NSX-backed networks.
+  * `namespaces` - The vSphere Namespaces that use the Supervisor network.

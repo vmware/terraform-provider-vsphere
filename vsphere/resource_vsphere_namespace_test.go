@@ -7,6 +7,7 @@ package vsphere
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -237,6 +238,29 @@ func TestAccResourceVSphereNamespace_vpcSharedSubnets(t *testing.T) {
 	})
 }
 
+func TestAccResourceVSphereNamespace_vsphereNetwork(t *testing.T) {
+	// Cannot run on the same supervisor as the VPC-based configurations
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccCheckEnvVariables(t, []string{"TF_VAR_SUPERVISOR"})
+		},
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceVSphereNamespaceConfigVsphereNetwork(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestMatchResourceAttr("data.vsphere_supervisor.supervisor", "workload_network.1.portgroup", regexp.MustCompile(`^dvportgroup-`)),
+					resource.TestCheckResourceAttrPair("vsphere_namespace.namespace", "vsphere_network.0.default_workload_network", "data.vsphere_supervisor.supervisor", "workload_network.0.network"),
+					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "vsphere_network.0.networks.#", "2"),
+					resource.TestCheckTypeSetElemAttrPair("vsphere_namespace.namespace", "vsphere_network.0.networks.*", "data.vsphere_supervisor.supervisor", "workload_network.0.network"),
+					resource.TestCheckTypeSetElemAttrPair("vsphere_namespace.namespace", "vsphere_network.0.networks.*", "data.vsphere_supervisor.supervisor", "workload_network.1.network"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccResourceVSphereNamespace_vmService(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
@@ -435,6 +459,25 @@ resource vsphere_namespace "namespace" {
 		os.Getenv("TF_VAR_NAMESPACE_VPC_PATH"),
 		os.Getenv("TF_VAR_NAMESPACE_SHARED_SUBNET_PATH"),
 		vmDefault)
+}
+
+func testAccResourceVSphereNamespaceConfigVsphereNetwork() string {
+	return fmt.Sprintf(`
+%s
+
+resource vsphere_namespace "namespace" {
+  name       = "test-acc-namespace"
+  supervisor = data.vsphere_supervisor.supervisor.id
+
+  vsphere_network {
+    default_workload_network = data.vsphere_supervisor.supervisor.workload_network.0.network
+    networks = [
+      data.vsphere_supervisor.supervisor.workload_network.0.network,
+      data.vsphere_supervisor.supervisor.workload_network.1.network,
+    ]
+  }
+}
+`, testAccDataSourceVSphereSupervisorConfigName())
 }
 
 func testAccResourceVSphereNamespaceConfigVMService() string {

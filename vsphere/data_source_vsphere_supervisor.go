@@ -84,6 +84,51 @@ func dataSourceVSphereSupervisor() *schema.Resource {
 					},
 				},
 			},
+			"workload_network": {
+				Type:        schema.TypeList,
+				Description: "The workload networks of the Supervisor",
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"network": {
+							Type:        schema.TypeString,
+							Description: "The name of the Supervisor network",
+							Computed:    true,
+						},
+						"network_provider": {
+							Type:        schema.TypeString,
+							Description: "The network provider of the Supervisor network",
+							Computed:    true,
+						},
+						"portgroup": {
+							Type:        schema.TypeString,
+							Description: "The ID of the distributed port group backing the Supervisor network",
+							Computed:    true,
+						},
+						"ip_assignment_mode": {
+							Type:        schema.TypeString,
+							Description: "The IP assignment mode of the Supervisor network",
+							Computed:    true,
+						},
+						"gateway": {
+							Type:        schema.TypeString,
+							Description: "The gateway of the Supervisor network",
+							Computed:    true,
+						},
+						"subnet_mask": {
+							Type:        schema.TypeString,
+							Description: "The subnet mask of the Supervisor network",
+							Computed:    true,
+						},
+						"namespaces": {
+							Type:        schema.TypeList,
+							Description: "The vSphere Namespaces that use the Supervisor network",
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -107,8 +152,17 @@ func dataSourceVSphereSupervisorRead(ctx context.Context, d *schema.ResourceData
 		return diag.FromErr(err)
 	}
 
+	var networks []namespace.NetworkInfo
+	if clusterID := supervisor.GetClusterID(ctx, topology); clusterID != "" {
+		networks, err = m.ListClusterNetworks(ctx, clusterID)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	supervisor.FlattenSupervisorSummary(d, summary)
 	supervisor.FlattenSupervisorTopology(d, topology)
+	supervisor.FlattenClusterNetworks(d, networks)
 	d.SetId(id)
 
 	return nil

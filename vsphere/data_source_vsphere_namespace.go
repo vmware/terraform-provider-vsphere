@@ -139,6 +139,82 @@ func dataSourceVSphereNamespace() *schema.Resource {
 					},
 				},
 			},
+			"vpc_network": {
+				Type:        schema.TypeList,
+				Description: "The NSX VPC network configuration",
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"vpc": {
+							Type:        schema.TypeString,
+							Description: "The NSX path of the VPC",
+							Computed:    true,
+						},
+						"default_subnet_size": {
+							Type:        schema.TypeInt,
+							Description: "The default size of the subnets created for the vSphere Namespace",
+							Computed:    true,
+						},
+						"vpc_config": {
+							Type:        schema.TypeList,
+							Description: "The configuration of the VPC created for the vSphere Namespace",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"private_cidrs": {
+										Type:        schema.TypeList,
+										Description: "The private CIDRs of the VPC",
+										Computed:    true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"address": {
+													Type:        schema.TypeString,
+													Description: "The IPv4 address of the CIDR",
+													Computed:    true,
+												},
+												"prefix": {
+													Type:        schema.TypeInt,
+													Description: "The prefix length of the CIDR",
+													Computed:    true,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"shared_subnet": {
+							Type:        schema.TypeSet,
+							Description: "The NSX subnets created outside the Supervisor that are associated with the vSphere Namespace",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"path": {
+										Type:        schema.TypeString,
+										Description: "The NSX path of the subnet",
+										Computed:    true,
+									},
+									"pod_default": {
+										Type:        schema.TypeBool,
+										Description: "Whether the subnet is the default network for vSphere Pods",
+										Computed:    true,
+									},
+									"vm_default": {
+										Type:        schema.TypeBool,
+										Description: "Whether the subnet is the default network for VMs",
+										Computed:    true,
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Description: "The name of the subnet in the vSphere Namespace",
+										Computed:    true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -167,6 +243,7 @@ func dataSourceVSphereNamespaceRead(ctx context.Context, d *schema.ResourceData,
 	_ = d.Set("storage_policy", namespacehelper.FlattenStorageSpecs(data.StorageSpecs))
 	_ = d.Set("access", namespacehelper.FlattenAccessList(data.AccessList))
 	_ = d.Set("zone", namespacehelper.FlattenZoneInfos(data.Zones))
+	_ = d.Set("vpc_network", namespacehelper.FlattenVpcNetwork(data.NetworkSpec))
 
 	d.SetId(name)
 

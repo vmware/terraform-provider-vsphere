@@ -82,6 +82,25 @@ func TestAccDataSourceVSphereNamespace_zones(t *testing.T) {
 	})
 }
 
+func TestAccDataSourceVSphereNamespace_vpcNetwork(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccCheckEnvVariables(t, []string{"TF_VAR_SUPERVISOR"})
+		},
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceVSphereNamespaceConfigFor(testAccResourceVSphereNamespaceConfigVpcNetwork(false)),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.vsphere_namespace.namespace", "vpc_network.0.vpc"),
+					resource.TestCheckResourceAttr("data.vsphere_namespace.namespace", "vpc_network.0.default_subnet_size", "64"),
+				),
+			},
+		},
+	})
+}
+
 func testAccDataSourceVSphereNamespaceConfigFor(namespaceConfig string) string {
 	return fmt.Sprintf(`
 %s

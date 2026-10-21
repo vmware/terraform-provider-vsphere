@@ -14,6 +14,10 @@ import (
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/viapi"
 )
 
+const (
+	networkProviderNsxVpc = "NSX_VPC"
+)
+
 func ValidateVersionRequirements(version viapi.VSphereVersion, d *schema.ResourceDiff) error {
 	log.Printf("[DEBUG] namespacehelper.ValidateVersionRequirements: Validating version requirements against vCenter %d.%d.%d", version.Major, version.Minor, version.Patch)
 	var errs []error
@@ -29,7 +33,44 @@ func ValidateVersionRequirements(version viapi.VSphereVersion, d *schema.Resourc
 		require("zone", 9, 0, 0)
 	}
 
+	if vpcNetworks := d.Get("vpc_network").([]interface{}); len(vpcNetworks) > 0 {
+		require("vpc_network", 9, 0, 0)
+
+		usesSharedSubnetPath, usesSharedSubnetDefaults := false, false
+		for _, subnet := range sharedSubnetsFromVpcNetworks(vpcNetworks) {
+			if subnet["path"].(string) != "" {
+				usesSharedSubnetPath = true
+			}
+			if subnet["pod_default"].(bool) || subnet["vm_default"].(bool) {
+				usesSharedSubnetDefaults = true
+			}
+		}
+		if usesSharedSubnetPath {
+			require("vpc_network.shared_subnet.path", 9, 1, 0)
+		}
+		if usesSharedSubnetDefaults {
+			require("vpc_network.shared_subnet pod_default and vm_default", 9, 1, 1)
+		}
+	}
+
 	return errors.Join(errs...)
+}
+
+func sharedSubnetsFromVpcNetworks(vpcNetworks []interface{}) []map[string]interface{} {
+	if len(vpcNetworks) == 0 {
+		return nil
+	}
+	vpcNetwork, _ := vpcNetworks[0].(map[string]interface{})
+	subnets, _ := vpcNetwork["shared_subnet"].(*schema.Set)
+	if subnets == nil {
+		return nil
+	}
+	result := make([]map[string]interface{}, 0, subnets.Len())
+	log.Printf("[DEBUG] namespacehelper.sharedSubnetsFromVpcNetworks: Found %d shared subnets", subnets.Len())
+	for _, subnet := range subnets.List() {
+		result = append(result, subnet.(map[string]interface{}))
+	}
+	return result
 }
 
 func ExpandStorageSpecs(d *schema.ResourceData) []namespace.StorageSpec {
@@ -197,4 +238,144 @@ func FlattenZoneInfos(zones []namespace.ZoneInfo) []interface{} {
 		})
 	}
 	return result
+}
+
+func ExpandNetworkSpecCreate(d *schema.ResourceData) *namespace.NetworkConfigCreateSpec {
+	if vpcNetworks := d.Get("vpc_network").([]interface{}); len(vpcNetworks) > 0 {
+		if vpcNetwork, ok := vpcNetworks[0].(map[string]interface{}); ok {
+			return expandVpcNetworkCreate(vpcNetwork)
+		}
+	}
+	log.Printf("[DEBUG] namespacehelper.ExpandNetworkSpecCreate: No network configuration specified, the Supervisor default is used")
+	return nil
+}
+
+func expandVpcNetworkCreate(vpcNetwork map[string]interface{}) *namespace.NetworkConfigCreateSpec {
+	vpc := &namespace.VpcNetworkCreateSpec{}
+	log.Printf("[DEBUG] namespacehelper.expandVpcNetworkCreate: Expanding NSX VPC network configuration")
+	if vpcPath := vpcNetwork["vpc"].(string); vpcPath != "" {
+		vpc.Vpc = &vpcPath
+	}
+	if subnetSize := int64(vpcNetwork["default_subnet_size"].(int)); subnetSize != 0 {
+		vpc.DefaultSubnetSize = &subnetSize
+	}
+	if cidrs := expandPrivateCidrs(vpcNetwork["vpc_config"]); len(cidrs) > 0 {
+		vpc.VpcConfig = &namespace.VpcConfig{PrivateCidrs: cidrs}
+	}
+	if subnets := expandSharedSubnets(vpcNetwork["shared_subnet"]); len(subnets) > 0 {
+		vpc.SharedSubnets = &subnets
+	}
+
+	return &namespace.NetworkConfigCreateSpec{
+		NetworkProvider: networkProviderNsxVpc,
+		VpcNetwork:      vpc,
+	}
+}
+
+func ExpandNetworkSpecUpdate(d *schema.ResourceData) *namespace.NetworkConfigUpdateSpec {
+	vpcNetworks := d.Get("vpc_network").([]interface{})
+	if len(vpcNetworks) == 0 || !d.HasChange("vpc_network") {
+		log.Printf("[DEBUG] namespacehelper.ExpandNetworkSpecUpdate: No NSX VPC network changes")
+		return nil
+	}
+	vpcNetwork, ok := vpcNetworks[0].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	vpc := &namespace.VpcNetworkUpdateSpec{}
+	log.Printf("[DEBUG] namespacehelper.ExpandNetworkSpecUpdate: Expanding NSX VPC network changes")
+	if subnetSize := int64(vpcNetwork["default_subnet_size"].(int)); subnetSize != 0 && d.HasChange("vpc_network.0.default_subnet_size") {
+		vpc.DefaultSubnetSize = &subnetSize
+	}
+	if d.HasChange("vpc_network.0.vpc_config") {
+		vpc.PrivateCidrs = expandPrivateCidrs(vpcNetwork["vpc_config"])
+	}
+	subnets := expandSharedSubnets(vpcNetwork["shared_subnet"])
+	if len(subnets) > 0 || d.HasChange("vpc_network.0.shared_subnet") {
+		vpc.SharedSubnets = &subnets
+	}
+
+	return &namespace.NetworkConfigUpdateSpec{
+		NetworkProvider: networkProviderNsxVpc,
+		VpcConfig:       vpc,
+	}
+}
+
+func expandPrivateCidrs(vpcConfig interface{}) []namespace.Ipv4Cidr {
+	configs, _ := vpcConfig.([]interface{})
+	if len(configs) == 0 || configs[0] == nil {
+		return nil
+	}
+	cidrs, _ := configs[0].(map[string]interface{})["private_cidrs"].([]interface{})
+	result := make([]namespace.Ipv4Cidr, 0, len(cidrs))
+	log.Printf("[DEBUG] namespacehelper.expandPrivateCidrs: Expanding %d private CIDRs", len(cidrs))
+	for _, item := range cidrs {
+		entry := item.(map[string]interface{})
+		result = append(result, namespace.Ipv4Cidr{
+			Address: entry["address"].(string),
+			Prefix:  entry["prefix"].(int),
+		})
+	}
+	return result
+}
+
+func expandSharedSubnets(value interface{}) []namespace.SharedSubnet {
+	set, _ := value.(*schema.Set)
+	if set == nil {
+		return []namespace.SharedSubnet{}
+	}
+	subnets := make([]namespace.SharedSubnet, 0, set.Len())
+	log.Printf("[DEBUG] namespacehelper.expandSharedSubnets: Expanding %d shared subnets", set.Len())
+	for _, item := range set.List() {
+		entry := item.(map[string]interface{})
+		subnet := namespace.SharedSubnet{Path: entry["path"].(string)}
+		if podDefault := entry["pod_default"].(bool); podDefault {
+			subnet.PodDefault = &podDefault
+		}
+		if vmDefault := entry["vm_default"].(bool); vmDefault {
+			subnet.VmDefault = &vmDefault
+		}
+		subnets = append(subnets, subnet)
+	}
+	return subnets
+}
+
+func FlattenVpcNetwork(info *namespace.NetworkConfigInfo) []interface{} {
+	if info == nil || info.VpcNetwork == nil {
+		return nil
+	}
+	vpc := info.VpcNetwork
+	log.Printf("[DEBUG] namespacehelper.FlattenVpcNetwork: Flattening NSX VPC network configuration for VPC %s", vpc.Vpc)
+
+	cidrs := make([]interface{}, 0, len(vpc.VpcConfig.PrivateCidrs))
+	for _, cidr := range vpc.VpcConfig.PrivateCidrs {
+		cidrs = append(cidrs, map[string]interface{}{
+			"address": cidr.Address,
+			"prefix":  cidr.Prefix,
+		})
+	}
+
+	subnets := make([]interface{}, 0, len(vpc.SharedSubnets))
+	for _, subnet := range vpc.SharedSubnets {
+		flattened := map[string]interface{}{"path": subnet.Path}
+		if subnet.PodDefault != nil {
+			flattened["pod_default"] = *subnet.PodDefault
+		}
+		if subnet.VmDefault != nil {
+			flattened["vm_default"] = *subnet.VmDefault
+		}
+		if subnet.Name != nil {
+			flattened["name"] = *subnet.Name
+		}
+		subnets = append(subnets, flattened)
+	}
+
+	vpcNetwork := map[string]interface{}{
+		"vpc":                 vpc.Vpc,
+		"default_subnet_size": int(vpc.DefaultSubnetSize),
+		"vpc_config":          []interface{}{map[string]interface{}{"private_cidrs": cidrs}},
+		"shared_subnet":       subnets,
+	}
+	return []interface{}{vpcNetwork}
 }

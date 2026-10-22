@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/govmomi/vapi/namespace"
+	namespacehelper "github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/namespace"
 )
 
 func dataSourceVSphereNamespace() *schema.Resource {
@@ -66,11 +67,24 @@ func dataSourceVSphereNamespace() *schema.Resource {
 					},
 				},
 			},
-			"storage_policies": {
+			"storage_policy": {
 				Type:        schema.TypeList,
-				Description: "The storage policies associated with the vSphere Namespace",
+				Description: "The storage policies available in the vSphere Namespace, with their storage limits",
 				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"policy": {
+							Type:        schema.TypeString,
+							Description: "The identifier of the storage policy",
+							Computed:    true,
+						},
+						"limit": {
+							Type:        schema.TypeInt,
+							Description: "The maximum storage, in mebibytes (MiB), the vSphere Namespace can use for this policy. 0 means no limit",
+							Computed:    true,
+						},
+					},
+				},
 			},
 		},
 	}
@@ -97,11 +111,7 @@ func dataSourceVSphereNamespaceRead(ctx context.Context, d *schema.ResourceData,
 	vmService["vm_classes"] = data.VmServiceSpec.VmClasses
 	_ = d.Set("vm_service", []map[string]interface{}{vmService})
 
-	storagePolicies := make([]string, len(data.StorageSpecs))
-	for i, storageSpec := range data.StorageSpecs {
-		storagePolicies[i] = storageSpec.Policy
-	}
-	_ = d.Set("storage_policies", storagePolicies)
+	_ = d.Set("storage_policy", namespacehelper.FlattenStorageSpecs(data.StorageSpecs))
 
 	d.SetId(name)
 

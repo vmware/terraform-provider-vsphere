@@ -28,9 +28,10 @@ resource "vsphere_namespace" "example" {
     ]
   }
 
-  storage_policies = [
-    "1bb87d1e-49a5-49f8-ad4a-7094be13d4a0"
-  ]
+  storage_policy {
+    policy = "1bb87d1e-49a5-49f8-ad4a-7094be13d4a0"
+    limit  = 102400
+  }
 }
 ```
 
@@ -43,4 +44,24 @@ The following arguments are supported:
 * `vm_service` - (Optional) The configuration for VM Service in the vSphere Namespace.
   * `content_libraries` - (Optional) The list of content libraries to associate with the VM Service.
   * `vm_classes` - (Optional) The list of VM Classes to associate with the VM Service.
-* `storage_policies` - (Optional) The list of storage policies that will be available in the vSphere Namespace.
+* `storage_policy` - (Optional) The storage policies that will be available in the vSphere Namespace. Specify one block per storage policy.
+  * `policy` - (Required) The identifier of the storage policy.
+  * `limit` - (Optional) The maximum storage, in mebibytes (MiB), that the vSphere Namespace can use for the storage policy. Unset or `0` means no limit.
+
+~> **NOTE:** In v2.18.0, `storage_policy` superseded the `storage_policies` argument. To upgrade, replace
+
+```hcl
+storage_policies = ["policy-a", "policy-b"]
+```
+
+with one `storage_policy` block per storage policy:
+
+```hcl
+storage_policy {
+  policy = "policy-a"
+}
+
+storage_policy {
+  policy = "policy-b"
+}
+```

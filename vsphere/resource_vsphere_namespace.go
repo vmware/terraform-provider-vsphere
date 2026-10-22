@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/govmomi/vapi/namespace"
 	"github.com/vmware/govmomi/vapi/rest"
+	namespacehelper "github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/namespace"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/structure"
 )
 
@@ -57,11 +58,24 @@ func resourceVSphereNamespace() *schema.Resource {
 					},
 				},
 			},
-			"storage_policies": {
+			"storage_policy": {
 				Type:        schema.TypeSet,
-				Description: "The storage policies associated with the vSphere Namespace",
+				Description: "The storage policies available in the vSphere Namespace, with optional storage limits",
 				Optional:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"policy": {
+							Type:        schema.TypeString,
+							Description: "The identifier of the storage policy",
+							Required:    true,
+						},
+						"limit": {
+							Type:        schema.TypeInt,
+							Description: "The maximum storage, in mebibytes (MiB), the vSphere Namespace can use for this policy. 0 or unset means no limit",
+							Optional:    true,
+						},
+					},
+				},
 			},
 		},
 	}
@@ -74,8 +88,11 @@ func resourceVSphereNamespaceCreate(ctx context.Context, d *schema.ResourceData,
 	spec := namespace.NamespaceInstanceCreateSpecV2{
 		Namespace:     d.Get("name").(string),
 		Supervisor:    d.Get("supervisor").(string),
-		StorageSpecs:  getStorageSpecs(d),
 		VmServiceSpec: getVMServiceSpec(d),
+	}
+
+	if storageSpecs := namespacehelper.ExpandStorageSpecs(d); len(storageSpecs) > 0 {
+		spec.StorageSpecs = &storageSpecs
 	}
 
 	if err := m.CreateNamespaceV2(ctx, spec); err != nil {
@@ -114,11 +131,7 @@ func resourceVSphereNamespaceRead(ctx context.Context, d *schema.ResourceData, m
 	}
 	_ = d.Set("vm_service", vmServiceAttr)
 
-	storagePolicies := make([]string, len(data.StorageSpecs))
-	for i, storageSpec := range data.StorageSpecs {
-		storagePolicies[i] = storageSpec.Policy
-	}
-	_ = d.Set("storage_policies", storagePolicies)
+	_ = d.Set("storage_policy", namespacehelper.FlattenStorageSpecs(data.StorageSpecs))
 
 	d.SetId(name)
 
@@ -132,8 +145,8 @@ func resourceVSphereNamespaceUpdate(ctx context.Context, d *schema.ResourceData,
 	name := d.Get("name").(string)
 	spec := namespace.NamespacesInstanceUpdateSpec{}
 
-	if storageSpecs := getStorageSpecs(d); storageSpecs != nil {
-		spec.StorageSpecs = *storageSpecs
+	if storageSpecs := namespacehelper.ExpandStorageSpecs(d); len(storageSpecs) > 0 {
+		spec.StorageSpecs = storageSpecs
 	}
 
 	if vmServiceSpec := getVMServiceSpec(d); vmServiceSpec != nil {
@@ -207,20 +220,6 @@ func waitForNamespaceCreation(ctx context.Context, m *namespace.Manager, name st
 			}
 		}
 	}
-}
-
-func getStorageSpecs(d *schema.ResourceData) *[]namespace.StorageSpec {
-	storagePolicies := d.Get("storage_policies").(*schema.Set).List()
-	if len(storagePolicies) == 0 {
-		return nil
-	}
-
-	storageSpecs := make([]namespace.StorageSpec, len(storagePolicies))
-	for i, storagePolicy := range storagePolicies {
-		storageSpecs[i] = namespace.StorageSpec{Policy: storagePolicy.(string)}
-	}
-
-	return &storageSpecs
 }
 
 func getVMServiceSpec(d *schema.ResourceData) *namespace.VmServiceSpec {

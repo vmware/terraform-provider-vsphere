@@ -12,6 +12,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/vmware/govmomi/vapi/namespace"
 	"github.com/vmware/govmomi/vapi/rest"
 	namespacehelper "github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/namespace"
@@ -70,9 +71,10 @@ func resourceVSphereNamespace() *schema.Resource {
 							Required:    true,
 						},
 						"limit": {
-							Type:        schema.TypeInt,
-							Description: "The maximum storage, in mebibytes (MiB), the vSphere Namespace can use for this policy. 0 or unset means no limit",
-							Optional:    true,
+							Type:         schema.TypeInt,
+							Description:  "The maximum storage, in mebibytes (MiB), the vSphere Namespace can use for this policy. 0 or unset means no limit",
+							Optional:     true,
+							ValidateFunc: validation.IntAtLeast(0),
 						},
 					},
 				},
@@ -145,8 +147,8 @@ func resourceVSphereNamespaceUpdate(ctx context.Context, d *schema.ResourceData,
 	name := d.Get("name").(string)
 	spec := namespace.NamespacesInstanceUpdateSpec{}
 
-	if storageSpecs := namespacehelper.ExpandStorageSpecs(d); len(storageSpecs) > 0 {
-		spec.StorageSpecs = storageSpecs
+	if d.HasChange("storage_policy") {
+		spec.StorageSpecs = namespacehelper.ExpandStorageSpecs(d)
 	}
 
 	if vmServiceSpec := getVMServiceSpec(d); vmServiceSpec != nil {

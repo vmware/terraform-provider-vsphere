@@ -19,6 +19,17 @@ import (
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/structure"
 )
 
+var namespaceAccessSubjectTypeAllowedValues = []string{
+	string(namespace.AccessSubjectTypeUser),
+	string(namespace.AccessSubjectTypeGroup),
+}
+
+var namespaceAccessRoleAllowedValues = []string{
+	string(namespace.AccessRoleOwner),
+	string(namespace.AccessRoleEdit),
+	string(namespace.AccessRoleView),
+}
+
 func resourceVSphereNamespace() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVSphereNamespaceCreate,
@@ -89,7 +100,7 @@ func resourceVSphereNamespace() *schema.Resource {
 							Type:         schema.TypeString,
 							Description:  "The type of the subject: USER or GROUP",
 							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"USER", "GROUP"}, false),
+							ValidateFunc: validation.StringInSlice(namespaceAccessSubjectTypeAllowedValues, false),
 						},
 						"subject": {
 							Type:        schema.TypeString,
@@ -105,7 +116,7 @@ func resourceVSphereNamespace() *schema.Resource {
 							Type:         schema.TypeString,
 							Description:  "The role of the subject in the vSphere Namespace: OWNER, EDIT or VIEW",
 							Required:     true,
-							ValidateFunc: validation.StringInSlice([]string{"OWNER", "EDIT", "VIEW"}, false),
+							ValidateFunc: validation.StringInSlice(namespaceAccessRoleAllowedValues, false),
 						},
 						"identity_provider": {
 							Type:        schema.TypeString,

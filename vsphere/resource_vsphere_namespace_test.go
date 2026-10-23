@@ -97,6 +97,12 @@ func TestAccResourceVSphereNamespace_access(t *testing.T) {
 					}),
 				),
 			},
+			{
+				Config: testAccResourceVSphereNamespaceConfigBasic(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "access.#", "0"),
+				),
+			},
 		},
 	})
 }

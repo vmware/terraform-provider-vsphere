@@ -137,7 +137,7 @@ func TestAccResourceVSphereNamespace_limits(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccResourceVSphereNamespaceConfigLimits(),
+				Config: testAccResourceVSphereNamespaceConfigLimits(2000, 1000, 4096, 2048),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "zone.#", "1"),
 					resource.TestCheckTypeSetElemNestedAttrs("vsphere_namespace.namespace", "zone.*", map[string]string{
@@ -149,6 +149,32 @@ func TestAccResourceVSphereNamespace_limits(t *testing.T) {
 					}),
 					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "storage_policy.#", "1"),
 					resource.TestCheckTypeSetElemNestedAttrs("vsphere_namespace.namespace", "storage_policy.*", map[string]string{"limit": "1024"}),
+				),
+			},
+			{
+				Config: testAccResourceVSphereNamespaceConfigLimits(3000, 1500, 6144, 3072),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "zone.#", "1"),
+					resource.TestCheckTypeSetElemNestedAttrs("vsphere_namespace.namespace", "zone.*", map[string]string{
+						"name":               os.Getenv("TF_VAR_NAMESPACE_ZONE"),
+						"cpu_limit":          "3000",
+						"cpu_reservation":    "1500",
+						"memory_limit":       "6144",
+						"memory_reservation": "3072",
+					}),
+				),
+			},
+			{
+				Config: testAccResourceVSphereNamespaceConfigLimits(0, 0, 0, 0),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "zone.#", "1"),
+					resource.TestCheckTypeSetElemNestedAttrs("vsphere_namespace.namespace", "zone.*", map[string]string{
+						"name":               os.Getenv("TF_VAR_NAMESPACE_ZONE"),
+						"cpu_limit":          "0",
+						"cpu_reservation":    "0",
+						"memory_limit":       "0",
+						"memory_reservation": "0",
+					}),
 				),
 			},
 		},
@@ -295,7 +321,7 @@ resource vsphere_namespace "namespace" {
 		os.Getenv("TF_VAR_NAMESPACE_ZONE"))
 }
 
-func testAccResourceVSphereNamespaceConfigLimits() string {
+func testAccResourceVSphereNamespaceConfigLimits(cpuLimit, cpuReservation, memoryLimit, memoryReservation int) string {
 	return fmt.Sprintf(`
 %s
 
@@ -309,10 +335,10 @@ resource vsphere_namespace "namespace" {
 
   zone {
     name               = "%s"
-    cpu_limit          = 2000
-    cpu_reservation    = 1000
-    memory_limit       = 4096
-    memory_reservation = 2048
+    cpu_limit          = %d
+    cpu_reservation    = %d
+    memory_limit       = %d
+    memory_reservation = %d
   }
 
   storage_policy {
@@ -323,7 +349,11 @@ resource vsphere_namespace "namespace" {
 `,
 		testAccDataSourceVSphereSupervisorConfigName(),
 		os.Getenv("TF_VAR_STORAGE_POLICY"),
-		os.Getenv("TF_VAR_NAMESPACE_ZONE"))
+		os.Getenv("TF_VAR_NAMESPACE_ZONE"),
+		cpuLimit,
+		cpuReservation,
+		memoryLimit,
+		memoryReservation)
 }
 
 func testAccResourceVSphereNamespaceConfigVMService() string {

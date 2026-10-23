@@ -69,7 +69,7 @@ func ValidateVersionRequirements(version viapi.VSphereVersion, d *schema.Resourc
 
 func validateDefaultWorkloadNetwork(d *schema.ResourceDiff) error {
 	if !d.NewValueKnown("vsphere_network.0.networks") || !d.NewValueKnown("vsphere_network.0.default_workload_network") {
-		log.Printf("[DEBUG] namespacehelper.validateDefaultWorkloadNetwork: Networks are not known yet, skipping validation")
+		log.Printf("[DEBUG] namespace.validateDefaultWorkloadNetwork: Networks are not known yet, skipping validation")
 		return nil
 	}
 	defaultNetwork := d.Get("vsphere_network.0.default_workload_network").(string)
@@ -264,22 +264,22 @@ func FlattenZoneInfos(zones []namespace.ZoneInfo) []interface{} {
 	return result
 }
 
-func ExpandNetworkSpecCreate(d *schema.ResourceData) *namespace.NetworkConfigCreateSpec {
+func ExpandNetworkCreateSpec(d *schema.ResourceData) *namespace.NetworkConfigCreateSpec {
 	if len(d.Get("vsphere_network").([]interface{})) > 0 {
-		return expandVsphereNetworkCreate(d)
+		return expandvSphereNetworkCreateSpec(d)
 	}
 	if vpcNetworks := d.Get("vpc_network").([]interface{}); len(vpcNetworks) > 0 {
 		if vpcNetwork, ok := vpcNetworks[0].(map[string]interface{}); ok {
-			return expandVpcNetworkCreate(vpcNetwork)
+			return expandVpcNetworkCreateSpec(vpcNetwork)
 		}
 	}
-	log.Printf("[DEBUG] namespace.ExpandNetworkSpecCreate: No network configuration specified, the Supervisor default is used")
+	log.Printf("[DEBUG] namespace.ExpandNetworkCreateSpec: No network configuration specified, the Supervisor default is used")
 	return nil
 }
 
-func expandVsphereNetworkCreate(d *schema.ResourceData) *namespace.NetworkConfigCreateSpec {
+func expandvSphereNetworkCreateSpec(d *schema.ResourceData) *namespace.NetworkConfigCreateSpec {
 	defaultNetwork := d.Get("vsphere_network.0.default_workload_network").(string)
-	log.Printf("[DEBUG] namespacehelper.expandVsphereNetworkCreate: Expanding vSphere network configuration with default workload network %s", defaultNetwork)
+	log.Printf("[DEBUG] namespace.expandvSphereNetworkCreateSpec: Expanding vSphere network configuration with default workload network %s", defaultNetwork)
 	return &namespace.NetworkConfigCreateSpec{
 		NetworkProvider: networkProviderVsphere,
 		VsphereNetwork: &namespace.VsphereNetworkConfigCreateSpec{
@@ -288,10 +288,10 @@ func expandVsphereNetworkCreate(d *schema.ResourceData) *namespace.NetworkConfig
 	}
 }
 
-func expandVpcNetworkCreate(vpcNetwork map[string]interface{}) *namespace.NetworkConfigCreateSpec {
+func expandVpcNetworkCreateSpec(vpcNetwork map[string]interface{}) *namespace.NetworkConfigCreateSpec {
 	vpcPath := vpcNetwork["vpc"].(string)
 	vpc := &namespace.VpcNetworkCreateSpec{Vpc: &vpcPath}
-	log.Printf("[DEBUG] namespace.expandVpcNetworkCreate: Expanding NSX VPC network configuration")
+	log.Printf("[DEBUG] namespace.expandVpcNetworkCreateSpec: Expanding NSX VPC network configuration")
 	if subnets := expandSharedSubnets(vpcNetwork["shared_subnet"]); len(subnets) > 0 {
 		vpc.SharedSubnets = &subnets
 	}
@@ -313,17 +313,17 @@ func ExpandNetworks(d *schema.ResourceData) []string {
 			networks = append(networks, network.(string))
 		}
 	}
-	log.Printf("[DEBUG] namespacehelper.ExpandNetworks: Expanded %d networks with default workload network %s", len(networks), defaultNetwork)
+	log.Printf("[DEBUG] namespace.ExpandNetworks: Expanded %d networks with default workload network %s", len(networks), defaultNetwork)
 	return networks
 }
 
-func ExpandNetworkSpecUpdate(d *schema.ResourceData) *namespace.NetworkConfigUpdateSpec {
-	if d.HasChange("vsphere_network.0.networks") && len(d.Get("vsphere_network").([]interface{})) > 0 {
-		return expandVsphereNetworkUpdate(d)
+func ExpandNetworkUpdateSpec(d *schema.ResourceData) *namespace.NetworkConfigUpdateSpec {
+	if d.HasChange("vsphere_network") && len(d.Get("vsphere_network").([]interface{})) > 0 {
+		return expandvSphereNetworkUpdateSpec(d)
 	}
 	vpcNetworks := d.Get("vpc_network").([]interface{})
 	if len(vpcNetworks) == 0 || !d.HasChange("vpc_network") {
-		log.Printf("[DEBUG] namespace.ExpandNetworkSpecUpdate: No NSX VPC network changes")
+		log.Printf("[DEBUG] namespace.ExpandNetworkUpdateSpec: No NSX VPC network changes")
 		return nil
 	}
 	vpcNetwork, ok := vpcNetworks[0].(map[string]interface{})
@@ -332,7 +332,7 @@ func ExpandNetworkSpecUpdate(d *schema.ResourceData) *namespace.NetworkConfigUpd
 	}
 
 	vpc := &namespace.VpcNetworkUpdateSpec{}
-	log.Printf("[DEBUG] namespace.ExpandNetworkSpecUpdate: Expanding NSX VPC network changes")
+	log.Printf("[DEBUG] namespace.ExpandNetworkUpdateSpec: Expanding NSX VPC network changes")
 	subnets := expandSharedSubnets(vpcNetwork["shared_subnet"])
 	vpc.SharedSubnets = &subnets
 
@@ -342,17 +342,11 @@ func ExpandNetworkSpecUpdate(d *schema.ResourceData) *namespace.NetworkConfigUpd
 	}
 }
 
-func expandVsphereNetworkUpdate(d *schema.ResourceData) *namespace.NetworkConfigUpdateSpec {
-	oldValue, newValue := d.GetChange("vsphere_network.0.networks")
-	oldNetworks, _ := oldValue.(*schema.Set)
-	newNetworks, _ := newValue.(*schema.Set)
-	if oldNetworks == nil {
-		oldNetworks = &schema.Set{F: schema.HashString}
-	}
-	if newNetworks == nil {
-		newNetworks = &schema.Set{F: schema.HashString}
-	}
-	log.Printf("[DEBUG] namespacehelper.expandVsphereNetworkUpdate: Adding %d and removing %d networks", newNetworks.Difference(oldNetworks).Len(), oldNetworks.Difference(newNetworks).Len())
+func expandvSphereNetworkUpdateSpec(d *schema.ResourceData) *namespace.NetworkConfigUpdateSpec {
+	oldValue, newValue := d.GetChange("vsphere_network")
+	oldNetworks := networksFromVsphereNetworks(oldValue)
+	newNetworks := networksFromVsphereNetworks(newValue)
+	log.Printf("[DEBUG] namespace.expandvSphereNetworkUpdateSpec: Adding %d and removing %d networks", newNetworks.Difference(oldNetworks).Len(), oldNetworks.Difference(newNetworks).Len())
 
 	return &namespace.NetworkConfigUpdateSpec{
 		NetworkProvider: networkProviderVsphere,
@@ -361,6 +355,17 @@ func expandVsphereNetworkUpdate(d *schema.ResourceData) *namespace.NetworkConfig
 			NetworksToRemove: structure.SliceInterfacesToStrings(oldNetworks.Difference(newNetworks).List()),
 		},
 	}
+}
+
+func networksFromVsphereNetworks(value interface{}) *schema.Set {
+	vsphereNetworks, _ := value.([]interface{})
+	if len(vsphereNetworks) > 0 {
+		vsphereNetwork, _ := vsphereNetworks[0].(map[string]interface{})
+		if networks, ok := vsphereNetwork["networks"].(*schema.Set); ok {
+			return networks
+		}
+	}
+	return &schema.Set{F: schema.HashString}
 }
 
 func expandSharedSubnets(value interface{}) []namespace.SharedSubnet {
@@ -416,10 +421,10 @@ func FlattenVsphereNetwork(info *namespace.NetworkConfigInfo) []interface{} {
 	}
 
 	networks := make([]interface{}, 0, len(info.VsphereNetwork.Networks))
-	log.Printf("[DEBUG] namespacehelper.FlattenVsphereNetwork: Flattening %d networks", len(info.VsphereNetwork.Networks))
+	log.Printf("[DEBUG] namespace.FlattenVsphereNetwork: Flattening %d networks", len(info.VsphereNetwork.Networks))
 	for _, network := range info.VsphereNetwork.Networks {
 		if network.ConfigStatus == namespace.NetworkConfigStatusRemoving {
-			log.Printf("[DEBUG] namespacehelper.FlattenVsphereNetwork: Skipping network %s, which is being removed", network.Network)
+			log.Printf("[DEBUG] namespace.FlattenVsphereNetwork: Skipping network %s, which is being removed", network.Network)
 			continue
 		}
 		networks = append(networks, network.Network)

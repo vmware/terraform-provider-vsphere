@@ -290,7 +290,7 @@ func resourceVSphereNamespaceCreate(ctx context.Context, d *schema.ResourceData,
 		spec.Zones = &zones
 	}
 
-	spec.NetworkSpec = namespacehelper.ExpandNetworkSpecCreate(d)
+	spec.NetworkSpec = namespacehelper.ExpandNetworkCreateSpec(d)
 	if networks := namespacehelper.ExpandNetworks(d); len(networks) > 0 {
 		spec.Networks = &networks
 	}
@@ -364,7 +364,7 @@ func resourceVSphereNamespaceUpdate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	if d.HasChange("vpc_network") || d.HasChange("vsphere_network") {
-		spec.NetworkSpec = namespacehelper.ExpandNetworkSpecUpdate(d)
+		spec.NetworkSpec = namespacehelper.ExpandNetworkUpdateSpec(d)
 	}
 
 	if vmServiceSpec := getVMServiceSpec(d); vmServiceSpec != nil {

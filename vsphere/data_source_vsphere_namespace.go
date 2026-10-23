@@ -150,39 +150,6 @@ func dataSourceVSphereNamespace() *schema.Resource {
 							Description: "The NSX path of the VPC",
 							Computed:    true,
 						},
-						"default_subnet_size": {
-							Type:        schema.TypeInt,
-							Description: "The default size of the subnets created for the vSphere Namespace",
-							Computed:    true,
-						},
-						"vpc_config": {
-							Type:        schema.TypeList,
-							Description: "The configuration of the VPC created for the vSphere Namespace",
-							Computed:    true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"private_cidrs": {
-										Type:        schema.TypeList,
-										Description: "The private CIDRs of the VPC",
-										Computed:    true,
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"address": {
-													Type:        schema.TypeString,
-													Description: "The IPv4 address of the CIDR",
-													Computed:    true,
-												},
-												"prefix": {
-													Type:        schema.TypeInt,
-													Description: "The prefix length of the CIDR",
-													Computed:    true,
-												},
-											},
-										},
-									},
-								},
-							},
-						},
 						"shared_subnet": {
 							Type:        schema.TypeSet,
 							Description: "The NSX subnets created outside the Supervisor that are associated with the vSphere Namespace",
@@ -202,11 +169,6 @@ func dataSourceVSphereNamespace() *schema.Resource {
 									"vm_default": {
 										Type:        schema.TypeBool,
 										Description: "Whether the subnet is the default network for VMs",
-										Computed:    true,
-									},
-									"name": {
-										Type:        schema.TypeString,
-										Description: "The name of the subnet in the vSphere Namespace",
 										Computed:    true,
 									},
 								},

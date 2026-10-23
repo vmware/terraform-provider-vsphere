@@ -91,10 +91,10 @@ func TestAccDataSourceVSphereNamespace_vpcNetwork(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceVSphereNamespaceConfigFor(testAccResourceVSphereNamespaceConfigVpcNetwork(false)),
+				Config: testAccDataSourceVSphereNamespaceConfigFor(testAccResourceVSphereNamespaceConfigBasic()),
 				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.vsphere_namespace.namespace", "vpc_network.#", "1"),
 					resource.TestCheckResourceAttrSet("data.vsphere_namespace.namespace", "vpc_network.0.vpc"),
-					resource.TestCheckResourceAttr("data.vsphere_namespace.namespace", "vpc_network.0.default_subnet_size", "64"),
 				),
 			},
 		},

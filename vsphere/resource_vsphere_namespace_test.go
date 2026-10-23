@@ -190,18 +190,10 @@ func TestAccResourceVSphereNamespace_vpcNetwork(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccResourceVSphereNamespaceConfigVpcNetwork(false),
+				Config: testAccResourceVSphereNamespaceConfigBasic(),
 				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "vpc_network.#", "1"),
 					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "vpc_network.0.vpc"),
-					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "vpc_network.0.default_subnet_size", "64"),
-					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "vpc_network.0.vpc_config.0.private_cidrs.#", "1"),
-				),
-			},
-			{
-				Config: testAccResourceVSphereNamespaceConfigVpcNetwork(true),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "vpc_network.0.default_subnet_size", "64"),
-					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "vpc_network.0.vpc_config.0.private_cidrs.#", "2"),
 				),
 			},
 		},
@@ -420,40 +412,6 @@ resource vsphere_namespace "namespace" {
 		memoryReservation)
 }
 
-func testAccResourceVSphereNamespaceConfigVpcNetwork(withSecondCidr bool) string {
-	secondCidr := ""
-	if withSecondCidr {
-		secondCidr = `
-        private_cidrs {
-          address = "10.245.0.0"
-          prefix  = 24
-        }`
-	}
-	return fmt.Sprintf(`
-%s
-
-resource vsphere_namespace "namespace" {
-  name       = "test-acc-namespace"
-  supervisor = data.vsphere_supervisor.supervisor.id
-
-  vpc_network {
-    default_subnet_size = 64
-
-    vpc_config {
-      private_cidrs {
-        address = "10.244.0.0"
-        prefix  = 24
-      }
-
-%s
-    }
-  }
-}
-`,
-		testAccResourceVSphereNamespaceSupervisorConfig("TF_VAR_SUPERVISOR"),
-		secondCidr)
-}
-
 func testAccResourceVSphereNamespaceConfigVpcSharedSubnets(vmDefault bool) string {
 	return fmt.Sprintf(`
 %s
@@ -473,18 +431,10 @@ resource vsphere_namespace "namespace" {
   }
 }
 `,
-		testAccResourceVSphereNamespaceSupervisorConfig("TF_VAR_SUPERVISOR"),
+		testAccDataSourceVSphereSupervisorConfigName(),
 		os.Getenv("TF_VAR_NAMESPACE_VPC_PATH"),
 		os.Getenv("TF_VAR_NAMESPACE_SHARED_SUBNET_PATH"),
 		vmDefault)
-}
-
-func testAccResourceVSphereNamespaceSupervisorConfig(supervisorEnvVar string) string {
-	return fmt.Sprintf(`
-data vsphere_supervisor "supervisor" {
-  name = "%s"
-}
-`, os.Getenv(supervisorEnvVar))
 }
 
 func testAccResourceVSphereNamespaceConfigVMService() string {

@@ -60,13 +60,9 @@ The following attributes are exported:
   * `type` - The type of the vSphere Zone.
 * `vpc_network` - The NSX VPC network configuration. Requires vCenter 9.0.0 or later.
   * `vpc` - The NSX path of the VPC.
-  * `default_subnet_size` - The default size of the subnets created for the vSphere Namespace.
-  * `vpc_config` - The configuration of the VPC created for the vSphere Namespace.
-    * `private_cidrs` - The private CIDRs of the VPC, each with an `address` and a `prefix`.
   * `shared_subnet` - The NSX subnets created outside the Supervisor that are associated with the vSphere Namespace.
     * `path` - The NSX path of the subnet.
     * `pod_default` - Whether the subnet is the default network for vSphere Pods.
     * `vm_default` - Whether the subnet is the default network for VMs.
-    * `name` - The name of the subnet in the vSphere Namespace.
 
 ~> **NOTE:** In v2.18.0, `storage_policy` superseded the `storage_policies` attribute. To upgrade, replace references to `data.vsphere_namespace.example.storage_policies` with `[for s in data.vsphere_namespace.example.storage_policy : s.policy]`.

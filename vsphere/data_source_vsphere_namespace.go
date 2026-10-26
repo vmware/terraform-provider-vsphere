@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/govmomi/vapi/namespace"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/supervisor"
 )
 
 func dataSourceVSphereNamespace() *schema.Resource {
@@ -34,17 +33,17 @@ func dataSourceVSphereNamespace() *schema.Resource {
 			},
 			"cpu_usage": {
 				Type:        schema.TypeInt,
-				Description: "The CPU usage of the vSphere Namespace in megabytes",
+				Description: "The CPU usage of the vSphere Namespace in MHz",
 				Computed:    true,
 			},
 			"memory_usage": {
 				Type:        schema.TypeInt,
-				Description: "The memory usage of the vSphere Namespace in megabytes",
+				Description: "The memory usage of the vSphere Namespace in MiB",
 				Computed:    true,
 			},
 			"storage_usage": {
 				Type:        schema.TypeInt,
-				Description: "The storage usage of the vSphere Namespace in megabytes",
+				Description: "The storage usage of the vSphere Namespace in MiB",
 				Computed:    true,
 			},
 			"vm_service": {
@@ -82,39 +81,29 @@ func dataSourceVSphereNamespaceRead(ctx context.Context, d *schema.ResourceData,
 	m := namespace.NewManager(c)
 
 	name := d.Get("name").(string)
-	data, err := m.GetNamespace(ctx, name)
+	data, err := m.GetNamespaceV2(ctx, name)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	_ = d.Set("config_status", data.ConfigStatus)
+	_ = d.Set("config_status", string(data.ConfigStatus))
+	_ = d.Set("supervisor", data.Supervisor)
+	_ = d.Set("cpu_usage", data.Stats.CPUUsed)
+	_ = d.Set("memory_usage", data.Stats.MemoryUsed)
+	_ = d.Set("storage_usage", data.Stats.StorageUsed)
 
-	supervisorID, err := supervisor.GetSupervisorIDByClusterID(ctx, m, data.ClusterId)
-	if err != nil {
-		return diag.FromErr(err)
+	vmService := make(map[string]interface{})
+	vmService["content_libraries"] = data.VmServiceSpec.ContentLibraries
+	vmService["vm_classes"] = data.VmServiceSpec.VmClasses
+	_ = d.Set("vm_service", []map[string]interface{}{vmService})
+
+	storagePolicies := make([]string, len(data.StorageSpecs))
+	for i, storageSpec := range data.StorageSpecs {
+		storagePolicies[i] = storageSpec.Policy
 	}
-	_ = d.Set("supervisor", supervisorID)
-
-	flattenNamespaceInfo(d, data)
+	_ = d.Set("storage_policies", storagePolicies)
 
 	d.SetId(name)
 
 	return nil
-}
-
-func flattenNamespaceInfo(d *schema.ResourceData, info namespace.NamespacesInstanceInfo) {
-	_ = d.Set("cpu_usage", info.Stats.CpuUsed)
-	_ = d.Set("memory_usage", info.Stats.MemoryUsed)
-	_ = d.Set("storage_usage", info.Stats.StorageUsed)
-
-	vmService := make(map[string]interface{})
-	vmService["content_libraries"] = info.VmServiceSpec.ContentLibraries
-	vmService["vm_classes"] = info.VmServiceSpec.VmClasses
-	_ = d.Set("vm_service", []map[string]interface{}{vmService})
-
-	storagePolicies := make([]string, len(info.StorageSpecs))
-	for i, storageSpec := range info.StorageSpecs {
-		storagePolicies[i] = storageSpec.Policy
-	}
-	_ = d.Set("storage_policies", storagePolicies)
 }

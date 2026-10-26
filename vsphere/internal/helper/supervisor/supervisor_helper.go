@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/vmware/govmomi/vapi/namespace"
@@ -178,6 +179,20 @@ func FlattenSupervisorTopology(d *schema.ResourceData, topology []namespace.Supe
 		}
 	}
 	_ = d.Set("zones", zones)
+}
+
+func GetClusterID(ctx context.Context, topology []namespace.SupervisorTopologyInfo) string {
+	if len(topology) == 0 {
+		tflog.Debug(ctx, "supervisor topology is empty")
+	}
+
+	for _, t := range topology {
+		for _, cluster := range t.Clusters {
+			return cluster
+		}
+	}
+
+	return ""
 }
 
 func isClusterInSupervisor(topologies []namespace.SupervisorTopologyInfo, clusterID string) bool {

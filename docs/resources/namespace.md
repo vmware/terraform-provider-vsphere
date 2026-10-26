@@ -1,6 +1,6 @@
 ---
 subcategory: "Workload Management"
-page_title: "VMware vSphere: namespace"
+page_title: "VMware vSphere: vsphere_namespace"
 sidebar_current: "docs-vsphere-resource-vsphere-namespace"
 description: |-
   Provides a vSphere Namespace resource.
@@ -12,10 +12,10 @@ Provides a resource for configuring vSphere Namespaces.
 
 ## Example Usages
 
-### Create a namespace
+### Create a Namespace
 
 ```hcl
-resource vsphere_namespace "example" {
+resource "vsphere_namespace" "example" {
   name       = "example-namespace"
   supervisor = "ff69d7fb-4ad4-44a2-8d91-8b3bede80eaa"
 
@@ -38,8 +38,8 @@ resource vsphere_namespace "example" {
 
 The following arguments are supported:
 
-* `name` - (Required) The name of the vSphere namespace.
-* `supervisor` - (Required) The identifier of the vSphere Supervisor managing the namespace.
+* `name` - (Required) The name of the vSphere Namespace. Changing this forces a new resource to be created.
+* `supervisor` - (Required) The identifier of the vSphere Supervisor managing the vSphere Namespace. Changing this forces a new resource to be created.
 * `vm_service` - (Optional) The configuration for VM Service in the vSphere Namespace.
   * `content_libraries` - (Optional) The list of content libraries to associate with the VM Service.
   * `vm_classes` - (Optional) The list of VM Classes to associate with the VM Service.

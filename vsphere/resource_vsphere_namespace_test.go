@@ -146,8 +146,6 @@ func testAccResourceVSphereNamespaceConfigVMService() string {
 	return fmt.Sprintf(`
 %s
 
-%s
-
 data vsphere_storage_policy image_policy {
   name = "%s"
 }
@@ -193,8 +191,9 @@ resource vsphere_namespace "namespace" {
   storage_policies = [data.vsphere_storage_policy.image_policy.id]
 }
 `,
-		testAccResourceVSphereNamespaceConfigBase(),
-		testAccDataSourceVSphereSupervisorConfigName(),
+		testhelper.CombineConfigs(
+			testAccResourceVSphereNamespaceConfigBase(),
+			testAccDataSourceVSphereSupervisorConfigName()),
 		os.Getenv("TF_VAR_STORAGE_POLICY"))
 }
 

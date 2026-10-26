@@ -6,6 +6,7 @@ package vsphere
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"time"
 
@@ -27,11 +28,13 @@ func resourceVSphereNamespace() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "The name of the vSphere Namespace",
 				Required:    true,
+				ForceNew:    true,
 			},
 			"supervisor": {
 				Type:        schema.TypeString,
 				Description: "The Supervisor which the vSphere Namespace belongs to",
 				Required:    true,
+				ForceNew:    true,
 			},
 			"vm_service": {
 				Type:     schema.TypeList,
@@ -79,8 +82,9 @@ func resourceVSphereNamespaceCreate(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 
-	if err := waitForNamespaceCreation(ctx, d, meta); err != nil {
-		return err
+	if diags := waitForNamespaceCreation(ctx, m, spec.Namespace); diags != nil {
+		log.Printf("[DEBUG] Namespace %q did not reach status 'Running'", spec.Namespace)
+		return append(diags, deleteNamespace(ctx, m, spec.Namespace)...)
 	}
 
 	return resourceVSphereNamespaceRead(ctx, d, meta)
@@ -93,6 +97,11 @@ func resourceVSphereNamespaceRead(ctx context.Context, d *schema.ResourceData, m
 	name := d.Get("name").(string)
 	data, err := m.GetNamespaceV2(ctx, name)
 	if err != nil {
+		if rest.IsStatusError(err, http.StatusNotFound) {
+			log.Printf("[DEBUG] Namespace %s was not found", name)
+			d.SetId("")
+			return nil
+		}
 		return diag.FromErr(err)
 	}
 
@@ -135,22 +144,18 @@ func resourceVSphereNamespaceUpdate(ctx context.Context, d *schema.ResourceData,
 }
 
 func resourceVSphereNamespaceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*Client).restClient
-	m := namespace.NewManager(c)
+	return deleteNamespace(ctx, namespace.NewManager(meta.(*Client).restClient), d.Id())
+}
 
-	if err := m.DeleteNamespace(ctx, d.Id()); err != nil {
+func deleteNamespace(ctx context.Context, m *namespace.Manager, name string) diag.Diagnostics {
+	if err := m.DeleteNamespace(ctx, name); err != nil {
 		return diag.FromErr(err)
 	}
 
-	return waitForNamespaceDeletion(ctx, d, meta)
+	return waitForNamespaceDeletion(ctx, m, name)
 }
 
-func waitForNamespaceDeletion(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*Client).restClient
-	m := namespace.NewManager(c)
-
-	name := d.Get("name").(string)
-
+func waitForNamespaceDeletion(ctx context.Context, m *namespace.Manager, name string) diag.Diagnostics {
 	tickerCtx, cancel := context.WithTimeout(ctx, time.Minute*time.Duration(1))
 	defer cancel()
 	ticker := time.NewTicker(time.Second * time.Duration(5))
@@ -172,28 +177,33 @@ func waitForNamespaceDeletion(ctx context.Context, d *schema.ResourceData, meta 
 	}
 }
 
-func waitForNamespaceCreation(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	c := meta.(*Client).restClient
-	m := namespace.NewManager(c)
-
-	name := d.Get("name").(string)
-
-	tickerCtx, cancel := context.WithTimeout(ctx, time.Minute*time.Duration(2))
+func waitForNamespaceCreation(ctx context.Context, m *namespace.Manager, name string) diag.Diagnostics {
+	tickerCtx, cancel := context.WithTimeout(ctx, time.Minute*time.Duration(5))
 	defer cancel()
 	ticker := time.NewTicker(time.Second * time.Duration(15))
+	defer ticker.Stop()
 
 	for {
 		select {
 		case <-tickerCtx.Done():
-			return diag.Errorf("failed to create namespace: %s", name)
+			timeoutDiags := diag.Errorf("timed out waiting for namespace %s to reach RUNNING state", name)
+			data, err := m.GetNamespaceV2(ctx, name)
+			if err != nil {
+				return timeoutDiags
+			}
+			return append(timeoutDiags, collectNamespaceDiagnostics(data)...)
 		case <-ticker.C:
 			data, err := m.GetNamespaceV2(ctx, name)
 			if err != nil {
 				return diag.FromErr(err)
 			}
 
-			if data.ConfigStatus == "RUNNING" {
+			switch data.ConfigStatus {
+			case namespace.NamespaceInstanceConfigStatusRunning:
 				return nil
+			case namespace.NamespaceInstanceConfigStatusError:
+				diags := collectNamespaceDiagnostics(data)
+				return append(diag.Errorf("namespace %s entered ERROR state", name), diags...)
 			}
 		}
 	}
@@ -224,4 +234,15 @@ func getVMServiceSpec(d *schema.ResourceData) *namespace.VmServiceSpec {
 		VmClasses:        structure.SliceInterfacesToStrings(vmServiceData["vm_classes"].(*schema.Set).List()),
 		ContentLibraries: structure.SliceInterfacesToStrings(vmServiceData["content_libraries"].(*schema.Set).List()),
 	}
+}
+
+func collectNamespaceDiagnostics(n namespace.NamespaceInstanceInfoV2) diag.Diagnostics {
+	var d diag.Diagnostics
+	if len(n.Messages) > 0 {
+		for _, m := range n.Messages {
+			d = append(d, diag.Errorf("%s", m.Details.DefaultMessage)...)
+		}
+	}
+
+	return d
 }

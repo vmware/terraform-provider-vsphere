@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -1052,7 +1051,7 @@ func resourceVsphereSupervisorV2Delete(ctx context.Context, d *schema.ResourceDa
 		return diag.FromErr(err)
 	}
 
-	id := getClusterID(ctx, topology)
+	id := supervisor.GetClusterID(ctx, topology)
 	if id == "" {
 		return diag.FromErr(fmt.Errorf("no clusters found for supervisor %s", d.Id()))
 	}
@@ -1062,18 +1061,4 @@ func resourceVsphereSupervisorV2Delete(ctx context.Context, d *schema.ResourceDa
 	}
 
 	return supervisor.WaitForSupervisorDisable(ctx, d, m)
-}
-
-func getClusterID(ctx context.Context, topology []namespace.SupervisorTopologyInfo) string {
-	if len(topology) == 0 {
-		tflog.Debug(ctx, "supervisor topology is empty")
-	}
-
-	for _, t := range topology {
-		for _, cluster := range t.Clusters {
-			return cluster
-		}
-	}
-
-	return ""
 }

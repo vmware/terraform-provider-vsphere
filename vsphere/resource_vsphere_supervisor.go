@@ -251,7 +251,7 @@ func resourceVsphereSupervisorCreate(d *schema.ResourceData, meta interface{}) e
 	for _, ns := range namespaces {
 		nsData := ns.(map[string]interface{})
 
-		if err := createNamespace(m, nsData, d.Id()); err != nil {
+		if err := createSupervisorNamespace(m, nsData, d.Id()); err != nil {
 			return err
 		}
 	}
@@ -292,12 +292,12 @@ func resourceVsphereSupervisorUpdate(d *schema.ResourceData, meta interface{}) e
 		for k, v := range oldNamespaces {
 			if _, found := newNamespaces[k]; found {
 				// Namespace still exists but has changed
-				if err := updateNamespace(m, v.(map[string]interface{})); err != nil {
+				if err := updateSupervisorNamespace(m, v.(map[string]interface{})); err != nil {
 					return err
 				}
 			} else {
 				// Namespace no longer exists
-				if err := deleteNamespace(m, v.(map[string]interface{})); err != nil {
+				if err := deleteSupervisorNamespace(m, v.(map[string]interface{})); err != nil {
 					return err
 				}
 			}
@@ -306,7 +306,7 @@ func resourceVsphereSupervisorUpdate(d *schema.ResourceData, meta interface{}) e
 		for k, v := range newNamespaces {
 			if _, found := oldNamespaces[k]; !found {
 				// This is a new namespace
-				if err := createNamespace(m, v.(map[string]interface{}), d.Id()); err != nil {
+				if err := createSupervisorNamespace(m, v.(map[string]interface{}), d.Id()); err != nil {
 					return err
 				}
 			}
@@ -492,7 +492,7 @@ func getNamespacesMap(namespaces []interface{}) map[string]interface{} {
 	return result
 }
 
-func createNamespace(m *namespace.Manager, nsData map[string]interface{}, cluster string) error {
+func createSupervisorNamespace(m *namespace.Manager, nsData map[string]interface{}, cluster string) error {
 	namespaceSpec := namespace.NamespacesInstanceCreateSpec{
 		Namespace:     nsData["name"].(string),
 		Cluster:       cluster,
@@ -510,7 +510,7 @@ func createNamespace(m *namespace.Manager, nsData map[string]interface{}, cluste
 	return m.CreateNamespace(context.Background(), namespaceSpec)
 }
 
-func updateNamespace(m *namespace.Manager, nsData map[string]interface{}) error {
+func updateSupervisorNamespace(m *namespace.Manager, nsData map[string]interface{}) error {
 	spec := namespace.NamespacesInstanceUpdateSpec{
 		VmServiceSpec: namespace.VmServiceSpec{},
 	}
@@ -526,6 +526,6 @@ func updateNamespace(m *namespace.Manager, nsData map[string]interface{}) error 
 	return m.UpdateNamespace(context.Background(), nsData["name"].(string), spec)
 }
 
-func deleteNamespace(m *namespace.Manager, nsData map[string]interface{}) error {
+func deleteSupervisorNamespace(m *namespace.Manager, nsData map[string]interface{}) error {
 	return m.DeleteNamespace(context.Background(), nsData["name"].(string))
 }

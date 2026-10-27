@@ -41,11 +41,28 @@ func TestAccResourceVSphereNamespace_storagePolicy(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccResourceVSphereNamespaceConfigStoragePolicy(),
+				Config: testAccResourceVSphereNamespaceConfigStoragePolicy(0),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "id"),
 					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "supervisor"),
-					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "storage_policies.#"),
+					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "storage_policy.#", "1"),
+					resource.TestCheckTypeSetElemAttrPair("vsphere_namespace.namespace", "storage_policy.*.policy", "data.vsphere_storage_policy.image_policy", "id"),
+					resource.TestCheckNoResourceAttr("vsphere_namespace.namespace", "storage_policy.0.limit"),
+				),
+			},
+			{
+				Config: testAccResourceVSphereNamespaceConfigStoragePolicy(1024),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "storage_policy.#", "1"),
+					resource.TestCheckTypeSetElemNestedAttrs("vsphere_namespace.namespace", "storage_policy.*", map[string]string{"limit": "1024"}),
+				),
+			},
+			{
+				Config: testAccResourceVSphereNamespaceConfigStoragePolicy(0),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "storage_policy.#", "1"),
+					resource.TestCheckTypeSetElemAttrPair("vsphere_namespace.namespace", "storage_policy.*.policy", "data.vsphere_storage_policy.image_policy", "id"),
+					resource.TestCheckNoResourceAttr("vsphere_namespace.namespace", "storage_policy.0.limit"),
 				),
 			},
 		},
@@ -65,7 +82,7 @@ func TestAccResourceVSphereNamespace_vmService(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "id"),
 					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "supervisor"),
-					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "storage_policies.#"),
+					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "storage_policy.#"),
 					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "vm_service.0.vm_classes.#"),
 					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "vm_service.0.content_libraries.#"),
 				),
@@ -91,11 +108,11 @@ func TestAccResourceVSphereNamespace_update(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccResourceVSphereNamespaceConfigStoragePolicy(),
+				Config: testAccResourceVSphereNamespaceConfigStoragePolicy(0),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "id"),
 					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "supervisor"),
-					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "storage_policies.#"),
+					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "storage_policy.#"),
 				),
 			},
 			{
@@ -103,7 +120,7 @@ func TestAccResourceVSphereNamespace_update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "id"),
 					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "supervisor"),
-					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "storage_policies.#"),
+					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "storage_policy.#"),
 					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "vm_service.0.vm_classes.#"),
 					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "vm_service.0.content_libraries.#"),
 				),
@@ -123,7 +140,11 @@ resource vsphere_namespace "namespace" {
 `, testAccDataSourceVSphereSupervisorConfigName())
 }
 
-func testAccResourceVSphereNamespaceConfigStoragePolicy() string {
+func testAccResourceVSphereNamespaceConfigStoragePolicy(limit int) string {
+	limitAttr := ""
+	if limit > 0 {
+		limitAttr = fmt.Sprintf("limit  = %d", limit)
+	}
 	return fmt.Sprintf(`
 %s
 
@@ -135,11 +156,15 @@ resource vsphere_namespace "namespace" {
   name       = "test-acc-namespace"
   supervisor = data.vsphere_supervisor.supervisor.id
 
-  storage_policies = [data.vsphere_storage_policy.image_policy.id]
+  storage_policy {
+    policy = data.vsphere_storage_policy.image_policy.id
+    %s
+  }
 }
 `,
 		testAccDataSourceVSphereSupervisorConfigName(),
-		os.Getenv("TF_VAR_STORAGE_POLICY"))
+		os.Getenv("TF_VAR_STORAGE_POLICY"),
+		limitAttr)
 }
 
 func testAccResourceVSphereNamespaceConfigVMService() string {
@@ -188,7 +213,9 @@ resource vsphere_namespace "namespace" {
     vm_classes = [vsphere_virtual_machine_class.vm_class.id]
   }
 
-  storage_policies = [data.vsphere_storage_policy.image_policy.id]
+  storage_policy {
+    policy = data.vsphere_storage_policy.image_policy.id
+  }
 }
 `,
 		testhelper.CombineConfigs(

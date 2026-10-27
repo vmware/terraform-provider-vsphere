@@ -20,6 +20,14 @@ data "vsphere_namespace" "example" {
 }
 ```
 
+### Read the storage policies of a Namespace
+
+```hcl
+output "storage_policy_ids" {
+  value = [for s in data.vsphere_namespace.example.storage_policy : s.policy]
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -38,4 +46,8 @@ The following attributes are exported:
 * `vm_service` - The configuration for VM Service in the vSphere Namespace.
   * `content_libraries` - The list of content libraries associated with the VM Service.
   * `vm_classes` - The list of VM Classes associated with the VM Service.
-* `storage_policies` - The list of storage policies that are available in the vSphere Namespace.
+* `storage_policy` - The storage policies that are available in the vSphere Namespace.
+  * `policy` - The identifier of the storage policy.
+  * `limit` - The maximum storage, in mebibytes (MiB), that the vSphere Namespace can use for the storage policy. `0` means no limit.
+
+~> **NOTE:** In v2.18.0, `storage_policy` superseded the `storage_policies` attribute. To upgrade, replace references to `data.vsphere_namespace.example.storage_policies` with `[for s in data.vsphere_namespace.example.storage_policy : s.policy]`.

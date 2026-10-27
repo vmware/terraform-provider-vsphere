@@ -29,7 +29,7 @@ func TestAccDataSourceVSphereNamespace_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.vsphere_namespace.namespace", "storage_usage"),
 					resource.TestCheckResourceAttrSet("data.vsphere_namespace.namespace", "vm_service.0.content_libraries.#"),
 					resource.TestCheckResourceAttrSet("data.vsphere_namespace.namespace", "vm_service.0.vm_classes.#"),
-					resource.TestCheckResourceAttrSet("data.vsphere_namespace.namespace", "storage_policies.#"),
+					resource.TestCheckResourceAttrSet("data.vsphere_namespace.namespace", "storage_policy.#"),
 				),
 			},
 		},

@@ -54,7 +54,7 @@ The following arguments are supported:
 * `storage_policy` - (Optional) The storage policies that will be available in the vSphere Namespace. Specify one block per storage policy.
   * `policy` - (Required) The identifier of the storage policy.
   * `limit` - (Optional) The maximum storage, in mebibytes (MiB), that the vSphere Namespace can use for the storage policy. Unset or `0` means no limit.
-* `access` - (Optional) The users and groups with access to the vSphere Namespace. Specify one block per subject.
+* `access` - (Optional) The users and groups with access to the vSphere Namespace.
   * `subject_type` - (Required) The type of the subject. One of `USER` or `GROUP`.
   * `subject` - (Required) The name of the user or group, without the domain.
   * `domain` - (Required) The domain of the identity source that owns the subject.

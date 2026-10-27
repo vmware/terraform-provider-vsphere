@@ -94,7 +94,7 @@ func dataSourceVSphereNamespace() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"subject_type": {
 							Type:        schema.TypeString,
-							Description: "The type of the subject: USER or GROUP",
+							Description: "The type of the subject",
 							Computed:    true,
 						},
 						"subject": {

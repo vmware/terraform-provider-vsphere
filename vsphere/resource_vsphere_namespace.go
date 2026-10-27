@@ -98,7 +98,7 @@ func resourceVSphereNamespace() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"subject_type": {
 							Type:         schema.TypeString,
-							Description:  "The type of the subject: USER or GROUP",
+							Description:  "The type of the subject",
 							Required:     true,
 							ValidateFunc: validation.StringInSlice(namespaceAccessSubjectTypeAllowedValues, false),
 						},
@@ -114,7 +114,7 @@ func resourceVSphereNamespace() *schema.Resource {
 						},
 						"role": {
 							Type:         schema.TypeString,
-							Description:  "The role of the subject in the vSphere Namespace: OWNER, EDIT or VIEW",
+							Description:  "The role of the subject in the vSphere Namespace",
 							Required:     true,
 							ValidateFunc: validation.StringInSlice(namespaceAccessRoleAllowedValues, false),
 						},

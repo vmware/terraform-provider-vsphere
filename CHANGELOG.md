@@ -1,5 +1,23 @@
 # <!-- markdownlint-disable first-line-h1 no-inline-html -->
 
+## v2.18.0
+
+> Release Date: Not Released
+
+BREAKING CHANGES:
+
+- `r/namespace` / `d/namespace`: Replaced the `storage_policies` attribute with `storage_policy` blocks, each with a `policy` and an optional storage `limit` in MiB. See the resource and data source documentation for upgrade instructions. (#2789)
+
+BUG FIX:
+
+DOCUMENTATION:
+
+FEATURES:
+
+IMPROVEMENTS:
+
+CHORE:
+
 ## v2.17.1
 
 > Release Date: 2026-09-14

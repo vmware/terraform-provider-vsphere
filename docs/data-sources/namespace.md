@@ -49,5 +49,11 @@ The following attributes are exported:
 * `storage_policy` - The storage policies that are available in the vSphere Namespace.
   * `policy` - The identifier of the storage policy.
   * `limit` - The maximum storage, in mebibytes (MiB), that the vSphere Namespace can use for the storage policy. `0` means no limit.
+* `access` - The users and groups with access to the vSphere Namespace.
+  * `subject_type` - The type of the subject, `USER` or `GROUP`.
+  * `subject` - The name of the user or group, without the domain.
+  * `domain` - The domain of the identity source that owns the subject.
+  * `role` - The role of the subject in the vSphere Namespace.
+  * `identity_provider` - The identifier of the identity provider.
 
 ~> **NOTE:** In v2.18.0, `storage_policy` superseded the `storage_policies` attribute. To upgrade, replace references to `data.vsphere_namespace.example.storage_policies` with `[for s in data.vsphere_namespace.example.storage_policy : s.policy]`.

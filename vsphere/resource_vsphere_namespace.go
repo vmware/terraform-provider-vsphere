@@ -19,6 +19,17 @@ import (
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/structure"
 )
 
+var namespaceAccessSubjectTypeAllowedValues = []string{
+	string(namespace.AccessSubjectTypeUser),
+	string(namespace.AccessSubjectTypeGroup),
+}
+
+var namespaceAccessRoleAllowedValues = []string{
+	string(namespace.AccessRoleOwner),
+	string(namespace.AccessRoleEdit),
+	string(namespace.AccessRoleView),
+}
+
 func resourceVSphereNamespace() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceVSphereNamespaceCreate,
@@ -79,6 +90,42 @@ func resourceVSphereNamespace() *schema.Resource {
 					},
 				},
 			},
+			"access": {
+				Type:        schema.TypeSet,
+				Description: "The users and groups with access to the vSphere Namespace",
+				Optional:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"subject_type": {
+							Type:         schema.TypeString,
+							Description:  "The type of the subject",
+							Required:     true,
+							ValidateFunc: validation.StringInSlice(namespaceAccessSubjectTypeAllowedValues, false),
+						},
+						"subject": {
+							Type:        schema.TypeString,
+							Description: "The name of the user or group, without the domain",
+							Required:    true,
+						},
+						"domain": {
+							Type:        schema.TypeString,
+							Description: "The domain of the identity source that owns the subject",
+							Required:    true,
+						},
+						"role": {
+							Type:         schema.TypeString,
+							Description:  "The role of the subject in the vSphere Namespace",
+							Required:     true,
+							ValidateFunc: validation.StringInSlice(namespaceAccessRoleAllowedValues, false),
+						},
+						"identity_provider": {
+							Type:        schema.TypeString,
+							Description: "The identifier of the identity provider. If unset, vCenter Single Sign-On is used",
+							Optional:    true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -95,6 +142,10 @@ func resourceVSphereNamespaceCreate(ctx context.Context, d *schema.ResourceData,
 
 	if storageSpecs := namespacehelper.ExpandStorageSpecs(d); len(storageSpecs) > 0 {
 		spec.StorageSpecs = &storageSpecs
+	}
+
+	if accessList := namespacehelper.ExpandAccessList(d); len(accessList) > 0 {
+		spec.AccessList = &accessList
 	}
 
 	if err := m.CreateNamespaceV2(ctx, spec); err != nil {
@@ -134,6 +185,7 @@ func resourceVSphereNamespaceRead(ctx context.Context, d *schema.ResourceData, m
 	_ = d.Set("vm_service", vmServiceAttr)
 
 	_ = d.Set("storage_policy", namespacehelper.FlattenStorageSpecs(data.StorageSpecs))
+	_ = d.Set("access", namespacehelper.FlattenAccessList(data.AccessList))
 
 	d.SetId(name)
 
@@ -149,6 +201,11 @@ func resourceVSphereNamespaceUpdate(ctx context.Context, d *schema.ResourceData,
 
 	if d.HasChange("storage_policy") {
 		spec.StorageSpecs = namespacehelper.ExpandStorageSpecs(d)
+	}
+
+	if d.HasChange("access") {
+		accessList := namespacehelper.ExpandAccessList(d)
+		spec.AccessList = &accessList
 	}
 
 	if vmServiceSpec := getVMServiceSpec(d); vmServiceSpec != nil {

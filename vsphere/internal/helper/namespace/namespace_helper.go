@@ -41,3 +41,42 @@ func FlattenStorageSpecs(specs []namespace.StorageSpec) []interface{} {
 	}
 	return result
 }
+
+func ExpandAccessList(d *schema.ResourceData) []namespace.Access {
+	entries := d.Get("access").(*schema.Set).List()
+	log.Printf("[DEBUG] namespacehelper.ExpandAccessList: Expanding %d access entries", len(entries))
+	accessList := make([]namespace.Access, 0, len(entries))
+	for _, item := range entries {
+		entry := item.(map[string]interface{})
+		access := namespace.Access{
+			SubjectType: namespace.AccessSubjectType(entry["subject_type"].(string)),
+			Subject:     entry["subject"].(string),
+			Domain:      entry["domain"].(string),
+			Role:        namespace.AccessRole(entry["role"].(string)),
+		}
+		if identityProvider := entry["identity_provider"].(string); identityProvider != "" {
+			access.IdentityProvider = &identityProvider
+		}
+		accessList = append(accessList, access)
+	}
+	return accessList
+}
+
+func FlattenAccessList(accessList []namespace.Access) []interface{} {
+	log.Printf("[DEBUG] namespacehelper.FlattenAccessList: Flattening %d access entries", len(accessList))
+	result := make([]interface{}, 0, len(accessList))
+	for _, access := range accessList {
+		identityProvider := ""
+		if access.IdentityProvider != nil {
+			identityProvider = *access.IdentityProvider
+		}
+		result = append(result, map[string]interface{}{
+			"subject_type":      string(access.SubjectType),
+			"subject":           access.Subject,
+			"domain":            access.Domain,
+			"role":              string(access.Role),
+			"identity_provider": identityProvider,
+		})
+	}
+	return result
+}

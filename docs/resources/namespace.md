@@ -140,7 +140,10 @@ The following arguments are supported:
     * `path` - (Required) The NSX path of the subnet.
     * `pod_default` - (Optional) Whether the subnet is the default network for vSphere Pods.
     * `vm_default` - (Optional) Whether the subnet is the default network for VMs.
-* `vsphere_network` - (Optional) The vSphere networking configuration. Requires vCenter 9.1.0 or later. Conflicts with `vpc_network`. If omitted, the network configuration chosen by the Supervisor is exported. See [vSphere Networking](#vsphere-networking).
+* `vsphere_network` - (Optional) The vSphere networking configuration. Conflicts with `vpc_network`. If omitted, the network configuration chosen by the Supervisor is exported. See [vSphere Networking](#vsphere-networking).
+
+  ~> **NOTE:** Requires vCenter 9.1.0 or later.
+
   * `default_workload_network` - (Required) The name of the Supervisor network used by workloads that do not specify a network. It must be one of `networks`. Changing this forces a new resource to be created.
   * `networks` - (Required) The names of the Supervisor networks to associate with the vSphere Namespace, including `default_workload_network`. These are Supervisor network names, not port group IDs. See the `workload_network` attribute of the [`vsphere_supervisor`](/docs/providers/vsphere/d/supervisor.html) data source.
 

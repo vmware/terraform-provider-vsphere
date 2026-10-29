@@ -86,7 +86,7 @@ func dataSourceVSphereSupervisor() *schema.Resource {
 			},
 			"workload_network": {
 				Type:        schema.TypeList,
-				Description: "The workload networks of the Supervisor",
+				Description: "A workload network of the Supervisor",
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

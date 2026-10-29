@@ -236,7 +236,7 @@ func resourceVSphereNamespace() *schema.Resource {
 			},
 			"vsphere_network": {
 				Type:          schema.TypeList,
-				Description:   "The vSphere networking configuration. Requires vCenter 9.1.0 or later",
+				Description:   "The vSphere networking configuration",
 				Optional:      true,
 				Computed:      true,
 				MaxItems:      1,

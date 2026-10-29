@@ -179,7 +179,7 @@ func dataSourceVSphereNamespace() *schema.Resource {
 			},
 			"vsphere_network": {
 				Type:        schema.TypeList,
-				Description: "The vSphere networking configuration. Requires vCenter 9.1.0 or later",
+				Description: "The vSphere networking configuration",
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

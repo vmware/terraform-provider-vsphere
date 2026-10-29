@@ -78,7 +78,7 @@ Exactly one of the following arguments must be specified:
 * `zones` - The vSphere Zones of the Supervisor.
   * `zone` - The ID of the vSphere Zone.
   * `clusters` - The IDs of the compute clusters in the vSphere Zone.
-* `workload_network` - The workload networks of the Supervisor.
+* `workload_network` - A workload network of the Supervisor.
   * `network` - The name of the Supervisor network. Use it in the `vsphere_network` block of the [`vsphere_namespace`](/docs/providers/vsphere/r/namespace.html) resource.
   * `network_provider` - The network provider of the Supervisor network, for example `VSPHERE_NETWORK`.
   * `portgroup` - The ID of the distributed port group backing the Supervisor network. Empty for NSX-backed networks.

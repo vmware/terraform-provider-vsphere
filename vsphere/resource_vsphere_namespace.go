@@ -194,7 +194,7 @@ func resourceVSphereNamespace() *schema.Resource {
 			},
 			"vpc_network": {
 				Type:        schema.TypeList,
-				Description: "The NSX VPC network configuration. Requires vCenter 9.0.0 or later",
+				Description: "The NSX VPC network configuration",
 				Optional:    true,
 				Computed:    true,
 				MaxItems:    1,
@@ -208,7 +208,7 @@ func resourceVSphereNamespace() *schema.Resource {
 						},
 						"shared_subnet": {
 							Type:        schema.TypeSet,
-							Description: "The NSX subnets in this VPC that are associated with the vSphere Namespace. Requires vCenter 9.1.0 or later",
+							Description: "An NSX subnet in this VPC that is associated with the vSphere Namespace",
 							Optional:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -219,12 +219,12 @@ func resourceVSphereNamespace() *schema.Resource {
 									},
 									"pod_default": {
 										Type:        schema.TypeBool,
-										Description: "Whether the subnet is the default network for vSphere Pods. Requires vCenter 9.1.1 or later",
+										Description: "Whether the subnet is the default network for vSphere Pods",
 										Optional:    true,
 									},
 									"vm_default": {
 										Type:        schema.TypeBool,
-										Description: "Whether the subnet is the default network for VMs. Requires vCenter 9.1.1 or later",
+										Description: "Whether the subnet is the default network for VMs",
 										Optional:    true,
 									},
 								},

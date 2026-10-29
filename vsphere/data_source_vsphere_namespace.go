@@ -152,7 +152,7 @@ func dataSourceVSphereNamespace() *schema.Resource {
 						},
 						"shared_subnet": {
 							Type:        schema.TypeSet,
-							Description: "The NSX subnets created outside the Supervisor that are associated with the vSphere Namespace",
+							Description: "An NSX subnet created outside the Supervisor that is associated with the vSphere Namespace",
 							Computed:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{

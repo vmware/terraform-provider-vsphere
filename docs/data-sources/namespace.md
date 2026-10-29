@@ -58,9 +58,12 @@ The following attributes are exported:
 * `zone` - A vSphere Zone assigned to the vSphere Namespace.
   * `name` - The identifier of the vSphere Zone.
   * `type` - The type of the vSphere Zone.
-* `vpc_network` - The NSX VPC network configuration. Requires vCenter 9.0.0 or later.
+* `vpc_network` - The NSX VPC network configuration.
+
+  ~> **NOTE:** Requires vCenter 9.0.0 or later.
+
   * `vpc` - The NSX path of the VPC.
-  * `shared_subnet` - The NSX subnets created outside the Supervisor that are associated with the vSphere Namespace.
+  * `shared_subnet` - An NSX subnet created outside the Supervisor that is associated with the vSphere Namespace.
     * `path` - The NSX path of the subnet.
     * `pod_default` - Whether the subnet is the default network for vSphere Pods.
     * `vm_default` - Whether the subnet is the default network for VMs.

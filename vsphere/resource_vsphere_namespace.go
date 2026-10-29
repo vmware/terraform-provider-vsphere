@@ -130,7 +130,7 @@ func resourceVSphereNamespace() *schema.Resource {
 			},
 			"zone": {
 				Type:        schema.TypeSet,
-				Description: "The vSphere Zones of the vSphere Namespace. Requires vCenter 9.0.0 or later",
+				Description: "The vSphere Zones of the vSphere Namespace.",
 				Optional:    true,
 				Computed:    true,
 				Elem: &schema.Resource{

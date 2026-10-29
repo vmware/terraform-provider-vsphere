@@ -46,16 +46,16 @@ The following attributes are exported:
 * `vm_service` - The configuration for VM Service in the vSphere Namespace.
   * `content_libraries` - The list of content libraries associated with the VM Service.
   * `vm_classes` - The list of VM Classes associated with the VM Service.
-* `storage_policy` - The storage policies that are available in the vSphere Namespace.
+* `storage_policy` - A storage policy assigned to the vSphere Namespace.
   * `policy` - The identifier of the storage policy.
   * `limit` - The maximum storage, in mebibytes (MiB), that the vSphere Namespace can use for the storage policy. `0` means no limit.
-* `access` - The users and groups with access to the vSphere Namespace.
+* `access` - A principal with access to the vSphere Namespace.
   * `subject_type` - The type of the subject, `USER` or `GROUP`.
   * `subject` - The name of the user or group, without the domain.
   * `domain` - The domain of the identity source that owns the subject.
   * `role` - The role of the subject in the vSphere Namespace.
   * `identity_provider` - The identifier of the identity provider.
-* `zone` - The vSphere Zones of the vSphere Namespace. Requires vCenter 9.0.0 or later. Limits and reservations are not returned by vCenter, so they are not exported.
+* `zone` - A vSphere Zone assigned to the vSphere Namespace.
   * `name` - The identifier of the vSphere Zone.
   * `type` - The type of the vSphere Zone.
 

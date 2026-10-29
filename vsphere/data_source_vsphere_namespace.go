@@ -69,7 +69,7 @@ func dataSourceVSphereNamespace() *schema.Resource {
 			},
 			"storage_policy": {
 				Type:        schema.TypeList,
-				Description: "The storage policies available in the vSphere Namespace, with their storage limits",
+				Description: "A storage policy assigned to the vSphere Namespace, with its storage limit",
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -88,7 +88,7 @@ func dataSourceVSphereNamespace() *schema.Resource {
 			},
 			"access": {
 				Type:        schema.TypeSet,
-				Description: "The users and groups with access to the vSphere Namespace",
+				Description: "A principal with access to the vSphere Namespace",
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -115,6 +115,25 @@ func dataSourceVSphereNamespace() *schema.Resource {
 						"identity_provider": {
 							Type:        schema.TypeString,
 							Description: "The identifier of the identity provider",
+							Computed:    true,
+						},
+					},
+				},
+			},
+			"zone": {
+				Type:        schema.TypeSet,
+				Description: "A vSphere Zone assigned to the vSphere Namespace",
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"name": {
+							Type:        schema.TypeString,
+							Description: "The identifier of the vSphere Zone",
+							Computed:    true,
+						},
+						"type": {
+							Type:        schema.TypeString,
+							Description: "The type of the vSphere Zone",
 							Computed:    true,
 						},
 					},
@@ -147,6 +166,7 @@ func dataSourceVSphereNamespaceRead(ctx context.Context, d *schema.ResourceData,
 
 	_ = d.Set("storage_policy", namespacehelper.FlattenStorageSpecs(data.StorageSpecs))
 	_ = d.Set("access", namespacehelper.FlattenAccessList(data.AccessList))
+	_ = d.Set("zone", namespacehelper.FlattenZoneInfos(data.Zones))
 
 	d.SetId(name)
 

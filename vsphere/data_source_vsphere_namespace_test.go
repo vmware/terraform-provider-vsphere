@@ -6,6 +6,7 @@ package vsphere
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -53,6 +54,28 @@ func TestAccDataSourceVSphereNamespace_accessList(t *testing.T) {
 						"subject":      "acc-namespace-user",
 						"role":         "EDIT",
 					}),
+				),
+			},
+		},
+	})
+}
+
+func TestAccDataSourceVSphereNamespace_zones(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccCheckEnvVariables(t, []string{"TF_VAR_SUPERVISOR", "TF_VAR_NAMESPACE_ZONE"})
+		},
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceVSphereNamespaceConfigFor(testAccResourceVSphereNamespaceConfigZones()),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.vsphere_namespace.namespace", "zone.#", "1"),
+					resource.TestCheckTypeSetElemNestedAttrs("data.vsphere_namespace.namespace", "zone.*", map[string]string{
+						"name": os.Getenv("TF_VAR_NAMESPACE_ZONE"),
+					}),
+					resource.TestCheckResourceAttrSet("data.vsphere_namespace.namespace", "zone.0.type"),
 				),
 			},
 		},

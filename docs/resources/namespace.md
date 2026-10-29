@@ -39,6 +39,19 @@ resource "vsphere_namespace" "example" {
     domain       = "vsphere.local"
     role         = "OWNER"
   }
+
+  zone {
+    name               = "zone-1"
+    cpu_limit          = 4000
+    cpu_reservation    = 1000
+    memory_limit       = 8192
+    memory_reservation = 2048
+
+    vm_reservation {
+      reserved_vm_class = "example-vm-class"
+      count             = 2
+    }
+  }
 }
 ```
 
@@ -51,15 +64,28 @@ The following arguments are supported:
 * `vm_service` - (Optional) The configuration for VM Service in the vSphere Namespace.
   * `content_libraries` - (Optional) The list of content libraries to associate with the VM Service.
   * `vm_classes` - (Optional) The list of VM Classes to associate with the VM Service.
-* `storage_policy` - (Optional) The storage policies that will be available in the vSphere Namespace. Specify one block per storage policy.
+* `storage_policy` - (Optional) A storage policy that will be available in the vSphere Namespace.
   * `policy` - (Required) The identifier of the storage policy.
   * `limit` - (Optional) The maximum storage, in mebibytes (MiB), that the vSphere Namespace can use for the storage policy. Unset or `0` means no limit.
-* `access` - (Optional) The users and groups with access to the vSphere Namespace.
+* `access` - (Optional) A principal with access to the vSphere Namespace.
   * `subject_type` - (Required) The type of the subject. One of `USER` or `GROUP`.
   * `subject` - (Required) The name of the user or group, without the domain.
   * `domain` - (Required) The domain of the identity source that owns the subject.
   * `role` - (Required) The role of the subject in the vSphere Namespace. One of `OWNER`, `EDIT` or `VIEW`.
   * `identity_provider` - (Optional) The identifier of the identity provider. If unset, vCenter Single Sign-On is used.
+* `zone` - (Optional) A vSphere Zone to associate with the vSphere Namespace. See [Zone](#zone).
+
+  ~> **NOTE:** Requires vCenter 9.0.0 or later.
+
+  * `name` - (Required) The identifier of the vSphere Zone.
+  * `cpu_limit` - (Optional) The CPU limit, in megahertz (MHz), for the vSphere Namespace in the zone. Unset or `0` means no zone limit.
+  * `cpu_reservation` - (Optional) The CPU reservation, in megahertz (MHz), for the vSphere Namespace in the zone. Unset or `0` means no reservation.
+  * `memory_limit` - (Optional) The memory limit, in mebibytes (MiB), for the vSphere Namespace in the zone. Unset or `0` means no zone limit.
+  * `memory_reservation` - (Optional) The memory reservation, in mebibytes (MiB), for the vSphere Namespace in the zone. Unset or `0` means no reservation.
+  * `disallow_unreserved_direct_path_usage` - (Optional) Whether workloads that do not use a reserved VM class are disallowed from using a DirectPath device. Defaults to `false`.
+  * `vm_reservation` - (Optional) The VM class instances reserved for the vSphere Namespace in the zone.
+    * `reserved_vm_class` - (Required) The identifier of the VM class.
+    * `count` - (Required) The number of VM class instances to reserve.
 
 ~> **NOTE:** In v2.18.0, `storage_policy` superseded the `storage_policies` argument. To upgrade, replace
 
@@ -78,3 +104,9 @@ storage_policy {
   policy = "policy-b"
 }
 ```
+
+## Zone
+
+* If `zone` is omitted, the vSphere Zones the namespace already has are kept and exported. To remove a zone, list the zones to keep.
+* Zone removal is asynchronous. A zone that is marked for removal is not exported, and it is deleted once its workloads are drained.
+* vCenter does not return the limits, reservations, `vm_reservation` or `disallow_unreserved_direct_path_usage` of a zone. The provider keeps the values from the configuration. Changes made outside of Terraform are not detected.

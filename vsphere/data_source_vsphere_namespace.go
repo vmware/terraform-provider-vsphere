@@ -69,7 +69,7 @@ func dataSourceVSphereNamespace() *schema.Resource {
 			},
 			"storage_policy": {
 				Type:        schema.TypeList,
-				Description: "The storage policies available in the vSphere Namespace, with their storage limits",
+				Description: "A storage policy assigned to the vSphere Namespace, with its storage limit",
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -88,7 +88,7 @@ func dataSourceVSphereNamespace() *schema.Resource {
 			},
 			"access": {
 				Type:        schema.TypeSet,
-				Description: "The users and groups with access to the vSphere Namespace",
+				Description: "A principal with access to the vSphere Namespace",
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -122,7 +122,7 @@ func dataSourceVSphereNamespace() *schema.Resource {
 			},
 			"zone": {
 				Type:        schema.TypeSet,
-				Description: "The vSphere Zones of the vSphere Namespace",
+				Description: "A vSphere Zone assigned to the vSphere Namespace",
 				Computed:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{

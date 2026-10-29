@@ -64,7 +64,7 @@ The following arguments are supported:
 * `vm_service` - (Optional) The configuration for VM Service in the vSphere Namespace.
   * `content_libraries` - (Optional) The list of content libraries to associate with the VM Service.
   * `vm_classes` - (Optional) The list of VM Classes to associate with the VM Service.
-* `storage_policy` - (Optional) A storage policie that will be available in the vSphere Namespace.
+* `storage_policy` - (Optional) A storage policy that will be available in the vSphere Namespace.
   * `policy` - (Required) The identifier of the storage policy.
   * `limit` - (Optional) The maximum storage, in mebibytes (MiB), that the vSphere Namespace can use for the storage policy. Unset or `0` means no limit.
 * `access` - (Optional) A principal with access to the vSphere Namespace.

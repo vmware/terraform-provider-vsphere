@@ -202,12 +202,24 @@ func ExpandZones(d *schema.ResourceData) []namespace.ZoneSpec {
 		if disallow := entry["disallow_unreserved_direct_path_usage"].(bool); disallow {
 			zone.DisallowUnreservedDirectPathUsage = &disallow
 		}
-		if reservations := expandVMClassReservations(entry["vm_class_reservation"]); len(reservations) > 0 {
+		if reservations := expandVMClassReservations(entry["vm_class_reservation"]); reservations != nil {
 			zone.VmReservations = &reservations
 		}
 		zones = append(zones, zone)
 	}
 	return zones
+}
+
+func StripVMClassReservations(zones []namespace.ZoneSpec) (stripped []namespace.ZoneSpec, hadReservations bool) {
+	stripped = make([]namespace.ZoneSpec, 0, len(zones))
+	for _, zone := range zones {
+		if zone.VmReservations != nil && len(*zone.VmReservations) > 0 {
+			hadReservations = true
+		}
+		zone.VmReservations = nil
+		stripped = append(stripped, zone)
+	}
+	return stripped, hadReservations
 }
 
 func FlattenZones(d *schema.ResourceData, zones []namespace.ZoneInfo) []interface{} {

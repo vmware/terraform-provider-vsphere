@@ -48,11 +48,15 @@ func TestAccDataSourceVSphereNamespace_accessList(t *testing.T) {
 			{
 				Config: testAccDataSourceVSphereNamespaceConfigFor(testAccResourceVSphereNamespaceConfigAccess("EDIT")),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.vsphere_namespace.namespace", "access.#", "1"),
-					resource.TestCheckTypeSetElemNestedAttrs("data.vsphere_namespace.namespace", "access.*", map[string]string{
-						"subject_type": "USER",
-						"subject":      "acc-namespace-user",
-						"role":         "EDIT",
+					resource.TestCheckResourceAttr("data.vsphere_namespace.namespace", "user.#", "1"),
+					resource.TestCheckTypeSetElemNestedAttrs("data.vsphere_namespace.namespace", "user.*", map[string]string{
+						"name": "acc-namespace-user",
+						"role": "EDIT",
+					}),
+					resource.TestCheckResourceAttr("data.vsphere_namespace.namespace", "group.#", "1"),
+					resource.TestCheckTypeSetElemNestedAttrs("data.vsphere_namespace.namespace", "group.*", map[string]string{
+						"name": "acc-namespace-group",
+						"role": "EDIT",
 					}),
 				),
 			},

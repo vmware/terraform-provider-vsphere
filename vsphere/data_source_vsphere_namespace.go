@@ -6,6 +6,7 @@ package vsphere
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -86,39 +87,17 @@ func dataSourceVSphereNamespace() *schema.Resource {
 					},
 				},
 			},
-			"access": {
+			"user": {
 				Type:        schema.TypeSet,
-				Description: "A principal with access to the vSphere Namespace",
+				Description: "A user with access to the vSphere Namespace",
 				Computed:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"subject_type": {
-							Type:        schema.TypeString,
-							Description: "The type of the subject",
-							Computed:    true,
-						},
-						"subject": {
-							Type:        schema.TypeString,
-							Description: "The name of the user or group, without the domain",
-							Computed:    true,
-						},
-						"domain": {
-							Type:        schema.TypeString,
-							Description: "The domain of the identity source that owns the subject",
-							Computed:    true,
-						},
-						"role": {
-							Type:        schema.TypeString,
-							Description: "The role of the subject in the vSphere Namespace",
-							Computed:    true,
-						},
-						"identity_provider": {
-							Type:        schema.TypeString,
-							Description: "The identifier of the identity provider",
-							Computed:    true,
-						},
-					},
-				},
+				Elem:        dataSourceNamespaceAccessPrincipalSchema("user"),
+			},
+			"group": {
+				Type:        schema.TypeSet,
+				Description: "A group with access to the vSphere Namespace",
+				Computed:    true,
+				Elem:        dataSourceNamespaceAccessPrincipalSchema("group"),
 			},
 			"zone": {
 				Type:        schema.TypeSet,
@@ -201,6 +180,33 @@ func dataSourceVSphereNamespace() *schema.Resource {
 	}
 }
 
+func dataSourceNamespaceAccessPrincipalSchema(principal string) *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:        schema.TypeString,
+				Description: fmt.Sprintf("The name of the %s, without the domain", principal),
+				Computed:    true,
+			},
+			"domain": {
+				Type:        schema.TypeString,
+				Description: fmt.Sprintf("The domain of the identity source that owns the %s", principal),
+				Computed:    true,
+			},
+			"role": {
+				Type:        schema.TypeString,
+				Description: fmt.Sprintf("The role of the %s in the vSphere Namespace", principal),
+				Computed:    true,
+			},
+			"identity_provider": {
+				Type:        schema.TypeString,
+				Description: "The identifier of the identity provider",
+				Computed:    true,
+			},
+		},
+	}
+}
+
 func dataSourceVSphereNamespaceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*Client).restClient
 	m := namespace.NewManager(c)
@@ -223,7 +229,9 @@ func dataSourceVSphereNamespaceRead(ctx context.Context, d *schema.ResourceData,
 	_ = d.Set("vm_service", []map[string]interface{}{vmService})
 
 	_ = d.Set("storage_policy", namespacehelper.FlattenStorageSpecs(data.StorageSpecs))
-	_ = d.Set("access", namespacehelper.FlattenAccessList(data.AccessList))
+	users, groups := namespacehelper.FlattenAccessList(data.AccessList)
+	_ = d.Set("user", users)
+	_ = d.Set("group", groups)
 	_ = d.Set("zone", namespacehelper.FlattenZoneInfos(data.Zones))
 	_ = d.Set("vpc_network", namespacehelper.FlattenVpcNetwork(data.NetworkSpec))
 	_ = d.Set("vsphere_network", namespacehelper.FlattenVsphereNetwork(data.NetworkSpec))

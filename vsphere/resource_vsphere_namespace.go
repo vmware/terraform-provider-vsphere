@@ -6,6 +6,7 @@ package vsphere
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -19,11 +20,6 @@ import (
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/structure"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/viapi"
 )
-
-var namespaceAccessSubjectTypeAllowedValues = []string{
-	string(namespace.AccessSubjectTypeUser),
-	string(namespace.AccessSubjectTypeGroup),
-}
 
 var namespaceAccessRoleAllowedValues = []string{
 	string(namespace.AccessRoleOwner),
@@ -95,41 +91,17 @@ func resourceVSphereNamespace() *schema.Resource {
 					},
 				},
 			},
-			"access": {
+			"user": {
 				Type:        schema.TypeSet,
-				Description: "A principal with access to the vSphere Namespace",
+				Description: "A user with access to the vSphere Namespace",
 				Optional:    true,
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"subject_type": {
-							Type:         schema.TypeString,
-							Description:  "The type of the subject",
-							Required:     true,
-							ValidateFunc: validation.StringInSlice(namespaceAccessSubjectTypeAllowedValues, false),
-						},
-						"subject": {
-							Type:        schema.TypeString,
-							Description: "The name of the user or group, without the domain",
-							Required:    true,
-						},
-						"domain": {
-							Type:        schema.TypeString,
-							Description: "The domain of the identity source that owns the subject",
-							Required:    true,
-						},
-						"role": {
-							Type:         schema.TypeString,
-							Description:  "The role of the subject in the vSphere Namespace",
-							Required:     true,
-							ValidateFunc: validation.StringInSlice(namespaceAccessRoleAllowedValues, false),
-						},
-						"identity_provider": {
-							Type:        schema.TypeString,
-							Description: "The identifier of the identity provider. If unset, vCenter Single Sign-On is used",
-							Optional:    true,
-						},
-					},
-				},
+				Elem:        namespaceAccessPrincipalSchema("user"),
+			},
+			"group": {
+				Type:        schema.TypeSet,
+				Description: "A group with access to the vSphere Namespace",
+				Optional:    true,
+				Elem:        namespaceAccessPrincipalSchema("group"),
 			},
 			"zone": {
 				Type:        schema.TypeSet,
@@ -172,15 +144,15 @@ func resourceVSphereNamespace() *schema.Resource {
 							Description: "Whether workloads that do not use a reserved VM class are disallowed from using a DirectPath device",
 							Optional:    true,
 						},
-						"vm_reservation": {
+						"vm_class_reservation": {
 							Type:        schema.TypeSet,
-							Description: "The VM class instances reserved for the vSphere Namespace in this zone",
+							Description: "A reservation of VM class instances for the vSphere Namespace in this zone",
 							Optional:    true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"reserved_vm_class": {
+									"vm_class": {
 										Type:        schema.TypeString,
-										Description: "The identifier of the VM class",
+										Description: "The name of the VM class",
 										Required:    true,
 									},
 									"count": {
@@ -271,6 +243,34 @@ func resourceVSphereNamespaceCustomizeDiff(_ context.Context, d *schema.Resource
 	return namespacehelper.ValidateVersionRequirements(version, d)
 }
 
+func namespaceAccessPrincipalSchema(principal string) *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"name": {
+				Type:        schema.TypeString,
+				Description: fmt.Sprintf("The name of the %s, without the domain", principal),
+				Required:    true,
+			},
+			"domain": {
+				Type:        schema.TypeString,
+				Description: fmt.Sprintf("The domain of the identity source that owns the %s", principal),
+				Required:    true,
+			},
+			"role": {
+				Type:         schema.TypeString,
+				Description:  fmt.Sprintf("The role of the %s in the vSphere Namespace", principal),
+				Required:     true,
+				ValidateFunc: validation.StringInSlice(namespaceAccessRoleAllowedValues, false),
+			},
+			"identity_provider": {
+				Type:        schema.TypeString,
+				Description: "The identifier of the identity provider. If unset, vCenter Single Sign-On is used",
+				Optional:    true,
+			},
+		},
+	}
+}
+
 func resourceVSphereNamespaceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*Client).restClient
 	m := namespace.NewManager(c)
@@ -340,7 +340,9 @@ func resourceVSphereNamespaceRead(ctx context.Context, d *schema.ResourceData, m
 	_ = d.Set("vm_service", vmServiceAttr)
 
 	_ = d.Set("storage_policy", namespacehelper.FlattenStorageSpecs(data.StorageSpecs))
-	_ = d.Set("access", namespacehelper.FlattenAccessList(data.AccessList))
+	users, groups := namespacehelper.FlattenAccessList(data.AccessList)
+	_ = d.Set("user", users)
+	_ = d.Set("group", groups)
 	_ = d.Set("zone", namespacehelper.FlattenZones(d, data.Zones))
 	_ = d.Set("vpc_network", namespacehelper.FlattenVpcNetwork(data.NetworkSpec))
 	_ = d.Set("vsphere_network", namespacehelper.FlattenVsphereNetwork(data.NetworkSpec))
@@ -359,7 +361,7 @@ func resourceVSphereNamespaceUpdate(ctx context.Context, d *schema.ResourceData,
 		spec.StorageSpecs = namespacehelper.ExpandStorageSpecs(d)
 	}
 
-	if d.HasChange("access") {
+	if d.HasChanges("user", "group") {
 		accessList := namespacehelper.ExpandAccessList(d)
 		spec.AccessList = &accessList
 	}

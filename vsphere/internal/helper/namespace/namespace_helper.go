@@ -129,14 +129,22 @@ func FlattenStorageSpecs(specs []namespace.StorageSpec) []interface{} {
 }
 
 func ExpandAccessList(d *schema.ResourceData) []namespace.Access {
-	entries := d.Get("access").(*schema.Set).List()
-	log.Printf("[DEBUG] namespace.ExpandAccessList: Expanding %d access entries", len(entries))
+	users := d.Get("user").(*schema.Set).List()
+	groups := d.Get("group").(*schema.Set).List()
+	log.Printf("[DEBUG] namespace.ExpandAccessList: Expanding %d user and %d group entries", len(users), len(groups))
+	accessList := make([]namespace.Access, 0, len(users)+len(groups))
+	accessList = append(accessList, expandAccessEntries(users, namespace.AccessSubjectTypeUser)...)
+	accessList = append(accessList, expandAccessEntries(groups, namespace.AccessSubjectTypeGroup)...)
+	return accessList
+}
+
+func expandAccessEntries(entries []interface{}, subjectType namespace.AccessSubjectType) []namespace.Access {
 	accessList := make([]namespace.Access, 0, len(entries))
 	for _, item := range entries {
 		entry := item.(map[string]interface{})
 		access := namespace.Access{
-			SubjectType: namespace.AccessSubjectType(entry["subject_type"].(string)),
-			Subject:     entry["subject"].(string),
+			SubjectType: subjectType,
+			Subject:     entry["name"].(string),
 			Domain:      entry["domain"].(string),
 			Role:        namespace.AccessRole(entry["role"].(string)),
 		}
@@ -148,23 +156,28 @@ func ExpandAccessList(d *schema.ResourceData) []namespace.Access {
 	return accessList
 }
 
-func FlattenAccessList(accessList []namespace.Access) []interface{} {
+func FlattenAccessList(accessList []namespace.Access) (users, groups []interface{}) {
 	log.Printf("[DEBUG] namespace.FlattenAccessList: Flattening %d access entries", len(accessList))
-	result := make([]interface{}, 0, len(accessList))
+	users = make([]interface{}, 0)
+	groups = make([]interface{}, 0)
 	for _, access := range accessList {
 		identityProvider := ""
 		if access.IdentityProvider != nil {
 			identityProvider = *access.IdentityProvider
 		}
-		result = append(result, map[string]interface{}{
-			"subject_type":      string(access.SubjectType),
-			"subject":           access.Subject,
+		entry := map[string]interface{}{
+			"name":              access.Subject,
 			"domain":            access.Domain,
 			"role":              string(access.Role),
 			"identity_provider": identityProvider,
-		})
+		}
+		if access.SubjectType == namespace.AccessSubjectTypeGroup {
+			groups = append(groups, entry)
+		} else {
+			users = append(users, entry)
+		}
 	}
-	return result
+	return users, groups
 }
 
 func ExpandZones(d *schema.ResourceData) []namespace.ZoneSpec {
@@ -189,7 +202,7 @@ func ExpandZones(d *schema.ResourceData) []namespace.ZoneSpec {
 		if disallow := entry["disallow_unreserved_direct_path_usage"].(bool); disallow {
 			zone.DisallowUnreservedDirectPathUsage = &disallow
 		}
-		if reservations := expandVMReservations(entry["vm_reservation"]); len(reservations) > 0 {
+		if reservations := expandVMClassReservations(entry["vm_class_reservation"]); len(reservations) > 0 {
 			zone.VmReservations = &reservations
 		}
 		zones = append(zones, zone)
@@ -226,8 +239,8 @@ func FlattenZones(d *schema.ResourceData, zones []namespace.ZoneInfo) []interfac
 			for _, key := range zoneSettingKeys {
 				flattened[key] = prior[key]
 			}
-			if reservations, ok := prior["vm_reservation"].(*schema.Set); ok {
-				flattened["vm_reservation"] = reservations.List()
+			if reservations, ok := prior["vm_class_reservation"].(*schema.Set); ok {
+				flattened["vm_class_reservation"] = reservations.List()
 			}
 		}
 		result = append(result, flattened)
@@ -235,17 +248,17 @@ func FlattenZones(d *schema.ResourceData, zones []namespace.ZoneInfo) []interfac
 	return result
 }
 
-func expandVMReservations(value interface{}) []namespace.VirtualMachineClassAllocationSpec {
+func expandVMClassReservations(value interface{}) []namespace.VirtualMachineClassAllocationSpec {
 	set, _ := value.(*schema.Set)
 	if set == nil {
 		return nil
 	}
 	reservations := make([]namespace.VirtualMachineClassAllocationSpec, 0, set.Len())
-	log.Printf("[DEBUG] namespace.expandVMReservations: Expanding %d VM reservations", set.Len())
+	log.Printf("[DEBUG] namespace.expandVMClassReservations: Expanding %d VM class reservations", set.Len())
 	for _, item := range set.List() {
 		entry := item.(map[string]interface{})
 		reservations = append(reservations, namespace.VirtualMachineClassAllocationSpec{
-			ReservedVmClass: entry["reserved_vm_class"].(string),
+			ReservedVmClass: entry["vm_class"].(string),
 			Count:           int64(entry["count"].(int)),
 		})
 	}

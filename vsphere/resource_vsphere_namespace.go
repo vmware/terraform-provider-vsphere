@@ -192,6 +192,47 @@ func resourceVSphereNamespace() *schema.Resource {
 					},
 				},
 			},
+			"vpc_network": {
+				Type:        schema.TypeList,
+				Description: "The NSX VPC network configuration",
+				Optional:    true,
+				Computed:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"vpc": {
+							Type:        schema.TypeString,
+							Description: "The NSX path of an existing VPC",
+							Required:    true,
+							ForceNew:    true,
+						},
+						"shared_subnet": {
+							Type:        schema.TypeSet,
+							Description: "An NSX subnet in this VPC that is associated with the vSphere Namespace",
+							Optional:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"path": {
+										Type:        schema.TypeString,
+										Description: "The NSX path of the subnet",
+										Required:    true,
+									},
+									"pod_default": {
+										Type:        schema.TypeBool,
+										Description: "Whether the subnet is the default network for vSphere Pods",
+										Optional:    true,
+									},
+									"vm_default": {
+										Type:        schema.TypeBool,
+										Description: "Whether the subnet is the default network for VMs",
+										Optional:    true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -222,6 +263,8 @@ func resourceVSphereNamespaceCreate(ctx context.Context, d *schema.ResourceData,
 	if zones := namespacehelper.ExpandZones(d); len(zones) > 0 {
 		spec.Zones = &zones
 	}
+
+	spec.NetworkSpec = namespacehelper.ExpandNetworkSpecCreate(d)
 
 	if err := m.CreateNamespaceV2(ctx, spec); err != nil {
 		return diag.FromErr(err)
@@ -262,6 +305,7 @@ func resourceVSphereNamespaceRead(ctx context.Context, d *schema.ResourceData, m
 	_ = d.Set("storage_policy", namespacehelper.FlattenStorageSpecs(data.StorageSpecs))
 	_ = d.Set("access", namespacehelper.FlattenAccessList(data.AccessList))
 	_ = d.Set("zone", namespacehelper.FlattenZones(d, data.Zones))
+	_ = d.Set("vpc_network", namespacehelper.FlattenVpcNetwork(data.NetworkSpec))
 
 	d.SetId(name)
 
@@ -287,6 +331,10 @@ func resourceVSphereNamespaceUpdate(ctx context.Context, d *schema.ResourceData,
 	if d.HasChange("zone") {
 		zones := namespacehelper.ExpandZones(d)
 		spec.Zones = &zones
+	}
+
+	if d.HasChange("vpc_network") {
+		spec.NetworkSpec = namespacehelper.ExpandNetworkSpecUpdate(d)
 	}
 
 	if vmServiceSpec := getVMServiceSpec(d); vmServiceSpec != nil {

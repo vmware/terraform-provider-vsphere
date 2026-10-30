@@ -139,6 +139,44 @@ func dataSourceVSphereNamespace() *schema.Resource {
 					},
 				},
 			},
+			"vpc_network": {
+				Type:        schema.TypeList,
+				Description: "The NSX VPC network configuration",
+				Computed:    true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"vpc": {
+							Type:        schema.TypeString,
+							Description: "The NSX path of the VPC",
+							Computed:    true,
+						},
+						"shared_subnet": {
+							Type:        schema.TypeSet,
+							Description: "An NSX subnet created outside the Supervisor that is associated with the vSphere Namespace",
+							Computed:    true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"path": {
+										Type:        schema.TypeString,
+										Description: "The NSX path of the subnet",
+										Computed:    true,
+									},
+									"pod_default": {
+										Type:        schema.TypeBool,
+										Description: "Whether the subnet is the default network for vSphere Pods",
+										Computed:    true,
+									},
+									"vm_default": {
+										Type:        schema.TypeBool,
+										Description: "Whether the subnet is the default network for VMs",
+										Computed:    true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -167,6 +205,7 @@ func dataSourceVSphereNamespaceRead(ctx context.Context, d *schema.ResourceData,
 	_ = d.Set("storage_policy", namespacehelper.FlattenStorageSpecs(data.StorageSpecs))
 	_ = d.Set("access", namespacehelper.FlattenAccessList(data.AccessList))
 	_ = d.Set("zone", namespacehelper.FlattenZoneInfos(data.Zones))
+	_ = d.Set("vpc_network", namespacehelper.FlattenVpcNetwork(data.NetworkSpec))
 
 	d.SetId(name)
 

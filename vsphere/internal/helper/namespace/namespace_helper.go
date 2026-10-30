@@ -14,8 +14,12 @@ import (
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/viapi"
 )
 
+const (
+	networkProviderNsxVpc = "NSX_VPC"
+)
+
 func ValidateVersionRequirements(version viapi.VSphereVersion, d *schema.ResourceDiff) error {
-	log.Printf("[DEBUG] namespacehelper.ValidateVersionRequirements: Validating version requirements against vCenter %d.%d.%d", version.Major, version.Minor, version.Patch)
+	log.Printf("[DEBUG] namespace.ValidateVersionRequirements: Validating version requirements against vCenter %d.%d.%d", version.Major, version.Minor, version.Patch)
 	var errs []error
 	require := func(feature string, major, minor, patch int) {
 		required := viapi.VSphereVersion{Product: version.Product, Major: major, Minor: minor, Patch: patch}
@@ -29,7 +33,44 @@ func ValidateVersionRequirements(version viapi.VSphereVersion, d *schema.Resourc
 		require("zone", 9, 0, 0)
 	}
 
+	if vpcNetworks := d.Get("vpc_network").([]interface{}); len(vpcNetworks) > 0 {
+		require("vpc_network", 9, 0, 0)
+
+		usesSharedSubnetPath, usesSharedSubnetDefaults := false, false
+		for _, subnet := range sharedSubnetsFromVpcNetworks(vpcNetworks) {
+			if subnet["path"].(string) != "" {
+				usesSharedSubnetPath = true
+			}
+			if subnet["pod_default"].(bool) || subnet["vm_default"].(bool) {
+				usesSharedSubnetDefaults = true
+			}
+		}
+		if usesSharedSubnetPath {
+			require("vpc_network.shared_subnet.path", 9, 1, 0)
+		}
+		if usesSharedSubnetDefaults {
+			require("vpc_network.shared_subnet pod_default and vm_default", 9, 1, 1)
+		}
+	}
+
 	return errors.Join(errs...)
+}
+
+func sharedSubnetsFromVpcNetworks(vpcNetworks []interface{}) []map[string]interface{} {
+	if len(vpcNetworks) == 0 {
+		return nil
+	}
+	vpcNetwork, _ := vpcNetworks[0].(map[string]interface{})
+	subnets, _ := vpcNetwork["shared_subnet"].(*schema.Set)
+	if subnets == nil {
+		return nil
+	}
+	result := make([]map[string]interface{}, 0, subnets.Len())
+	log.Printf("[DEBUG] namespace.sharedSubnetsFromVpcNetworks: Found %d shared subnets", subnets.Len())
+	for _, subnet := range subnets.List() {
+		result = append(result, subnet.(map[string]interface{}))
+	}
+	return result
 }
 
 func ExpandStorageSpecs(d *schema.ResourceData) []namespace.StorageSpec {
@@ -65,7 +106,7 @@ func FlattenStorageSpecs(specs []namespace.StorageSpec) []interface{} {
 
 func ExpandAccessList(d *schema.ResourceData) []namespace.Access {
 	entries := d.Get("access").(*schema.Set).List()
-	log.Printf("[DEBUG] namespacehelper.ExpandAccessList: Expanding %d access entries", len(entries))
+	log.Printf("[DEBUG] namespace.ExpandAccessList: Expanding %d access entries", len(entries))
 	accessList := make([]namespace.Access, 0, len(entries))
 	for _, item := range entries {
 		entry := item.(map[string]interface{})
@@ -84,7 +125,7 @@ func ExpandAccessList(d *schema.ResourceData) []namespace.Access {
 }
 
 func FlattenAccessList(accessList []namespace.Access) []interface{} {
-	log.Printf("[DEBUG] namespacehelper.FlattenAccessList: Flattening %d access entries", len(accessList))
+	log.Printf("[DEBUG] namespace.FlattenAccessList: Flattening %d access entries", len(accessList))
 	result := make([]interface{}, 0, len(accessList))
 	for _, access := range accessList {
 		identityProvider := ""
@@ -104,7 +145,7 @@ func FlattenAccessList(accessList []namespace.Access) []interface{} {
 
 func ExpandZones(d *schema.ResourceData) []namespace.ZoneSpec {
 	entries := d.Get("zone").(*schema.Set).List()
-	log.Printf("[DEBUG] namespacehelper.ExpandZones: Expanding %d zones", len(entries))
+	log.Printf("[DEBUG] namespace.ExpandZones: Expanding %d zones", len(entries))
 	zones := make([]namespace.ZoneSpec, 0, len(entries))
 	for _, item := range entries {
 		entry := item.(map[string]interface{})
@@ -133,7 +174,7 @@ func ExpandZones(d *schema.ResourceData) []namespace.ZoneSpec {
 }
 
 func FlattenZones(d *schema.ResourceData, zones []namespace.ZoneInfo) []interface{} {
-	log.Printf("[DEBUG] namespacehelper.FlattenZones: Flattening %d zones", len(zones))
+	log.Printf("[DEBUG] namespace.FlattenZones: Flattening %d zones", len(zones))
 	priorByName := make(map[string]map[string]interface{})
 	if prior, ok := d.Get("zone").(*schema.Set); ok {
 		for _, item := range prior.List() {
@@ -153,7 +194,7 @@ func FlattenZones(d *schema.ResourceData, zones []namespace.ZoneInfo) []interfac
 	result := make([]interface{}, 0, len(zones))
 	for _, zone := range zones {
 		if zone.MarkedForRemoval {
-			log.Printf("[DEBUG] namespacehelper.FlattenZones: Skipping zone %s, which is marked for removal", zone.Zone)
+			log.Printf("[DEBUG] namespace.FlattenZones: Skipping zone %s, which is marked for removal", zone.Zone)
 			continue
 		}
 		flattened := map[string]interface{}{"name": zone.Zone}
@@ -176,7 +217,7 @@ func expandVMReservations(value interface{}) []namespace.VirtualMachineClassAllo
 		return nil
 	}
 	reservations := make([]namespace.VirtualMachineClassAllocationSpec, 0, set.Len())
-	log.Printf("[DEBUG] namespacehelper.expandVMReservations: Expanding %d VM reservations", set.Len())
+	log.Printf("[DEBUG] namespace.expandVMReservations: Expanding %d VM reservations", set.Len())
 	for _, item := range set.List() {
 		entry := item.(map[string]interface{})
 		reservations = append(reservations, namespace.VirtualMachineClassAllocationSpec{
@@ -188,7 +229,7 @@ func expandVMReservations(value interface{}) []namespace.VirtualMachineClassAllo
 }
 
 func FlattenZoneInfos(zones []namespace.ZoneInfo) []interface{} {
-	log.Printf("[DEBUG] namespacehelper.FlattenZoneInfos: Flattening %d zones", len(zones))
+	log.Printf("[DEBUG] namespace.FlattenZoneInfos: Flattening %d zones", len(zones))
 	result := make([]interface{}, 0, len(zones))
 	for _, zone := range zones {
 		result = append(result, map[string]interface{}{
@@ -197,4 +238,97 @@ func FlattenZoneInfos(zones []namespace.ZoneInfo) []interface{} {
 		})
 	}
 	return result
+}
+
+func ExpandNetworkSpecCreate(d *schema.ResourceData) *namespace.NetworkConfigCreateSpec {
+	if vpcNetworks := d.Get("vpc_network").([]interface{}); len(vpcNetworks) > 0 {
+		if vpcNetwork, ok := vpcNetworks[0].(map[string]interface{}); ok {
+			return expandVpcNetworkCreate(vpcNetwork)
+		}
+	}
+	log.Printf("[DEBUG] namespace.ExpandNetworkSpecCreate: No network configuration specified, the Supervisor default is used")
+	return nil
+}
+
+func expandVpcNetworkCreate(vpcNetwork map[string]interface{}) *namespace.NetworkConfigCreateSpec {
+	vpcPath := vpcNetwork["vpc"].(string)
+	vpc := &namespace.VpcNetworkCreateSpec{Vpc: &vpcPath}
+	log.Printf("[DEBUG] namespace.expandVpcNetworkCreate: Expanding NSX VPC network configuration")
+	if subnets := expandSharedSubnets(vpcNetwork["shared_subnet"]); len(subnets) > 0 {
+		vpc.SharedSubnets = &subnets
+	}
+
+	return &namespace.NetworkConfigCreateSpec{
+		NetworkProvider: networkProviderNsxVpc,
+		VpcNetwork:      vpc,
+	}
+}
+
+func ExpandNetworkSpecUpdate(d *schema.ResourceData) *namespace.NetworkConfigUpdateSpec {
+	vpcNetworks := d.Get("vpc_network").([]interface{})
+	if len(vpcNetworks) == 0 || !d.HasChange("vpc_network") {
+		log.Printf("[DEBUG] namespace.ExpandNetworkSpecUpdate: No NSX VPC network changes")
+		return nil
+	}
+	vpcNetwork, ok := vpcNetworks[0].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	vpc := &namespace.VpcNetworkUpdateSpec{}
+	log.Printf("[DEBUG] namespace.ExpandNetworkSpecUpdate: Expanding NSX VPC network changes")
+	subnets := expandSharedSubnets(vpcNetwork["shared_subnet"])
+	vpc.SharedSubnets = &subnets
+
+	return &namespace.NetworkConfigUpdateSpec{
+		NetworkProvider: networkProviderNsxVpc,
+		VpcConfig:       vpc,
+	}
+}
+
+func expandSharedSubnets(value interface{}) []namespace.SharedSubnet {
+	set, _ := value.(*schema.Set)
+	if set == nil {
+		return []namespace.SharedSubnet{}
+	}
+	subnets := make([]namespace.SharedSubnet, 0, set.Len())
+	log.Printf("[DEBUG] namespace.expandSharedSubnets: Expanding %d shared subnets", set.Len())
+	for _, item := range set.List() {
+		entry := item.(map[string]interface{})
+		subnet := namespace.SharedSubnet{Path: entry["path"].(string)}
+		if podDefault := entry["pod_default"].(bool); podDefault {
+			subnet.PodDefault = &podDefault
+		}
+		if vmDefault := entry["vm_default"].(bool); vmDefault {
+			subnet.VmDefault = &vmDefault
+		}
+		subnets = append(subnets, subnet)
+	}
+	return subnets
+}
+
+func FlattenVpcNetwork(info *namespace.NetworkConfigInfo) []interface{} {
+	if info == nil || info.VpcNetwork == nil {
+		return nil
+	}
+	vpc := info.VpcNetwork
+	log.Printf("[DEBUG] namespace.FlattenVpcNetwork: Flattening NSX VPC network configuration for VPC %s", vpc.Vpc)
+
+	subnets := make([]interface{}, 0, len(vpc.SharedSubnets))
+	for _, subnet := range vpc.SharedSubnets {
+		flattened := map[string]interface{}{"path": subnet.Path}
+		if subnet.PodDefault != nil {
+			flattened["pod_default"] = *subnet.PodDefault
+		}
+		if subnet.VmDefault != nil {
+			flattened["vm_default"] = *subnet.VmDefault
+		}
+		subnets = append(subnets, flattened)
+	}
+
+	vpcNetwork := map[string]interface{}{
+		"vpc":           vpc.Vpc,
+		"shared_subnet": subnets,
+	}
+	return []interface{}{vpcNetwork}
 }

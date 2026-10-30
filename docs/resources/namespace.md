@@ -52,6 +52,10 @@ resource "vsphere_namespace" "example" {
       count             = 2
     }
   }
+
+  vpc_network {
+    vpc = "/orgs/default/projects/example-project/vpcs/example-vpc"
+  }
 }
 ```
 
@@ -86,6 +90,18 @@ The following arguments are supported:
   * `vm_reservation` - (Optional) The VM class instances reserved for the vSphere Namespace in the zone.
     * `reserved_vm_class` - (Required) The identifier of the VM class.
     * `count` - (Required) The number of VM class instances to reserve.
+* `vpc_network` - (Optional) The NSX VPC network configuration. If omitted, the Supervisor creates a VPC with its default settings for the vSphere Namespace, and its network configuration is exported. To customize the VPC, manage it with the [NSX Terraform provider](https://registry.terraform.io/providers/vmware/nsxt/latest/docs) and set its path in `vpc`.
+
+  ~> **NOTE:** Requires vCenter 9.0.0 or later.
+
+  * `vpc` - (Required) The NSX path of an existing VPC, for example `/orgs/default/projects/<project>/vpcs/<vpc>`. Changing this forces a new resource to be created.
+  * `shared_subnet` - (Optional) An NSX subnet created outside the Supervisor to associate with the vSphere Namespace.
+
+    ~> **NOTE:** Requires vCenter 9.1.0 or later. `pod_default` and `vm_default` require vCenter 9.1.1 or later.
+
+    * `path` - (Required) The NSX path of the subnet.
+    * `pod_default` - (Optional) Whether the subnet is the default network for vSphere Pods.
+    * `vm_default` - (Optional) Whether the subnet is the default network for VMs.
 
 ~> **NOTE:** In v2.18.0, `storage_policy` superseded the `storage_policies` argument. To upgrade, replace
 
@@ -104,6 +120,12 @@ storage_policy {
   policy = "policy-b"
 }
 ```
+
+## Attribute Reference
+
+In addition to the arguments above, the following attributes are exported:
+
+* `vpc_network.0.vpc` - The NSX path of the VPC, including one created by the Supervisor.
 
 ## Zone
 

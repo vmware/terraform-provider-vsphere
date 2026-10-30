@@ -289,8 +289,11 @@ func resourceVSphereNamespaceCreate(ctx context.Context, d *schema.ResourceData,
 		spec.AccessList = &accessList
 	}
 
-	if zones := namespacehelper.ExpandZones(d); len(zones) > 0 {
-		spec.Zones = &zones
+	// vCenter rejects VM class reservations at creation, so they are applied by an update once the namespace is running.
+	zones := namespacehelper.ExpandZones(d)
+	zonesWithoutReservations, hasReservations := namespacehelper.StripVMClassReservations(zones)
+	if len(zonesWithoutReservations) > 0 {
+		spec.Zones = &zonesWithoutReservations
 	}
 
 	spec.NetworkSpec = namespacehelper.ExpandNetworkCreateSpec(d)
@@ -309,7 +312,29 @@ func resourceVSphereNamespaceCreate(ctx context.Context, d *schema.ResourceData,
 
 	d.SetId(spec.Namespace)
 
+	if hasReservations {
+		if diags := applyVMClassReservations(ctx, m, d, zones); diags != nil {
+			return diags
+		}
+	}
+
 	return resourceVSphereNamespaceRead(ctx, d, meta)
+}
+
+func applyVMClassReservations(ctx context.Context, m *namespace.Manager, d *schema.ResourceData, zones []namespace.ZoneSpec) diag.Diagnostics {
+	name := d.Id()
+	log.Printf("[DEBUG] Applying VM class reservations to namespace %q", name)
+	spec := namespace.NamespacesInstanceUpdateSpec{Zones: &zones}
+	if vmServiceSpec := getVMServiceSpec(d); vmServiceSpec != nil {
+		spec.VmServiceSpec = *vmServiceSpec
+	}
+	if err := m.UpdateNamespace(ctx, name, spec); err != nil {
+		return diag.Errorf("namespace %s was created, but its VM class reservations could not be applied: %s", name, err)
+	}
+	if diags := waitForNamespaceCreation(ctx, m, name); diags != nil {
+		return append(diag.Errorf("namespace %s was created, but did not reach RUNNING state after applying its VM class reservations", name), diags...)
+	}
+	return nil
 }
 
 func resourceVSphereNamespaceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

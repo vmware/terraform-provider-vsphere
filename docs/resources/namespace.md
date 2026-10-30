@@ -59,6 +59,44 @@ resource "vsphere_namespace" "example" {
 }
 ```
 
+### Create a Namespace with vSphere networking
+
+Requires vCenter 9.1.0 or later and a Supervisor with vSphere networking.
+The Supervisor network names can be looked up from the distributed port groups that back them.
+
+```hcl
+data "vsphere_datacenter" "datacenter" {
+  name = "dc-01"
+}
+
+data "vsphere_network" "workload" {
+  name          = "workload-pg-2"
+  datacenter_id = data.vsphere_datacenter.datacenter.id
+}
+
+data "vsphere_supervisor" "supervisor" {
+  name = "supervisor-01"
+}
+
+locals {
+  primary_network = "primary-workload-network"
+  second_network = one([
+    for network in data.vsphere_supervisor.supervisor.workload_network :
+    network.network if network.portgroup == data.vsphere_network.workload.id
+  ])
+}
+
+resource "vsphere_namespace" "example" {
+  name       = "example-namespace"
+  supervisor = data.vsphere_supervisor.supervisor.id
+
+  vsphere_network {
+    default_workload_network = local.primary_network
+    networks                 = [local.primary_network, local.second_network]
+  }
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -90,7 +128,7 @@ The following arguments are supported:
   * `vm_reservation` - (Optional) The VM class instances reserved for the vSphere Namespace in the zone.
     * `reserved_vm_class` - (Required) The identifier of the VM class.
     * `count` - (Required) The number of VM class instances to reserve.
-* `vpc_network` - (Optional) The NSX VPC network configuration. If omitted, the Supervisor creates a VPC with its default settings for the vSphere Namespace, and its network configuration is exported. To customize the VPC, manage it with the [NSX Terraform provider](https://registry.terraform.io/providers/vmware/nsxt/latest/docs) and set its path in `vpc`.
+* `vpc_network` - (Optional) The NSX VPC network configuration. Conflicts with `vsphere_network`. If omitted, the Supervisor creates a VPC with its default settings for the vSphere Namespace, and its network configuration is exported. To customize the VPC, manage it with the [NSX Terraform provider](https://registry.terraform.io/providers/vmware/nsxt/latest/docs) and set its path in `vpc`.
 
   ~> **NOTE:** Requires vCenter 9.0.0 or later.
 
@@ -102,6 +140,12 @@ The following arguments are supported:
     * `path` - (Required) The NSX path of the subnet.
     * `pod_default` - (Optional) Whether the subnet is the default network for vSphere Pods.
     * `vm_default` - (Optional) Whether the subnet is the default network for VMs.
+* `vsphere_network` - (Optional) The vSphere networking configuration. Conflicts with `vpc_network`. If omitted, the network configuration chosen by the Supervisor is exported. See [vSphere Networking](#vsphere-networking).
+
+  ~> **NOTE:** Requires vCenter 9.1.0 or later.
+
+  * `default_workload_network` - (Required) The name of the Supervisor network used by workloads that do not specify a network. It must be one of `networks`. Changing this forces a new resource to be created.
+  * `networks` - (Required) The names of the Supervisor networks to associate with the vSphere Namespace, including `default_workload_network`. These are Supervisor network names, not port group IDs. See the `workload_network` attribute of the [`vsphere_supervisor`](/docs/providers/vsphere/d/supervisor.html) data source.
 
 ~> **NOTE:** In v2.18.0, `storage_policy` superseded the `storage_policies` argument. To upgrade, replace
 
@@ -126,9 +170,18 @@ storage_policy {
 In addition to the arguments above, the following attributes are exported:
 
 * `vpc_network.0.vpc` - The NSX path of the VPC, including one created by the Supervisor.
+* `vsphere_network.0.default_workload_network` - The name of the default Supervisor network, including one chosen by the Supervisor.
+* `vsphere_network.0.networks` - The names of the Supervisor networks associated with the vSphere Namespace, including ones chosen by the Supervisor.
 
 ## Zone
 
 * If `zone` is omitted, the vSphere Zones the namespace already has are kept and exported. To remove a zone, list the zones to keep.
 * Zone removal is asynchronous. A zone that is marked for removal is not exported, and it is deleted once its workloads are drained.
 * vCenter does not return the limits, reservations, `vm_reservation` or `disallow_unreserved_direct_path_usage` of a zone. The provider keeps the values from the configuration. Changes made outside of Terraform are not detected.
+
+## vSphere Networking
+
+* Networks can be added to and removed from `networks` without replacing the vSphere Namespace.
+* Network removal is asynchronous. A network that is being removed is not exported.
+* The default workload network cannot be removed from the vSphere Namespace. Changing `default_workload_network` replaces the vSphere Namespace.
+* The [`vsphere_supervisor`](/docs/providers/vsphere/d/supervisor.html) data source exports the Supervisor networks and their distributed port groups. Use it to find the name of the Supervisor network that a port group from [`vsphere_network`](/docs/providers/vsphere/d/network.html) or [`vsphere_distributed_port_group`](/docs/providers/vsphere/r/distributed_port_group.html) backs.

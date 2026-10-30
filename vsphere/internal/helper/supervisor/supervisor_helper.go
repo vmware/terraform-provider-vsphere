@@ -195,6 +195,25 @@ func GetClusterID(ctx context.Context, topology []namespace.SupervisorTopologyIn
 	return ""
 }
 
+func FlattenClusterNetworks(d *schema.ResourceData, networks []namespace.NetworkInfo) {
+	result := make([]interface{}, 0, len(networks))
+	for _, network := range networks {
+		flattened := map[string]interface{}{
+			"network":          network.Network,
+			"network_provider": network.NetworkProvider.String(),
+			"namespaces":       network.Namespaces,
+		}
+		if vsphere := network.VsphereNetwork; vsphere != nil {
+			flattened["portgroup"] = vsphere.Portgroup
+			flattened["ip_assignment_mode"] = string(vsphere.IPAssignmentMode)
+			flattened["gateway"] = vsphere.Gateway
+			flattened["subnet_mask"] = vsphere.SubnetMask
+		}
+		result = append(result, flattened)
+	}
+	_ = d.Set("workload_network", result)
+}
+
 func isClusterInSupervisor(topologies []namespace.SupervisorTopologyInfo, clusterID string) bool {
 	for _, topology := range topologies {
 		for _, cluster := range topology.Clusters {

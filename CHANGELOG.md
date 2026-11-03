@@ -18,6 +18,9 @@ IMPROVEMENTS:
 
 CHORE:
 
+- `provider`: Bump `go` from 1.26.8 to 1.26.10
+- `provider`: Bump `golang.org/x/net` from v0.58.0 to v0.62.0
+
 ## v2.17.1
 
 > Release Date: 2026-09-14

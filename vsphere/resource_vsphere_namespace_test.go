@@ -257,6 +257,31 @@ func TestAccResourceVSphereNamespace_vmClassReservation(t *testing.T) {
 	})
 }
 
+func TestAccResourceVSphereNamespace_vmClassReservationOnCreate(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccCheckEnvVariables(t, []string{"TF_VAR_SUPERVISOR", "TF_VAR_NAMESPACE_ZONE", "TF_VAR_VM_CLASS"})
+		},
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceVSphereNamespaceConfigVMClassReservation(1),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckTypeSetElemNestedAttrs("vsphere_namespace.namespace", "zone.*.vm_class_reservation.*", map[string]string{
+						"vm_class": os.Getenv("TF_VAR_VM_CLASS"),
+						"count":    "1",
+					}),
+				),
+			},
+			{
+				Config:   testAccResourceVSphereNamespaceConfigVMClassReservation(1),
+				PlanOnly: true,
+			},
+		},
+	})
+}
+
 func TestAccResourceVSphereNamespace_vpcNetwork(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {

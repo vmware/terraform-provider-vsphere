@@ -91,11 +91,15 @@ func TestAccResourceVSphereNamespace_access(t *testing.T) {
 			{
 				Config: testAccResourceVSphereNamespaceConfigAccess("EDIT"),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "access.#", "1"),
-					resource.TestCheckTypeSetElemNestedAttrs("vsphere_namespace.namespace", "access.*", map[string]string{
-						"subject_type": "USER",
-						"subject":      "acc-namespace-user",
-						"role":         "EDIT",
+					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "user.#", "1"),
+					resource.TestCheckTypeSetElemNestedAttrs("vsphere_namespace.namespace", "user.*", map[string]string{
+						"name": "acc-namespace-user",
+						"role": "EDIT",
+					}),
+					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "group.#", "1"),
+					resource.TestCheckTypeSetElemNestedAttrs("vsphere_namespace.namespace", "group.*", map[string]string{
+						"name": "acc-namespace-group",
+						"role": "EDIT",
 					}),
 				),
 			},
@@ -107,8 +111,12 @@ func TestAccResourceVSphereNamespace_access(t *testing.T) {
 			{
 				Config: testAccResourceVSphereNamespaceConfigAccess("VIEW"),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "access.#", "1"),
-					resource.TestCheckTypeSetElemNestedAttrs("vsphere_namespace.namespace", "access.*", map[string]string{
+					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "user.#", "1"),
+					resource.TestCheckTypeSetElemNestedAttrs("vsphere_namespace.namespace", "user.*", map[string]string{
+						"role": "VIEW",
+					}),
+					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "group.#", "1"),
+					resource.TestCheckTypeSetElemNestedAttrs("vsphere_namespace.namespace", "group.*", map[string]string{
 						"role": "VIEW",
 					}),
 				),
@@ -116,7 +124,8 @@ func TestAccResourceVSphereNamespace_access(t *testing.T) {
 			{
 				Config: testAccResourceVSphereNamespaceConfigBasic(),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "access.#", "0"),
+					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "user.#", "0"),
+					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "group.#", "0"),
 				),
 			},
 		},
@@ -190,6 +199,57 @@ func TestAccResourceVSphereNamespace_limits(t *testing.T) {
 						"cpu_reservation":    "0",
 						"memory_limit":       "0",
 						"memory_reservation": "0",
+					}),
+				),
+			},
+		},
+	})
+}
+
+func TestAccResourceVSphereNamespace_vmClassReservation(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			testAccPreCheck(t)
+			testAccCheckEnvVariables(t, []string{"TF_VAR_SUPERVISOR", "TF_VAR_NAMESPACE_ZONE", "TF_VAR_VM_CLASS"})
+		},
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceVSphereNamespaceConfigVMClassReservation(0),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "zone.#", "1"),
+					resource.TestCheckTypeSetElemNestedAttrs("vsphere_namespace.namespace", "zone.*", map[string]string{
+						"name":                   os.Getenv("TF_VAR_NAMESPACE_ZONE"),
+						"vm_class_reservation.#": "0",
+					}),
+				),
+			},
+			{
+				Config: testAccResourceVSphereNamespaceConfigVMClassReservation(1),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckTypeSetElemNestedAttrs("vsphere_namespace.namespace", "zone.*", map[string]string{
+						"vm_class_reservation.#": "1",
+					}),
+					resource.TestCheckTypeSetElemNestedAttrs("vsphere_namespace.namespace", "zone.*.vm_class_reservation.*", map[string]string{
+						"vm_class": os.Getenv("TF_VAR_VM_CLASS"),
+						"count":    "1",
+					}),
+				),
+			},
+			{
+				Config: testAccResourceVSphereNamespaceConfigVMClassReservation(2),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckTypeSetElemNestedAttrs("vsphere_namespace.namespace", "zone.*.vm_class_reservation.*", map[string]string{
+						"vm_class": os.Getenv("TF_VAR_VM_CLASS"),
+						"count":    "2",
+					}),
+				),
+			},
+			{
+				Config: testAccResourceVSphereNamespaceConfigVMClassReservation(0),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckTypeSetElemNestedAttrs("vsphere_namespace.namespace", "zone.*", map[string]string{
+						"vm_class_reservation.#": "0",
 					}),
 				),
 			},
@@ -399,19 +459,29 @@ resource vsphere_sso_user "user" {
   password = "AccTestP@ssw0rd!"
 }
 
+resource vsphere_sso_group "group" {
+  name = "acc-namespace-group"
+}
+
 resource vsphere_namespace "namespace" {
   name       = "test-acc-namespace"
   supervisor = data.vsphere_supervisor.supervisor.id
 
-  access {
-    subject_type = "USER"
-    subject      = vsphere_sso_user.user.name
-    domain       = vsphere_sso_user.user.domain
-    role         = "%s"
+  user {
+    name   = vsphere_sso_user.user.name
+    domain = vsphere_sso_user.user.domain
+    role   = "%s"
+  }
+
+  group {
+    name   = vsphere_sso_group.group.name
+    domain = vsphere_sso_group.group.domain
+    role   = "%s"
   }
 }
 `,
 		testAccDataSourceVSphereSupervisorConfigName(),
+		role,
 		role)
 }
 
@@ -465,6 +535,38 @@ resource vsphere_namespace "namespace" {
 		cpuReservation,
 		memoryLimit,
 		memoryReservation)
+}
+
+func testAccResourceVSphereNamespaceConfigVMClassReservation(count int) string {
+	reservation := ""
+	if count > 0 {
+		reservation = fmt.Sprintf(`
+    vm_class_reservation {
+      vm_class = "%s"
+      count    = %d
+    }`, os.Getenv("TF_VAR_VM_CLASS"), count)
+	}
+	return fmt.Sprintf(`
+%s
+
+resource vsphere_namespace "namespace" {
+  name       = "test-acc-namespace"
+  supervisor = data.vsphere_supervisor.supervisor.id
+
+  vm_service {
+    vm_classes = ["%s"]
+  }
+
+  zone {
+    name = "%s"
+%s
+  }
+}
+`,
+		testAccDataSourceVSphereSupervisorConfigName(),
+		os.Getenv("TF_VAR_VM_CLASS"),
+		os.Getenv("TF_VAR_NAMESPACE_ZONE"),
+		reservation)
 }
 
 func testAccResourceVSphereNamespaceConfigVpcSharedSubnets(vmDefault bool) string {

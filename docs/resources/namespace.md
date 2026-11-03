@@ -33,11 +33,16 @@ resource "vsphere_namespace" "example" {
     limit  = 102400
   }
 
-  access {
-    subject_type = "USER"
-    subject      = "administrator"
-    domain       = "vsphere.local"
-    role         = "OWNER"
+  user {
+    name   = "administrator"
+    domain = "vsphere.local"
+    role   = "OWNER"
+  }
+
+  group {
+    name   = "developers"
+    domain = "vsphere.local"
+    role   = "EDIT"
   }
 
   zone {
@@ -47,9 +52,9 @@ resource "vsphere_namespace" "example" {
     memory_limit       = 8192
     memory_reservation = 2048
 
-    vm_reservation {
-      reserved_vm_class = "example-vm-class"
-      count             = 2
+    vm_class_reservation {
+      vm_class = "example-vm-class"
+      count    = 2
     }
   }
 
@@ -109,11 +114,15 @@ The following arguments are supported:
 * `storage_policy` - (Optional) A storage policy that will be available in the vSphere Namespace.
   * `policy` - (Required) The identifier of the storage policy.
   * `limit` - (Optional) The maximum storage, in mebibytes (MiB), that the vSphere Namespace can use for the storage policy. Unset or `0` means no limit.
-* `access` - (Optional) A principal with access to the vSphere Namespace.
-  * `subject_type` - (Required) The type of the subject. One of `USER` or `GROUP`.
-  * `subject` - (Required) The name of the user or group, without the domain.
-  * `domain` - (Required) The domain of the identity source that owns the subject.
-  * `role` - (Required) The role of the subject in the vSphere Namespace. One of `OWNER`, `EDIT` or `VIEW`.
+* `user` - (Optional) A user with access to the vSphere Namespace.
+  * `name` - (Required) The name of the user, without the domain.
+  * `domain` - (Required) The domain of the identity source that owns the user.
+  * `role` - (Required) The role of the user in the vSphere Namespace. One of `OWNER`, `EDIT` or `VIEW`.
+  * `identity_provider` - (Optional) The identifier of the identity provider. If unset, vCenter Single Sign-On is used.
+* `group` - (Optional) A group with access to the vSphere Namespace.
+  * `name` - (Required) The name of the group, without the domain.
+  * `domain` - (Required) The domain of the identity source that owns the group.
+  * `role` - (Required) The role of the group in the vSphere Namespace. One of `OWNER`, `EDIT` or `VIEW`.
   * `identity_provider` - (Optional) The identifier of the identity provider. If unset, vCenter Single Sign-On is used.
 * `zone` - (Optional) A vSphere Zone to associate with the vSphere Namespace. See [Zone](#zone).
 
@@ -125,8 +134,8 @@ The following arguments are supported:
   * `memory_limit` - (Optional) The memory limit, in mebibytes (MiB), for the vSphere Namespace in the zone. Unset or `0` means no zone limit.
   * `memory_reservation` - (Optional) The memory reservation, in mebibytes (MiB), for the vSphere Namespace in the zone. Unset or `0` means no reservation.
   * `disallow_unreserved_direct_path_usage` - (Optional) Whether workloads that do not use a reserved VM class are disallowed from using a DirectPath device. Defaults to `false`.
-  * `vm_reservation` - (Optional) The VM class instances reserved for the vSphere Namespace in the zone.
-    * `reserved_vm_class` - (Required) The identifier of the VM class.
+  * `vm_class_reservation` - (Optional) A reservation of VM class instances for the vSphere Namespace in the zone.
+    * `vm_class` - (Required) The name of the VM class.
     * `count` - (Required) The number of VM class instances to reserve.
 * `vpc_network` - (Optional) The NSX VPC network configuration. Conflicts with `vsphere_network`. If omitted, the Supervisor creates a VPC with its default settings for the vSphere Namespace, and its network configuration is exported. To customize the VPC, manage it with the [NSX Terraform provider](https://registry.terraform.io/providers/vmware/nsxt/latest/docs) and set its path in `vpc`.
 
@@ -177,7 +186,7 @@ In addition to the arguments above, the following attributes are exported:
 
 * If `zone` is omitted, the vSphere Zones the namespace already has are kept and exported. To remove a zone, list the zones to keep.
 * Zone removal is asynchronous. A zone that is marked for removal is not exported, and it is deleted once its workloads are drained.
-* vCenter does not return the limits, reservations, `vm_reservation` or `disallow_unreserved_direct_path_usage` of a zone. The provider keeps the values from the configuration. Changes made outside of Terraform are not detected.
+* vCenter does not return the limits, reservations, `vm_class_reservation` or `disallow_unreserved_direct_path_usage` of a zone. The provider keeps the values from the configuration. Changes made outside of Terraform are not detected.
 
 ## vSphere Networking
 
@@ -196,6 +205,6 @@ terraform import vsphere_namespace.example example-namespace
 ```
 
 ~> **NOTE:** vCenter does not return the zone limits, reservations,
-`vm_reservation` or `disallow_unreserved_direct_path_usage`, so they are not
+`vm_class_reservation` or `disallow_unreserved_direct_path_usage`, so they are not
 populated by an import. If they are set in the configuration, the next apply
 updates the vSphere Namespace in place to match.

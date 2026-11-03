@@ -49,11 +49,15 @@ The following attributes are exported:
 * `storage_policy` - A storage policy assigned to the vSphere Namespace.
   * `policy` - The identifier of the storage policy.
   * `limit` - The maximum storage, in mebibytes (MiB), that the vSphere Namespace can use for the storage policy. `0` means no limit.
-* `access` - A principal with access to the vSphere Namespace.
-  * `subject_type` - The type of the subject, `USER` or `GROUP`.
-  * `subject` - The name of the user or group, without the domain.
-  * `domain` - The domain of the identity source that owns the subject.
-  * `role` - The role of the subject in the vSphere Namespace.
+* `user` - A user with access to the vSphere Namespace.
+  * `name` - The name of the user, without the domain.
+  * `domain` - The domain of the identity source that owns the user.
+  * `role` - The role of the user in the vSphere Namespace.
+  * `identity_provider` - The identifier of the identity provider.
+* `group` - A group with access to the vSphere Namespace.
+  * `name` - The name of the group, without the domain.
+  * `domain` - The domain of the identity source that owns the group.
+  * `role` - The role of the group in the vSphere Namespace.
   * `identity_provider` - The identifier of the identity provider.
 * `zone` - A vSphere Zone assigned to the vSphere Namespace.
   * `name` - The identifier of the vSphere Zone.

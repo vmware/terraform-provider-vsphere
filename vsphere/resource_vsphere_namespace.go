@@ -38,6 +38,9 @@ func resourceVSphereNamespace() *schema.Resource {
 		UpdateContext: resourceVSphereNamespaceUpdate,
 		DeleteContext: resourceVSphereNamespaceDelete,
 		CustomizeDiff: resourceVSphereNamespaceCustomizeDiff,
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
@@ -304,6 +307,8 @@ func resourceVSphereNamespaceCreate(ctx context.Context, d *schema.ResourceData,
 		return append(diags, deleteNamespace(ctx, m, spec.Namespace)...)
 	}
 
+	d.SetId(spec.Namespace)
+
 	return resourceVSphereNamespaceRead(ctx, d, meta)
 }
 
@@ -311,7 +316,7 @@ func resourceVSphereNamespaceRead(ctx context.Context, d *schema.ResourceData, m
 	c := meta.(*Client).restClient
 	m := namespace.NewManager(c)
 
-	name := d.Get("name").(string)
+	name := d.Id()
 	data, err := m.GetNamespaceV2(ctx, name)
 	if err != nil {
 		if rest.IsStatusError(err, http.StatusNotFound) {
@@ -321,6 +326,9 @@ func resourceVSphereNamespaceRead(ctx context.Context, d *schema.ResourceData, m
 		}
 		return diag.FromErr(err)
 	}
+
+	_ = d.Set("name", name)
+	_ = d.Set("supervisor", data.Supervisor)
 
 	var vmServiceAttr []map[string]interface{}
 	if len(data.VmServiceSpec.ContentLibraries) > 0 || len(data.VmServiceSpec.VmClasses) > 0 {
@@ -336,8 +344,6 @@ func resourceVSphereNamespaceRead(ctx context.Context, d *schema.ResourceData, m
 	_ = d.Set("zone", namespacehelper.FlattenZones(d, data.Zones))
 	_ = d.Set("vpc_network", namespacehelper.FlattenVpcNetwork(data.NetworkSpec))
 	_ = d.Set("vsphere_network", namespacehelper.FlattenVsphereNetwork(data.NetworkSpec))
-
-	d.SetId(name)
 
 	return nil
 }

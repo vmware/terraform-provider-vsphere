@@ -185,3 +185,17 @@ In addition to the arguments above, the following attributes are exported:
 * Network removal is asynchronous. A network that is being removed is not exported.
 * The default workload network cannot be removed from the vSphere Namespace. Changing `default_workload_network` replaces the vSphere Namespace.
 * The [`vsphere_supervisor`](/docs/providers/vsphere/d/supervisor.html) data source exports the Supervisor networks and their distributed port groups. Use it to find the name of the Supervisor network that a port group from [`vsphere_network`](/docs/providers/vsphere/d/network.html) or [`vsphere_distributed_port_group`](/docs/providers/vsphere/r/distributed_port_group.html) backs.
+
+## Importing
+
+An existing vSphere Namespace can be imported into this resource by supplying
+its name:
+
+```shell
+terraform import vsphere_namespace.example example-namespace
+```
+
+~> **NOTE:** vCenter does not return the zone limits, reservations,
+`vm_reservation` or `disallow_unreserved_direct_path_usage`, so they are not
+populated by an import. If they are set in the configuration, the next apply
+updates the vSphere Namespace in place to match.

@@ -29,6 +29,11 @@ func TestAccResourceVSphereNamespace_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "supervisor"),
 				),
 			},
+			{
+				ResourceName:      "vsphere_namespace.namespace",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -57,6 +62,11 @@ func TestAccResourceVSphereNamespace_storagePolicy(t *testing.T) {
 					resource.TestCheckResourceAttr("vsphere_namespace.namespace", "storage_policy.#", "1"),
 					resource.TestCheckTypeSetElemNestedAttrs("vsphere_namespace.namespace", "storage_policy.*", map[string]string{"limit": "1024"}),
 				),
+			},
+			{
+				ResourceName:      "vsphere_namespace.namespace",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccResourceVSphereNamespaceConfigStoragePolicy(0),
@@ -88,6 +98,11 @@ func TestAccResourceVSphereNamespace_access(t *testing.T) {
 						"role":         "EDIT",
 					}),
 				),
+			},
+			{
+				ResourceName:      "vsphere_namespace.namespace",
+				ImportState:       true,
+				ImportStateVerify: true,
 			},
 			{
 				Config: testAccResourceVSphereNamespaceConfigAccess("VIEW"),
@@ -234,6 +249,11 @@ func TestAccResourceVSphereNamespace_vpcSharedSubnets(t *testing.T) {
 					}),
 				),
 			},
+			{
+				ResourceName:      "vsphere_namespace.namespace",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -257,6 +277,11 @@ func TestAccResourceVSphereNamespace_vsphereNetwork(t *testing.T) {
 					resource.TestCheckTypeSetElemAttrPair("vsphere_namespace.namespace", "vsphere_network.0.networks.*", "data.vsphere_supervisor.supervisor", "workload_network.1.network"),
 				),
 			},
+			{
+				ResourceName:      "vsphere_namespace.namespace",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
@@ -278,6 +303,12 @@ func TestAccResourceVSphereNamespace_vmService(t *testing.T) {
 					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "vm_service.0.vm_classes.#"),
 					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "vm_service.0.content_libraries.#"),
 				),
+			},
+			{
+				ResourceName:            "vsphere_namespace.namespace",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"storage_policy.0.limit"},
 			},
 		},
 	})

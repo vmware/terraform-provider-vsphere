@@ -10,11 +10,31 @@ BREAKING CHANGES:
 
 BUG FIX:
 
-DOCUMENTATION:
+- `r/namespace`: Use sets for attributes with unstable ordering to prevent perpetual diffs. (#2785)
 
 FEATURES:
 
+- `d/content_library_items`: New data source to list the items in a content library. (#2773)
+- `d/supervisor`: New data source to look up a vSphere Supervisor. (#2783)
+- `r/namespace` / `d/namespace`: Added `storage_policy` blocks with an optional storage `limit` per policy. (#2789)
+- `r/namespace` / `d/namespace`: Added `user` and `group` blocks for role-based access control. (#2791, #2796)
+- `r/namespace` / `d/namespace`: Added `zone` blocks for vSphere Zone assignment and per-zone resource limits, reservations and VM class reservations. (#2792, #2796, #2797)
+- `r/namespace`: Support creating a vSphere Namespace with NSX VPC network backing. (#2793)
+- `r/namespace`: Support creating a vSphere Namespace with vSphere network backing. (#2794)
+- `r/namespace`: Support importing an existing vSphere Namespace. (#2795)
+
 IMPROVEMENTS:
+
+- `r/namespace`: Improve stability, error handling and cleanup. (#2788)
+
+CHORE:
+
+- `provider`: Bump `github.com/vmware/govmomi` from 0.56.0 to 0.57.0-alpha.0.0.20261020081358-54a831c57c27. (#2787)
+- `technical-debt`: Replace `go-spew` with plain errors. (#2786)
+
+## v2.17.2
+
+> Release Date: 2026-11-04
 
 CHORE:
 

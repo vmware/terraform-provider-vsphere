@@ -124,7 +124,7 @@ func dataSourceVSphereNetworkRead(d *schema.ResourceData, meta interface{}) erro
 			// Handle distributed virtual switch port group
 			net, err = network.FromNameAndDVSUuid(client, name, dc, dvSwitchUUID)
 			if err != nil {
-				var notFoundError *network.NotFoundError
+				var notFoundError network.NotFoundError
 				if errors.As(err, &notFoundError) {
 					return struct{}{}, waitForNetworkPending, nil
 				}
@@ -136,7 +136,7 @@ func dataSourceVSphereNetworkRead(d *schema.ResourceData, meta interface{}) erro
 			// Handle VPC network
 			net, err = network.FromNameAndVPCId(client, name, dc, vpcProjectID, vpcID)
 			if err != nil {
-				var notFoundError *network.NotFoundError
+				var notFoundError network.NotFoundError
 				if errors.As(err, &notFoundError) {
 					return struct{}{}, waitForNetworkPending, nil
 				}
@@ -148,7 +148,7 @@ func dataSourceVSphereNetworkRead(d *schema.ResourceData, meta interface{}) erro
 		// Handle standard switch port group
 		net, err = network.FromName(vimClient, name, dc, filters) // Pass the *vim25.Client
 		if err != nil {
-			var notFoundError *network.NotFoundError
+			var notFoundError network.NotFoundError
 			if errors.As(err, &notFoundError) {
 				return struct{}{}, waitForNetworkPending, nil
 			}

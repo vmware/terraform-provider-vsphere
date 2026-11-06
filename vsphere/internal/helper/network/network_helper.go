@@ -6,6 +6,7 @@ package network
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"slices"
 	"strings"
@@ -70,6 +71,10 @@ func FromNameAndDVSUuid(client *govmomi.Client, name string, dc *object.Datacent
 	defer cancel()
 	networks, err := finder.NetworkList(ctx, name)
 	if err != nil {
+		var notFoundError *find.NotFoundError
+		if errors.As(err, &notFoundError) {
+			return nil, NotFoundError{Name: name}
+		}
 		return nil, err
 	}
 	if len(networks) == 0 {
@@ -104,7 +109,7 @@ func FromNameAndDVSUuid(client *govmomi.Client, name string, dc *object.Datacent
 				}
 			}
 		}
-		return nil, fmt.Errorf("error while getting Network with name %s and Distributed virtual switch %s", name, dvsUUID)
+		return nil, NotFoundError{Name: name}
 	}
 	return nil, NotFoundError{Name: name}
 }

@@ -18,11 +18,11 @@ jobs:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
       - name: Setup Go
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        uses: actions/setup-go@v7.0.0
         with:
           go-version-file: go.mod
       - name: Generate Release Notes
@@ -36,12 +36,12 @@ jobs:
           sed -n '1,40p' RELEASE_NOTES.md
       - name: Import GPG Key
         id: import_gpg
-        uses: crazy-max/ghaction-import-gpg@2dc316deee8e90f13e1a351ab510b4d5bc0c82cd # v7.0.0
+        uses: crazy-max/ghaction-import-gpg@v7.0.0
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@a4f02ab5355a589de60d917a659ce617ed19b3de # v7.3.0
+        uses: goreleaser/goreleaser-action@v7.3.0
         with:
           version: latest
           args: >

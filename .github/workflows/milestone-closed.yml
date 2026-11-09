@@ -15,7 +15,7 @@ jobs:
       issues: write
       pull-requests: write
     steps:
-      - uses: bflad/action-milestone-comment@4618cbf8bf938d31af1c576beeaaa77f486f5af3 # v2.0.0
+      - uses: bflad/action-milestone-comment@v2.0.0
         with:
           body: |
             This functionality has been released in [${{ github.event.milestone.title }} of the Terraform Provider](https://github.com/${{ github.repository }}/blob/${{ github.event.milestone.title }}/CHANGELOG.md).  Please see the [Terraform documentation on provider versioning](https://developer.hashicorp.com/terraform/language/providers/configuration#provider-versions) or reach out if you need any assistance upgrading.

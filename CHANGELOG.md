@@ -2,7 +2,7 @@
 
 ## v2.18.0
 
-> Release Date: Not Released
+> Release Date: 2026-11-09
 
 BREAKING CHANGES:
 
@@ -10,6 +10,7 @@ BREAKING CHANGES:
 
 BUG FIX:
 
+- `d/network`: Retry the lookup until `retry_timeout` when the network is not found, including lookups by `distributed_virtual_switch_uuid`. (#2803)
 - `r/namespace`: Use sets for attributes with unstable ordering to prevent perpetual diffs. (#2785)
 
 FEATURES:

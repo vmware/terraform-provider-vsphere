@@ -195,6 +195,30 @@ In addition to the arguments above, the following attributes are exported:
 * The default workload network cannot be removed from the vSphere Namespace. Changing `default_workload_network` replaces the vSphere Namespace.
 * The [`vsphere_supervisor`](/docs/providers/vsphere/d/supervisor.html) data source exports the Supervisor networks and their distributed port groups. Use it to find the name of the Supervisor network that a port group from [`vsphere_network`](/docs/providers/vsphere/d/network.html) or [`vsphere_distributed_port_group`](/docs/providers/vsphere/r/distributed_port_group.html) backs.
 
+## Timeouts
+
+The `timeouts` block allows you to specify [timeouts](https://developer.hashicorp.com/terraform/language/resources/syntax#operation-timeouts) for certain actions:
+
+* `create` - (Defaults to 20 minutes) Used for the entire creation operation, including both readiness waits when VM class reservations are configured.
+* `delete` - (Defaults to 20 minutes) Used for the entire deletion operation, including the deletion request and the wait for removal. A timeout does not cancel deletion already requested from vCenter.
+
+The SDK enforces each timeout through the operation context. Initial creation, VM class reservations, both readiness waits, and the final read share the same `create` deadline.
+
+If initial readiness fails while the create context is still active, the provider attempts cleanup within the remaining create time. If that deadline expires or cleanup fails after the API confirmed creation, the namespace ID is retained in state for recovery or deletion. Cleanup during creation does not receive a separate `delete` timeout.
+
+The SDK stores timeout settings in state. Changing only `timeouts` may produce no resource change and leave the stored settings unchanged; for existing or imported namespaces, the new delete timeout takes effect after an apply that also updates another resource attribute.
+
+```hcl
+resource "vsphere_namespace" "example" {
+  # ...
+
+  timeouts {
+    create = "10m"
+    delete = "15m"
+  }
+}
+```
+
 ## Importing
 
 An existing vSphere Namespace can be imported into this resource by supplying

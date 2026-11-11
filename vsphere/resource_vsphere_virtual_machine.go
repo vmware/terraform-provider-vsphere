@@ -12,6 +12,7 @@ import (
 	"net"
 	"os"
 	"path"
+	"slices"
 	"strings"
 	"time"
 
@@ -29,6 +30,7 @@ import (
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/folder"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/guestoscustomizations"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/hostsystem"
+	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/network"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/ovfdeploy"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/resourcepool"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/spbm"
@@ -1017,6 +1019,10 @@ func resourceVSphereVirtualMachineCustomizeDiff(_ context.Context, d *schema.Res
 		return err
 	}
 
+	if err := resourceVSphereVirtualMachineCustomizeDiffNetworkHostOperation(d, client); err != nil {
+		return err
+	}
+
 	// Normalize datastore cluster vs datastore
 	if err := datastoreClusterDiffOperation(d, client); err != nil {
 		return err
@@ -1133,6 +1139,83 @@ func resourceVSphereVirtualMachineCustomizeDiffResourcePoolOperation(d *schema.R
 		}
 	}
 	return nil
+}
+
+// resourceVSphereVirtualMachineCustomizeDiffNetworkHostOperation rejects network changes that the host creating the network interface is not connected to.
+func resourceVSphereVirtualMachineCustomizeDiffNetworkHostOperation(d *schema.ResourceDiff, client *govmomi.Client) error {
+	if d.Id() == "" || !d.HasChange("network_interface") {
+		return nil
+	}
+	currentHostID, targetHostID := d.GetChange("host_system_id")
+	hostNetworkIDs := map[string][]string{}
+	o, n := d.GetChange("network_interface")
+	oldNetworkInterfaces := o.([]interface{})
+	for i, ne := range n.([]interface{}) {
+		if !d.NewValueKnown(fmt.Sprintf("network_interface.%d.network_id", i)) {
+			continue
+		}
+		nm := ne.(map[string]interface{})
+		networkID := nm["network_id"].(string)
+		var recreated bool
+		if i < len(oldNetworkInterfaces) {
+			om := oldNetworkInterfaces[i].(map[string]interface{})
+			if om["network_id"] == networkID {
+				continue
+			}
+			recreated = om["adapter_type"] != nm["adapter_type"] || om["physical_function"] != nm["physical_function"]
+		}
+		hostID := currentHostID.(string)
+		if !recreated {
+			if d.HasChange("resource_pool_id") || !d.NewValueKnown("host_system_id") {
+				continue
+			}
+			hostID = targetHostID.(string)
+		}
+		if hostID == "" {
+			continue
+		}
+		if _, ok := hostNetworkIDs[hostID]; !ok {
+			ids, err := hostNetworkIDsFromID(client, hostID)
+			if err != nil {
+				return err
+			}
+			hostNetworkIDs[hostID] = ids
+		}
+		if slices.Contains(hostNetworkIDs[hostID], networkID) {
+			continue
+		}
+		log.Printf("[DEBUG] %s: network_interface.%d: network %q is not among the networks of host %q: %v", resourceVSphereVirtualMachineIDString(d), i, networkID, hostID, hostNetworkIDs[hostID])
+		if recreated {
+			return fmt.Errorf(
+				"network_interface.%d: network %q is not available on host %q, where the adapter is re-created for the adapter_type or physical_function change, change adapter_type or physical_function in a separate apply",
+				i, networkNameOrID(client, networkID), hostsystem.NameOrID(client, hostID),
+			)
+		}
+		return fmt.Errorf(
+			"network_interface.%d: network %q is not available on host %q, set host_system_id to a host connected to this network, or change resource_pool_id to let DRS choose one",
+			i, networkNameOrID(client, networkID), hostsystem.NameOrID(client, hostID),
+		)
+	}
+	return nil
+}
+
+func hostNetworkIDsFromID(client *govmomi.Client, hostID string) ([]string, error) {
+	host, err := hostsystem.FromID(client, hostID)
+	if err != nil {
+		return nil, err
+	}
+	return hostsystem.NetworkIDs(host)
+}
+
+func networkNameOrID(client *govmomi.Client, networkID string) string {
+	ref, err := network.FromID(client, networkID)
+	if err != nil {
+		return networkID
+	}
+	if named, ok := ref.(interface{ Name() string }); ok && named.Name() != "" {
+		return named.Name()
+	}
+	return networkID
 }
 
 func datastoreClusterDiffOperation(d *schema.ResourceDiff, client *govmomi.Client) error {

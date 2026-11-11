@@ -73,6 +73,21 @@ func Properties(host *object.HostSystem) (*mo.HostSystem, error) {
 	return &props, nil
 }
 
+// NetworkIDs returns the managed object IDs of the networks the host is connected to.
+func NetworkIDs(host *object.HostSystem) ([]string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), provider.DefaultAPITimeout)
+	defer cancel()
+	var props mo.HostSystem
+	if err := host.Properties(ctx, host.Reference(), []string{"network"}, &props); err != nil {
+		return nil, err
+	}
+	ids := make([]string, 0, len(props.Network))
+	for _, ref := range props.Network {
+		ids = append(ids, ref.Value)
+	}
+	return ids, nil
+}
+
 // ResourcePool is a convenience method that wraps fetching the host system's
 // root resource pool
 func ResourcePool(host *object.HostSystem) (*object.ResourcePool, error) {

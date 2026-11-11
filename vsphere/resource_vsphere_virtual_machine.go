@@ -22,6 +22,7 @@ import (
 	"github.com/vmware/govmomi/property"
 	"github.com/vmware/govmomi/vapi/vcenter"
 	"github.com/vmware/govmomi/vim25/types"
+	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/clustercomputeresource"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/contentlibrary"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/customattribute"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/datastore"
@@ -2027,7 +2028,8 @@ func resourceVSphereVirtualMachineUpdateLocation(d *schema.ResourceData, meta in
 		return fmt.Errorf("could not find resource pool ID %q: %s", poolID, err)
 	}
 	var hs *object.HostSystem
-	if v, ok := d.GetOk("host_system_id"); ok {
+	hostLeftToDRS := d.HasChange("resource_pool_id") && !d.HasChange("host_system_id")
+	if v, ok := d.GetOk("host_system_id"); ok && !hostLeftToDRS {
 		hsID := v.(string)
 		var err error
 		if hs, err = hostsystem.FromID(client, hsID); err != nil {
@@ -2064,6 +2066,12 @@ func resourceVSphereVirtualMachineUpdateLocation(d *schema.ResourceData, meta in
 		return err
 	}
 
+	if spec.Host == nil && len(spec.DeviceChange) > 0 {
+		if spec.Host, err = resourceVSphereVirtualMachineRecommendHost(client, pool, vm, spec); err != nil {
+			return err
+		}
+	}
+
 	// Ready to perform migration
 	timeout := d.Get("migrate_wait_timeout").(int)
 	if _, ok := d.GetOk("datastore_cluster_id"); ok {
@@ -2072,6 +2080,28 @@ func resourceVSphereVirtualMachineUpdateLocation(d *schema.ResourceData, meta in
 		err = virtualmachine.Relocate(vm, spec, timeout)
 	}
 	return err
+}
+
+// resourceVSphereVirtualMachineRecommendHost asks DRS for a host in the resource pool's cluster that can satisfy the relocate spec.
+func resourceVSphereVirtualMachineRecommendHost(
+	client *govmomi.Client,
+	pool *object.ResourcePool,
+	vm *object.VirtualMachine,
+	spec types.VirtualMachineRelocateSpec,
+) (*types.ManagedObjectReference, error) {
+	pprops, err := resourcepool.Properties(pool)
+	if err != nil {
+		return nil, err
+	}
+	if pprops.Owner.Type != "ClusterComputeResource" {
+		return nil, fmt.Errorf("resource pool %q is not in a cluster, set host_system_id to a host connected to the virtual machine's networks", pool.Reference().Value)
+	}
+	cluster := object.NewClusterComputeResource(client.Client, pprops.Owner)
+	host, err := clustercomputeresource.RecommendHostForRelocation(cluster, vm.Reference(), spec)
+	if err != nil {
+		return nil, fmt.Errorf("error selecting a host connected to the virtual machine's networks, enable DRS or set host_system_id: %s", err)
+	}
+	return host, nil
 }
 
 // resourceVSphereVirtualMachineUpdateLocationRelocateWithSDRS runs the storage vMotion

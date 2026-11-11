@@ -338,3 +338,26 @@ func moveHostOutOf(cluster *object.ClusterComputeResource, host *object.HostSyst
 	log.Printf("[DEBUG] Host %q moved out of cluster %q successfully", host.Name(), cluster.Name())
 	return nil
 }
+
+// RecommendHostForRelocation asks DRS for a host that can run the virtual machine as described by the relocate spec.
+func RecommendHostForRelocation(cluster *object.ClusterComputeResource, vm types.ManagedObjectReference, spec types.VirtualMachineRelocateSpec) (*types.ManagedObjectReference, error) {
+	log.Printf("[DEBUG] Requesting DRS host recommendation for relocating virtual machine %q in cluster %q", vm.Value, cluster.Reference().Value)
+	ctx, cancel := context.WithTimeout(context.Background(), provider.DefaultAPITimeout)
+	defer cancel()
+	result, err := cluster.PlaceVm(ctx, types.PlacementSpec{
+		PlacementType: string(types.PlacementSpecPlacementTypeRelocate),
+		Vm:            &vm,
+		RelocateSpec:  &spec,
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, recommendation := range result.Recommendations {
+		for _, action := range recommendation.Action {
+			if placement, ok := action.(*types.PlacementAction); ok && placement.TargetHost != nil {
+				return placement.TargetHost, nil
+			}
+		}
+	}
+	return nil, fmt.Errorf("DRS returned no host recommendation for cluster %q", cluster.Reference().Value)
+}

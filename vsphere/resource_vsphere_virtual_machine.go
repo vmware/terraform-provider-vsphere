@@ -2060,6 +2060,9 @@ func resourceVSphereVirtualMachineUpdateLocation(d *schema.ResourceData, meta in
 	}
 
 	spec.Disk = relocators
+	if spec.DeviceChange, err = virtualdevice.NetworkInterfaceMigrateRelocateOperation(d, client, devices); err != nil {
+		return err
+	}
 
 	// Ready to perform migration
 	timeout := d.Get("migrate_wait_timeout").(int)

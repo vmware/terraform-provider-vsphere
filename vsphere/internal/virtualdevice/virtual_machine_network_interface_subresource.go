@@ -136,6 +136,7 @@ func NetworkInterfaceSubresourceSchema() map[string]*schema.Schema {
 // network_interface sub-resource, with a complex device lifecycle.
 type NetworkInterfaceSubresource struct {
 	*Subresource
+	deferBacking bool
 }
 
 // NewNetworkInterfaceSubresource returns a network_interface subresource
@@ -213,6 +214,7 @@ nextOld:
 				continue
 			}
 			r := NewNetworkInterfaceSubresource(c, d, nm, om, n)
+			r.deferBacking = hostMigrationPending(d)
 			uspec, err := r.Update(l)
 			if err != nil {
 				return nil, nil, fmt.Errorf("%s: %s", r.Addr(), err)
@@ -243,6 +245,58 @@ nextOld:
 	log.Printf("[DEBUG] NetworkInterfaceApplyOperation: Device config operations from apply: %s", DeviceChangeString(spec))
 	log.Printf("[DEBUG] NetworkInterfaceApplyOperation: Apply complete, returning updated spec")
 	return l, spec, nil
+}
+
+// NetworkInterfaceMigrateRelocateOperation assembles the network interface backing changes for a virtual machine migration.
+func NetworkInterfaceMigrateRelocateOperation(d *schema.ResourceData, c *govmomi.Client, l object.VirtualDeviceList) ([]types.BaseVirtualDeviceConfigSpec, error) {
+	log.Printf("[DEBUG] NetworkInterfaceMigrateRelocateOperation: Generating any necessary network interface relocate specs")
+	if !hostMigrationPending(d) {
+		return nil, nil
+	}
+	o, n := d.GetChange(subresourceTypeNetworkInterface)
+	ods := o.([]interface{})
+	var spec []types.BaseVirtualDeviceConfigSpec
+	for i, ne := range n.([]interface{}) {
+		if i >= len(ods) {
+			break
+		}
+		nm := ne.(map[string]interface{})
+		om := ods[i].(map[string]interface{})
+		if nm["key"] != om["key"] || nm["network_id"] == om["network_id"] {
+			continue
+		}
+		r := NewNetworkInterfaceSubresource(c, d, nm, om, i)
+		vd, err := r.FindVirtualDevice(l)
+		if err != nil {
+			return nil, fmt.Errorf("%s: cannot find network device: %s", r.Addr(), err)
+		}
+		backing, err := networkBackingInfo(c, nm["network_id"].(string))
+		if err != nil {
+			return nil, fmt.Errorf("%s: %s", r.Addr(), err)
+		}
+		vd.GetVirtualDevice().Backing = backing
+		espec, err := object.VirtualDeviceList{vd}.ConfigSpec(types.VirtualDeviceConfigSpecOperationEdit)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %s", r.Addr(), err)
+		}
+		spec = append(spec, espec...)
+	}
+	log.Printf("[DEBUG] NetworkInterfaceMigrateRelocateOperation: Network interface relocate specs: %s", DeviceChangeString(spec))
+	return spec, nil
+}
+
+func hostMigrationPending(d *schema.ResourceData) bool {
+	return !d.IsNewResource() && (d.HasChange("resource_pool_id") || d.HasChange("host_system_id"))
+}
+
+func networkBackingInfo(c *govmomi.Client, networkID string) (types.BaseVirtualDeviceBackingInfo, error) {
+	net, err := network.FromID(c, networkID)
+	if err != nil {
+		return nil, err
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), provider.DefaultAPITimeout)
+	defer cancel()
+	return net.EthernetCardBackingInfo(ctx)
 }
 
 // NetworkInterfaceRefreshOperation processes a refresh operation for all of
@@ -1048,14 +1102,8 @@ func (r *NetworkInterfaceSubresource) Update(l object.VirtualDeviceList) ([]type
 	card := device.GetVirtualEthernetCard()
 
 	// Has the backing changed?
-	if r.HasChange("network_id") {
-		net, err := network.FromID(r.client, r.Get("network_id").(string))
-		if err != nil {
-			return nil, err
-		}
-		bctx, bcancel := context.WithTimeout(context.Background(), provider.DefaultAPITimeout)
-		defer bcancel()
-		backing, err := net.EthernetCardBackingInfo(bctx)
+	if r.HasChange("network_id") && (card.Key < 0 || !r.deferBacking) {
+		backing, err := networkBackingInfo(r.client, r.Get("network_id").(string))
 		if err != nil {
 			return nil, err
 		}

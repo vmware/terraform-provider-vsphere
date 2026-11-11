@@ -224,6 +224,11 @@ nextOld:
 		}
 		// New device
 		r := NewNetworkInterfaceSubresource(c, d, nm, nil, n)
+		if d.Id() != "" && hostMigrationPending(d) {
+			log.Printf("[DEBUG] %s: Deferring creation until after the virtual machine migration", r)
+			updates = append(updates, r.Data())
+			continue
+		}
 		cspec, err := r.Create(l)
 		if err != nil {
 			return nil, nil, fmt.Errorf("%s: %s", r.Addr(), err)
@@ -281,6 +286,51 @@ func NetworkInterfaceMigrateRelocateOperation(d *schema.ResourceData, c *govmomi
 	}
 	log.Printf("[DEBUG] NetworkInterfaceMigrateRelocateOperation: Network interface relocate specs: %s", DeviceChangeString(spec))
 	return spec, nil
+}
+
+// NetworkInterfaceMigrateCreateOperation returns the network interfaces whose creation was deferred until after a virtual machine migration.
+func NetworkInterfaceMigrateCreateOperation(d *schema.ResourceData, c *govmomi.Client, l object.VirtualDeviceList) ([]types.BaseVirtualDeviceConfigSpec, error) {
+	if !hostMigrationPending(d) {
+		return nil, nil
+	}
+	spec, _, err := createDeferredNetworkInterfaces(d, c, l)
+	return spec, err
+}
+
+// NetworkInterfacePostMigrateOperation creates the network interfaces whose creation was deferred until after a virtual machine migration.
+func NetworkInterfacePostMigrateOperation(d *schema.ResourceData, c *govmomi.Client, l object.VirtualDeviceList) ([]types.BaseVirtualDeviceConfigSpec, error) {
+	if !hostMigrationPending(d) {
+		return nil, nil
+	}
+	spec, updates, err := createDeferredNetworkInterfaces(d, c, l)
+	if err != nil || len(spec) == 0 {
+		return nil, err
+	}
+	log.Printf("[DEBUG] NetworkInterfacePostMigrateOperation: Device config operations: %s", DeviceChangeString(spec))
+	return spec, d.Set(subresourceTypeNetworkInterface, updates)
+}
+
+func createDeferredNetworkInterfaces(d *schema.ResourceData, c *govmomi.Client, l object.VirtualDeviceList) ([]types.BaseVirtualDeviceConfigSpec, []interface{}, error) {
+	var spec []types.BaseVirtualDeviceConfigSpec
+	var updates []interface{}
+	o, n := d.GetChange(subresourceTypeNetworkInterface)
+	existingCount := len(o.([]interface{}))
+	for i, ne := range n.([]interface{}) {
+		nm := ne.(map[string]interface{})
+		if i < existingCount {
+			updates = append(updates, nm)
+			continue
+		}
+		r := NewNetworkInterfaceSubresource(c, d, nm, nil, i)
+		cspec, err := r.Create(l)
+		if err != nil {
+			return nil, nil, fmt.Errorf("%s: %s", r.Addr(), err)
+		}
+		l = applyDeviceChange(l, cspec)
+		spec = append(spec, cspec...)
+		updates = append(updates, r.Data())
+	}
+	return spec, updates, nil
 }
 
 func hostMigrationPending(d resourceDataDiff) bool {

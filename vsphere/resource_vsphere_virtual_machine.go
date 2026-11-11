@@ -904,16 +904,30 @@ func resourceVSphereVirtualMachineUpdate(d *schema.ResourceData, meta interface{
 		}
 	}
 
-	// Now safe to turn off partial mode.
-	d.Partial(false)
-	_ = d.Set("reboot_required", false)
-
 	// Now that any pending changes have been done (namely, any disks that don't
 	// need to be migrated have been deleted), proceed with vMotion if we have
 	// one pending.
 	if err := resourceVSphereVirtualMachineUpdateLocation(d, meta); err != nil {
 		return fmt.Errorf("error running VM migration: %s", err)
 	}
+
+	vprops, err = virtualmachine.Properties(vm)
+	if err != nil {
+		return fmt.Errorf("error re-fetching VM properties after migration: %s", err)
+	}
+	deferredDeviceChange, err := virtualdevice.NetworkInterfacePostMigrateOperation(d, client, object.VirtualDeviceList(vprops.Config.Hardware.Device))
+	if err != nil {
+		return err
+	}
+	if len(deferredDeviceChange) > 0 {
+		if err := virtualmachine.Reconfigure(vm, types.VirtualMachineConfigSpec{DeviceChange: deferredDeviceChange}, timeout); err != nil {
+			return fmt.Errorf("error adding network interfaces after VM migration: %s", err)
+		}
+	}
+
+	// Now safe to turn off partial mode.
+	d.Partial(false)
+	_ = d.Set("reboot_required", false)
 
 	// All done with updates.
 	log.Printf("[DEBUG] %s: Update complete", resourceVSphereVirtualMachineIDString(d))
@@ -2148,9 +2162,15 @@ func resourceVSphereVirtualMachineUpdateLocation(d *schema.ResourceData, meta in
 	if spec.DeviceChange, err = virtualdevice.NetworkInterfaceMigrateRelocateOperation(d, client, devices); err != nil {
 		return err
 	}
+	networkInterfaceCreates, err := virtualdevice.NetworkInterfaceMigrateCreateOperation(d, client, devices)
+	if err != nil {
+		return err
+	}
 
-	if spec.Host == nil && len(spec.DeviceChange) > 0 {
-		if spec.Host, err = resourceVSphereVirtualMachineRecommendHost(client, pool, vm, spec); err != nil {
+	if spec.Host == nil && len(spec.DeviceChange)+len(networkInterfaceCreates) > 0 {
+		placementSpec := spec
+		placementSpec.DeviceChange = append(slices.Clone(spec.DeviceChange), networkInterfaceCreates...)
+		if spec.Host, err = resourceVSphereVirtualMachineRecommendHost(client, pool, vm, placementSpec, d.Get("network_interface").([]interface{})); err != nil {
 			return err
 		}
 	}
@@ -2171,6 +2191,7 @@ func resourceVSphereVirtualMachineRecommendHost(
 	pool *object.ResourcePool,
 	vm *object.VirtualMachine,
 	spec types.VirtualMachineRelocateSpec,
+	networkInterfaces []interface{},
 ) (*types.ManagedObjectReference, error) {
 	pprops, err := resourcepool.Properties(pool)
 	if err != nil {
@@ -2183,6 +2204,19 @@ func resourceVSphereVirtualMachineRecommendHost(
 	host, err := clustercomputeresource.RecommendHostForRelocation(cluster, vm.Reference(), spec)
 	if err != nil {
 		return nil, fmt.Errorf("error selecting a host connected to the virtual machine's networks, enable DRS or set host_system_id: %s", err)
+	}
+	hostNetworkIDs, err := hostNetworkIDsFromID(client, host.Value)
+	if err != nil {
+		return nil, err
+	}
+	for _, nic := range networkInterfaces {
+		if networkID := nic.(map[string]interface{})["network_id"].(string); !slices.Contains(hostNetworkIDs, networkID) {
+			log.Printf("[DEBUG] DRS recommended host %q for virtual machine %q, which lacks network %q: %v", host.Value, vm.Reference().Value, networkID, hostNetworkIDs)
+			return nil, fmt.Errorf(
+				"DRS recommended host %q, which is not connected to network %q, set host_system_id to a host connected to all of the virtual machine's networks",
+				hostsystem.NameOrID(client, host.Value), networkNameOrID(client, networkID),
+			)
+		}
 	}
 	return host, nil
 }

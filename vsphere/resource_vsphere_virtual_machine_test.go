@@ -2262,6 +2262,135 @@ func TestAccResourceVSphereVirtualMachine_hostVMotion(t *testing.T) {
 	})
 }
 
+func TestAccResourceVSphereVirtualMachine_hostVMotionToDistributedPortGroup(t *testing.T) {
+	testAccResourceVSphereVirtualMachineDistributedPortGroupMigration(t, "data.vsphere_host.roothost2.id", "vsphere_resource_pool.pool1.id", "vsphere_distributed_port_group.pg.id")
+}
+
+func TestAccResourceVSphereVirtualMachine_drsVMotionToDistributedPortGroup(t *testing.T) {
+	testAccResourceVSphereVirtualMachineDistributedPortGroupMigration(t, "", "data.vsphere_compute_cluster.rootcompute_cluster1.resource_pool_id", "vsphere_distributed_port_group.pg.id")
+}
+
+func TestAccResourceVSphereVirtualMachine_hostVMotionAddingDistributedPortGroupInterface(t *testing.T) {
+	testAccResourceVSphereVirtualMachineDistributedPortGroupMigration(t, "data.vsphere_host.roothost2.id", "vsphere_resource_pool.pool1.id", "data.vsphere_network.network1.id", "vsphere_distributed_port_group.pg.id")
+}
+
+func TestAccResourceVSphereVirtualMachine_networkChangeUnavailableOnHost(t *testing.T) {
+	testAccResourceVSphereVirtualMachineDistributedPortGroupUnavailable(t, "", "vsphere_distributed_port_group.pg.id")
+}
+
+func TestAccResourceVSphereVirtualMachine_addInterfaceUnavailableOnHost(t *testing.T) {
+	testAccResourceVSphereVirtualMachineDistributedPortGroupUnavailable(t, "", "data.vsphere_network.network1.id", "vsphere_distributed_port_group.pg.id")
+}
+
+func TestAccResourceVSphereVirtualMachine_hostVMotionToHostWithoutNetwork(t *testing.T) {
+	testAccResourceVSphereVirtualMachineDistributedPortGroupUnavailable(t, "data.vsphere_host.roothost1.id", "vsphere_distributed_port_group.pg.id")
+}
+
+func TestAccResourceVSphereVirtualMachine_hostVMotionRecreatingInterfaceUnavailableOnCurrentHost(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			RunSweepers()
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceVSphereVirtualMachineConfigDistributedPortGroupMigration(
+					"data.vsphere_host.roothost3.id",
+					"vsphere_resource_pool.pool1.id",
+					"data.vsphere_network.network1.id",
+				),
+				Check: resource.ComposeTestCheckFunc(
+					testAccResourceVSphereVirtualMachineCheckExists(true),
+					testAccResourceVSphereVirtualMachineCheckHost(os.Getenv("TF_VAR_VSPHERE_ESXI3")),
+				),
+			},
+			{
+				Config: testAccResourceVSphereVirtualMachineConfigDistributedPortGroupMigrationWithAdapter(
+					"data.vsphere_host.roothost2.id",
+					"vsphere_resource_pool.pool1.id",
+					"e1000e",
+					"vsphere_distributed_port_group.pg.id",
+				),
+				ExpectError: regexp.MustCompile(`network_interface\.0: network "testacc-pg" is not available on host ".+", where the adapter is re-created`),
+			},
+		},
+	})
+}
+
+func testAccResourceVSphereVirtualMachineDistributedPortGroupUnavailable(t *testing.T, targetHostID string, targetNetworkIDs ...string) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			RunSweepers()
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceVSphereVirtualMachineConfigDistributedPortGroupMigration(
+					"data.vsphere_host.roothost3.id",
+					"vsphere_resource_pool.pool1.id",
+					"data.vsphere_network.network1.id",
+				),
+				Check: resource.ComposeTestCheckFunc(
+					testAccResourceVSphereVirtualMachineCheckExists(true),
+					testAccResourceVSphereVirtualMachineCheckHost(os.Getenv("TF_VAR_VSPHERE_ESXI3")),
+				),
+			},
+			{
+				Config: testAccResourceVSphereVirtualMachineConfigDistributedPortGroupMigration(
+					targetHostID,
+					"vsphere_resource_pool.pool1.id",
+					targetNetworkIDs...,
+				),
+				ExpectError: regexp.MustCompile(`network_interface\.\d+: network "testacc-pg" is not available on host`),
+			},
+		},
+	})
+}
+
+func testAccResourceVSphereVirtualMachineDistributedPortGroupMigration(t *testing.T, targetHostID, targetPoolID string, targetNetworkIDs ...string) {
+	resource.Test(t, resource.TestCase{
+		PreCheck: func() {
+			RunSweepers()
+			testAccPreCheck(t)
+		},
+		Providers:    testAccProviders,
+		CheckDestroy: testAccResourceVSphereVirtualMachineCheckExists(false),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccResourceVSphereVirtualMachineConfigDistributedPortGroupMigration(
+					"data.vsphere_host.roothost3.id",
+					"vsphere_resource_pool.pool1.id",
+					"data.vsphere_network.network1.id",
+				),
+				Check: resource.ComposeTestCheckFunc(
+					testAccResourceVSphereVirtualMachineCheckExists(true),
+					testAccResourceVSphereVirtualMachineCheckHost(os.Getenv("TF_VAR_VSPHERE_ESXI3")),
+				),
+			},
+			{
+				Config: testAccResourceVSphereVirtualMachineConfigDistributedPortGroupMigration(
+					targetHostID,
+					targetPoolID,
+					targetNetworkIDs...,
+				),
+				Check: resource.ComposeTestCheckFunc(
+					testAccResourceVSphereVirtualMachineCheckExists(true),
+					testAccResourceVSphereVirtualMachineCheckHost(os.Getenv("TF_VAR_VSPHERE_ESXI2")),
+					resource.TestCheckResourceAttr("vsphere_virtual_machine.vm", "network_interface.#", strconv.Itoa(len(targetNetworkIDs))),
+					resource.TestCheckResourceAttrPair(
+						"vsphere_virtual_machine.vm", fmt.Sprintf("network_interface.%d.network_id", len(targetNetworkIDs)-1),
+						"vsphere_distributed_port_group.pg", "id",
+					),
+				),
+			},
+		},
+	})
+}
+
 func TestAccResourceVSphereVirtualMachine_resourcePoolVMotion(t *testing.T) {
 	testAccSkipUnstable(t)
 	resource.Test(t, resource.TestCase{
@@ -7354,6 +7483,68 @@ resource "vsphere_virtual_machine" "vm" {
 		testAccResourceVSphereVirtualMachineConfigBase(),
 		os.Getenv("TF_VAR_VSPHERE_USE_LINKED_CLONE"),
 		host,
+	)
+}
+
+func testAccResourceVSphereVirtualMachineConfigDistributedPortGroupMigration(hostID, poolID string, networkIDs ...string) string {
+	return testAccResourceVSphereVirtualMachineConfigDistributedPortGroupMigrationWithAdapter(hostID, poolID, "", networkIDs...)
+}
+
+func testAccResourceVSphereVirtualMachineConfigDistributedPortGroupMigrationWithAdapter(hostID, poolID, adapterType string, networkIDs ...string) string {
+	hostAttr := ""
+	if hostID != "" {
+		hostAttr = "host_system_id   = " + hostID
+	}
+	adapterAttr := ""
+	if adapterType != "" {
+		adapterAttr = fmt.Sprintf("\n    adapter_type = %q", adapterType)
+	}
+	var networkInterfaces string
+	for _, networkID := range networkIDs {
+		networkInterfaces += fmt.Sprintf("\n  network_interface {\n    network_id = %s%s\n  }\n", networkID, adapterAttr)
+	}
+	return fmt.Sprintf(`
+%s
+
+resource "vsphere_distributed_virtual_switch" "dvs" {
+  name          = "testacc-dvs"
+  datacenter_id = data.vsphere_datacenter.rootdc1.id
+
+  host {
+    host_system_id = data.vsphere_host.roothost2.id
+    devices        = ["%s"]
+  }
+}
+
+resource "vsphere_distributed_port_group" "pg" {
+  name                            = "testacc-pg"
+  distributed_virtual_switch_uuid = vsphere_distributed_virtual_switch.dvs.id
+}
+
+resource "vsphere_virtual_machine" "vm" {
+  name             = "testacc-test"
+  resource_pool_id = %s
+  %s
+  datastore_id     = data.vsphere_datastore.rootds1.id
+
+  num_cpus = 1
+  memory   = 1024
+  guest_id = "other3xLinuxGuest"
+
+  wait_for_guest_net_timeout = 0
+%s
+  disk {
+    label          = "disk0"
+    size           = 1
+    io_reservation = 1
+  }
+}
+`,
+		testhelper.CombineConfigs(testAccResourceVSphereVirtualMachineConfigBase(), testhelper.ConfigDataRootHost3()),
+		testhelper.HostNic1,
+		poolID,
+		hostAttr,
+		networkInterfaces,
 	)
 }
 

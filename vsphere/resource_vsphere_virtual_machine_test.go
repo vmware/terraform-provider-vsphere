@@ -1048,7 +1048,7 @@ func TestAccResourceVSphereVirtualMachine_cdromNoParameters(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccResourceVSphereVirtualMachineConfigNoCdromParameters(),
-				ExpectError: regexp.MustCompile("Either client_device or datastore_id and path must be set"),
+				ExpectError: regexp.MustCompile("either client_device or datastore_id and path must be set"),
 			},
 			{
 				Config: testAccResourceVSphereVirtualMachineConfigClientCdrom(),
@@ -1088,7 +1088,7 @@ func TestAccResourceVSphereVirtualMachine_cdromConflictingParameters(t *testing.
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccResourceVSphereVirtualMachineConfigConflictingCdromParameters(),
-				ExpectError: regexp.MustCompile("Cannot have both client_device parameter and ISO file parameters"),
+				ExpectError: regexp.MustCompile("cannot have both client_device parameter and ISO file parameters"),
 			},
 		},
 	})

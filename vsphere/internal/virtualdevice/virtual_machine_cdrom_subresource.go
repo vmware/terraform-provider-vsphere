@@ -86,6 +86,14 @@ func CdromApplyOperation(d *schema.ResourceData, c *govmomi.Client, l object.Vir
 	ods := o.([]interface{})
 	nds := n.([]interface{})
 
+	// Reject an empty cdrom block before either loop asserts the new element
+	// to a map. An empty `cdrom {}` is a nil element.
+	for i, ne := range nds {
+		if err := validateCdromBlock(i, ne); err != nil {
+			return nil, nil, err
+		}
+	}
+
 	var spec []types.BaseVirtualDeviceConfigSpec
 
 	// Our old and new sets now have an accurate description of devices that may
@@ -335,6 +343,9 @@ func CdromPostCloneOperation(d *schema.ResourceData, c *govmomi.Client, l object
 	var spec []types.BaseVirtualDeviceConfigSpec
 	var updates []interface{}
 	for i, ci := range curSet {
+		if err := validateCdromBlock(i, ci); err != nil {
+			return nil, nil, err
+		}
 		cm := ci.(map[string]interface{})
 		if i > len(srcSet)-1 {
 			// New device
@@ -397,18 +408,45 @@ func CdromPostCloneOperation(d *schema.ResourceData, c *govmomi.Client, l object
 	return l, spec, nil
 }
 
+// validateCdromFields checks that a CD-ROM is backed by exactly one of a
+// client device or a datastore ISO.
+func validateCdromFields(clientDevice bool, datastoreID, path string) error {
+	switch {
+	case clientDevice && (datastoreID != "" || path != ""):
+		return fmt.Errorf("cannot have both client_device parameter and ISO file parameters (datastore_id, path) set")
+	case !clientDevice && (datastoreID == "" || path == ""):
+		return fmt.Errorf("either client_device or datastore_id and path must be set")
+	}
+	return nil
+}
+
+// validateCdromBlock checks one cdrom list element.
+func validateCdromBlock(index int, raw interface{}) error {
+	if raw == nil {
+		return fmt.Errorf("cdrom.%d: either client_device or datastore_id and path must be set", index)
+	}
+	m, ok := raw.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("cdrom.%d: either client_device or datastore_id and path must be set", index)
+	}
+	clientDevice, _ := m["client_device"].(bool)
+	datastoreID, _ := m["datastore_id"].(string)
+	path, _ := m["path"].(string)
+	if err := validateCdromFields(clientDevice, datastoreID, path); err != nil {
+		return fmt.Errorf("cdrom.%d: %s", index, err)
+	}
+	return nil
+}
+
 // ValidateDiff performs any complex validation of an individual
 // cdrom sub-resource that can't be done in schema alone.
 func (r *CdromSubresource) ValidateDiff() error {
 	log.Printf("[DEBUG] %s: Beginning CDROM configuration validation", r)
-	dsID := r.Get("datastore_id").(string)
-	path := r.Get("path").(string)
-	clientDevice := r.Get("client_device").(bool)
-	switch {
-	case clientDevice && (dsID != "" || path != ""):
-		return fmt.Errorf("cannot have both client_device parameter and ISO file parameters (datastore_id, path) set")
-	case !clientDevice && (dsID == "" || path == ""):
-		return fmt.Errorf("either client_device or datastore_id and path must be set")
+	datastoreID, _ := r.Get("datastore_id").(string)
+	path, _ := r.Get("path").(string)
+	clientDevice, _ := r.Get("client_device").(bool)
+	if err := validateCdromFields(clientDevice, datastoreID, path); err != nil {
+		return err
 	}
 	log.Printf("[DEBUG] %s: Config validation complete", r)
 	return nil
@@ -593,19 +631,36 @@ func (r *CdromSubresource) mapCdrom(device *types.VirtualCdrom, l object.Virtual
 // the virtual machine configuration if vApp properties are set.
 func VerifyVAppTransport(d *schema.ResourceDiff) error {
 	log.Printf("[DEBUG] VAppDiffOperation: Verifying configuration meets requirements for vApp transport")
-	// Check if there is a client CDROM device configured.
-	cl := d.Get("cdrom")
-	for _, c := range cl.([]interface{}) {
-		if c.(map[string]interface{})["client_device"].(bool) {
-			// There is a device configured that can support vApp ISO transport if needed
-			log.Printf("[DEBUG] VAppDiffOperation: Client CDROM device exists which can support ISO transport")
-			return nil
+	blocks, _ := d.Get("cdrom").([]interface{})
+	transport, _ := d.Get("vapp_transport").([]interface{})
+	return verifyVAppTransport(blocks, transport, d.NewValueKnown)
+}
+
+// verifyVAppTransport checks CD-ROM blocks and vApp transport methods.
+func verifyVAppTransport(blocks, transport []interface{}, known func(string) bool) error {
+	hasClient := false
+	for i, c := range blocks {
+		clientKnown := known(fmt.Sprintf("cdrom.%d.client_device", i))
+		allKnown := clientKnown &&
+			known(fmt.Sprintf("cdrom.%d.datastore_id", i)) &&
+			known(fmt.Sprintf("cdrom.%d.path", i))
+		if c == nil || allKnown {
+			if err := validateCdromBlock(i, c); err != nil {
+				return err
+			}
+		}
+		m, _ := c.(map[string]interface{})
+		if client, _ := m["client_device"].(bool); client || (c != nil && !clientKnown) {
+			hasClient = true
 		}
 	}
+	if hasClient {
+		log.Printf("[DEBUG] VAppDiffOperation: Client CDROM device exists which can support ISO transport")
+		return nil
+	}
 	// Iterate over each transport and see if ISO transport is supported.
-	tm := d.Get("vapp_transport").([]interface{})
-	for _, m := range tm {
-		if m.(string) == vAppTransportIso && len(tm) == 1 {
+	for _, m := range transport {
+		if m.(string) == vAppTransportIso && len(transport) == 1 {
 			return fmt.Errorf("this virtual machine requires a client CDROM device to deliver vApp properties")
 		}
 	}

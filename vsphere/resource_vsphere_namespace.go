@@ -37,6 +37,10 @@ func resourceVSphereNamespace() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
+		},
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:        schema.TypeString,
@@ -305,12 +309,19 @@ func resourceVSphereNamespaceCreate(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(err)
 	}
 
+	// Keep confirmed creation tracked if readiness or cleanup cannot finish.
+	d.SetId(spec.Namespace)
 	if diags := waitForNamespaceCreation(ctx, m, spec.Namespace); diags != nil {
 		log.Printf("[DEBUG] Namespace %q did not reach status 'Running'", spec.Namespace)
-		return append(diags, deleteNamespace(ctx, m, spec.Namespace)...)
+		if ctx.Err() != nil {
+			return diags
+		}
+		cleanupDiags := deleteNamespace(ctx, m, spec.Namespace)
+		if !cleanupDiags.HasError() {
+			d.SetId("")
+		}
+		return append(diags, cleanupDiags...)
 	}
-
-	d.SetId(spec.Namespace)
 
 	if hasReservations {
 		if diags := applyVMClassReservations(ctx, m, d, zones); diags != nil {
@@ -420,15 +431,13 @@ func deleteNamespace(ctx context.Context, m *namespace.Manager, name string) dia
 }
 
 func waitForNamespaceDeletion(ctx context.Context, m *namespace.Manager, name string) diag.Diagnostics {
-	tickerCtx, cancel := context.WithTimeout(ctx, time.Minute*time.Duration(1))
-	defer cancel()
 	ticker := time.NewTicker(time.Second * time.Duration(5))
 	defer ticker.Stop()
 
 	for {
 		select {
-		case <-tickerCtx.Done():
-			return diag.Errorf("timed out waiting for namespace to be deleted: %s", name)
+		case <-ctx.Done():
+			return diag.Errorf("waiting for namespace %s to be deleted: %s", name, ctx.Err())
 		case <-ticker.C:
 			_, err := m.GetNamespaceV2(ctx, name)
 			if rest.IsStatusError(err, http.StatusNotFound) {
@@ -442,20 +451,13 @@ func waitForNamespaceDeletion(ctx context.Context, m *namespace.Manager, name st
 }
 
 func waitForNamespaceCreation(ctx context.Context, m *namespace.Manager, name string) diag.Diagnostics {
-	tickerCtx, cancel := context.WithTimeout(ctx, time.Minute*time.Duration(5))
-	defer cancel()
 	ticker := time.NewTicker(time.Second * time.Duration(15))
 	defer ticker.Stop()
 
 	for {
 		select {
-		case <-tickerCtx.Done():
-			timeoutDiags := diag.Errorf("timed out waiting for namespace %s to reach RUNNING state", name)
-			data, err := m.GetNamespaceV2(ctx, name)
-			if err != nil {
-				return timeoutDiags
-			}
-			return append(timeoutDiags, collectNamespaceDiagnostics(data)...)
+		case <-ctx.Done():
+			return diag.Errorf("waiting for namespace %s to reach RUNNING state: %s", name, ctx.Err())
 		case <-ticker.C:
 			data, err := m.GetNamespaceV2(ctx, name)
 			if err != nil {

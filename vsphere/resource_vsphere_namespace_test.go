@@ -268,6 +268,7 @@ func TestAccResourceVSphereNamespace_vmClassReservationOnCreate(t *testing.T) {
 			{
 				Config: testAccResourceVSphereNamespaceConfigVMClassReservation(1),
 				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("vsphere_namespace.namespace", "id"),
 					resource.TestCheckTypeSetElemNestedAttrs("vsphere_namespace.namespace", "zone.*.vm_class_reservation.*", map[string]string{
 						"vm_class": os.Getenv("TF_VAR_VM_CLASS"),
 						"count":    "1",
@@ -577,6 +578,11 @@ func testAccResourceVSphereNamespaceConfigVMClassReservation(count int) string {
 resource vsphere_namespace "namespace" {
   name       = "test-acc-namespace"
   supervisor = data.vsphere_supervisor.supervisor.id
+
+  timeouts {
+    create = "30m"
+    delete = "25m"
+  }
 
   vm_service {
     vm_classes = ["%s"]

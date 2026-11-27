@@ -186,10 +186,7 @@ func resourceVSphereHAVMOverrideCreate(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	info, err := expandClusterDasVMConfigInfo(d, meta, vm)
-	if err != nil {
-		return err
-	}
+	info := expandClusterDasVMConfigInfo(d, vm)
 	spec := &types.ClusterConfigSpecEx{
 		DasVmConfigSpec: []types.ClusterDasVmConfigSpec{
 			{
@@ -249,7 +246,7 @@ func resourceVSphereHAVMOverrideRead(d *schema.ResourceData, meta interface{}) e
 		return fmt.Errorf("error setting attribute \"virtual_machine_id\": %s", err)
 	}
 
-	if err = flattenClusterDasVMConfigInfo(d, meta, info); err != nil {
+	if err = flattenClusterDasVMConfigInfo(d, info); err != nil {
 		return err
 	}
 
@@ -265,10 +262,7 @@ func resourceVSphereHAVMOverrideUpdate(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	info, err := expandClusterDasVMConfigInfo(d, meta, vm)
-	if err != nil {
-		return err
-	}
+	info := expandClusterDasVMConfigInfo(d, vm)
 	spec := &types.ClusterConfigSpecEx{
 		DasVmConfigSpec: []types.ClusterDasVmConfigSpec{
 			{
@@ -359,17 +353,10 @@ func resourceVSphereHAVMOverrideImport(d *schema.ResourceData, meta interface{})
 // ClusterDasVmConfigInfo.
 func expandClusterDasVMConfigInfo(
 	d *schema.ResourceData,
-	meta interface{},
 	vm *object.VirtualMachine,
-) (*types.ClusterDasVmConfigInfo, error) {
-	client, err := resourceVSphereHAVMOverrideClient(meta)
-	if err != nil {
-		return nil, err
-	}
-	version := viapi.ParseVersionFromClient(client)
-
+) *types.ClusterDasVmConfigInfo {
 	obj := &types.ClusterDasVmConfigInfo{
-		DasSettings: expandClusterDasVMSettings(d, version),
+		DasSettings: expandClusterDasVMSettings(d),
 		Key:         vm.Reference(),
 	}
 
@@ -377,24 +364,18 @@ func expandClusterDasVMConfigInfo(
 	// the base vsphere_compute_cluster resource.
 	obj.DasSettings.VmToolsMonitoringSettings.ClusterSettings = structure.GetBool(d, "ha_vm_monitoring_use_cluster_defaults")
 
-	return obj, nil
+	return obj
 }
 
 // flattenClusterDasVmConfigInfo saves a ClusterDasVmConfigInfo into the
 // supplied ResourceData.
-func flattenClusterDasVMConfigInfo(d *schema.ResourceData, meta interface{}, obj *types.ClusterDasVmConfigInfo) error {
-	client, err := resourceVSphereHAVMOverrideClient(meta)
-	if err != nil {
-		return err
-	}
-	version := viapi.ParseVersionFromClient(client)
-
+func flattenClusterDasVMConfigInfo(d *schema.ResourceData, obj *types.ClusterDasVmConfigInfo) error {
 	// Set ha_vm_monitoring_use_cluster_defaults here as it's not included in the
 	// base vsphere_compute_cluster resource.
 	if err := d.Set("ha_vm_monitoring_use_cluster_defaults", obj.DasSettings.VmToolsMonitoringSettings.ClusterSettings); err != nil {
 		return err
 	}
-	return flattenClusterDasVMSettings(d, obj.DasSettings, version)
+	return flattenClusterDasVMSettings(d, obj.DasSettings)
 }
 
 // resourceVSphereHAVMOverrideIDString prints a friendly string for the

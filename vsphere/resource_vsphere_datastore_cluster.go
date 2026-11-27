@@ -691,13 +691,9 @@ func expandStorageDrsPodConfigSpec(d *schema.ResourceData, version viapi.VSphere
 		IoLoadBalanceConfig:    expandStorageDrsIoLoadBalanceConfig(d, version),
 		IoLoadBalanceEnabled:   getStorageDrsIoLoadBalanceEnabled(d, version),
 		LoadBalanceInterval:    int32(d.Get("sdrs_load_balance_interval").(int)),
-		SpaceLoadBalanceConfig: expandStorageDrsSpaceLoadBalanceConfig(d, version),
+		SpaceLoadBalanceConfig: expandStorageDrsSpaceLoadBalanceConfig(d),
 		Option:                 expandStorageDrsOptionSpec(d),
-	}
-
-	// Minimum Supported Version: 6.0.0
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6}) {
-		obj.AutomationOverrides = expandStorageDrsAutomationConfig(d)
+		AutomationOverrides:    expandStorageDrsAutomationConfig(d),
 	}
 
 	return obj
@@ -723,7 +719,7 @@ func flattenStorageDrsPodConfigInfo(d *schema.ResourceData, obj types.StorageDrs
 		return err
 	}
 
-	if err := flattenStorageDrsSpaceLoadBalanceConfig(d, obj.SpaceLoadBalanceConfig, version); err != nil {
+	if err := flattenStorageDrsSpaceLoadBalanceConfig(d, obj.SpaceLoadBalanceConfig); err != nil {
 		return err
 	}
 
@@ -731,14 +727,7 @@ func flattenStorageDrsPodConfigInfo(d *schema.ResourceData, obj types.StorageDrs
 		return err
 	}
 
-	// Minimum Supported Version: 6.0.0
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6}) {
-		if err := flattenStorageDrsAutomationConfig(d, obj.AutomationOverrides); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return flattenStorageDrsAutomationConfig(d, obj.AutomationOverrides)
 }
 
 // expandStorageDrsAutomationConfig reads certain ResourceData keys and returns
@@ -834,22 +823,13 @@ func flattenStorageDrsIoLoadBalanceConfig(
 
 // expandStorageDrsSpaceLoadBalanceConfig reads certain ResourceData keys and returns
 // a StorageDrsSpaceLoadBalanceConfig.
-func expandStorageDrsSpaceLoadBalanceConfig(
-	d *schema.ResourceData,
-	version viapi.VSphereVersion,
-) *types.StorageDrsSpaceLoadBalanceConfig {
-	obj := &types.StorageDrsSpaceLoadBalanceConfig{
+func expandStorageDrsSpaceLoadBalanceConfig(d *schema.ResourceData) *types.StorageDrsSpaceLoadBalanceConfig {
+	return &types.StorageDrsSpaceLoadBalanceConfig{
 		MinSpaceUtilizationDifference: int32(d.Get("sdrs_free_space_utilization_difference").(int)),
 		SpaceUtilizationThreshold:     int32(d.Get("sdrs_space_utilization_threshold").(int)),
+		FreeSpaceThresholdGB:          int32(d.Get("sdrs_free_space_threshold").(int)),
+		SpaceThresholdMode:            d.Get("sdrs_free_space_threshold_mode").(string),
 	}
-
-	// Minimum Supported Version: 6.0.0
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6}) {
-		obj.FreeSpaceThresholdGB = int32(d.Get("sdrs_free_space_threshold").(int))
-		obj.SpaceThresholdMode = d.Get("sdrs_free_space_threshold_mode").(string)
-	}
-
-	return obj
 }
 
 // flattenStorageDrsSpaceLoadBalanceConfig saves a
@@ -857,16 +837,13 @@ func expandStorageDrsSpaceLoadBalanceConfig(
 func flattenStorageDrsSpaceLoadBalanceConfig(
 	d *schema.ResourceData,
 	obj *types.StorageDrsSpaceLoadBalanceConfig,
-	version viapi.VSphereVersion,
 ) error {
 	attrs := map[string]interface{}{
 		"sdrs_free_space_utilization_difference": obj.MinSpaceUtilizationDifference,
 		"sdrs_free_space_threshold_mode":         obj.SpaceThresholdMode,
 	}
 
-	// Minimum Supported Version: 6.0.0
-	freeSpaceSupported := version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6})
-	if freeSpaceSupported && obj.SpaceThresholdMode == string(types.StorageDrsSpaceLoadBalanceConfigSpaceThresholdModeFreeSpace) {
+	if obj.SpaceThresholdMode == string(types.StorageDrsSpaceLoadBalanceConfigSpaceThresholdModeFreeSpace) {
 		attrs["sdrs_free_space_threshold"] = obj.FreeSpaceThresholdGB
 	} else {
 		attrs["sdrs_space_utilization_threshold"] = obj.SpaceUtilizationThreshold

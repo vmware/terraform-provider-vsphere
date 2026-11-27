@@ -86,7 +86,7 @@ func (c *Client) TagsManager() (*tags.Manager, error) {
 		return nil, err
 	}
 	if c.restClient == nil {
-		return nil, fmt.Errorf("tags require %s or higher", tagsMinVersion)
+		return nil, fmt.Errorf("tags require vCenter Server")
 	}
 	return tags.NewManager(c.restClient), nil
 }

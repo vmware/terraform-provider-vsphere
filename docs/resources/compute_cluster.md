@@ -669,12 +669,6 @@ the `dc-01` datacenter.
 Some settings in the `vsphere_compute_cluster` resource may require a
 specific version of vSphere.
 
-### Settings that Require vSphere 7.0 or higher
-
-These settings require vSphere 7.0 or higher:
-
-* [`drs_scale_descendants_shares`](#drs_scale_descendants_shares)
-
 ### Settings that Require vSphere 8.0 or higher
 
 These settings require vSphere 8.0 or higher:

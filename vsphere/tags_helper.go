@@ -57,26 +57,10 @@ var vSphereTagTypes = []string{
 // This will ensure that the correct key and schema is used across all resources.
 const vSphereTagAttributeKey = "tags"
 
-// tagsMinVersion is the minimum vSphere version required for tags.
-var tagsMinVersion = viapi.VSphereVersion{
-	Product: "VMware vCenter Server",
-	Major:   6,
-	Minor:   0,
-	Patch:   0,
-	Build:   2559268,
-}
-
 // isEligibleRestEndpoint is a meta-validation that is used on login to see if
 // the connected endpoint supports the CIS REST API, which we use for tags.
 func isEligibleRestEndpoint(client *govmomi.Client) bool {
-	if err := viapi.ValidateVirtualCenter(client); err != nil {
-		return false
-	}
-	clientVer := viapi.ParseVersionFromClient(client)
-	if !clientVer.ProductEqual(tagsMinVersion) || clientVer.Older(tagsMinVersion) {
-		return false
-	}
-	return true
+	return viapi.ValidateVirtualCenter(client) == nil
 }
 
 // isEligiblePBMEndpoint is a meta-validation that is used on login to see if

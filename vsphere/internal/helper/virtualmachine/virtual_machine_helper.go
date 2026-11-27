@@ -21,7 +21,6 @@ import (
 	"github.com/vmware/govmomi/property"
 	"github.com/vmware/govmomi/vapi/library"
 	"github.com/vmware/govmomi/vapi/vcenter"
-	"github.com/vmware/govmomi/view"
 	"github.com/vmware/govmomi/vim25/methods"
 	"github.com/vmware/govmomi/vim25/mo"
 	"github.com/vmware/govmomi/vim25/types"
@@ -33,14 +32,6 @@ import (
 )
 
 var errGuestShutdownTimeout = errors.New("the VM did not power off within the specified amount of time")
-
-// vmUUIDSearchIndexVersion denotes the minimum version we use the SearchIndex
-// VM UUID search for. All versions lower than this use ContainerView to find
-// the VM.
-var vmUUIDSearchIndexVersion = viapi.VSphereVersion{
-	Major: 6,
-	Minor: 5,
-}
 
 // UUIDNotFoundError is an error type that is returned when a
 // virtual machine could not be found by UUID.
@@ -126,17 +117,7 @@ func FromUUID(client *govmomi.Client, uuid string) (*object.VirtualMachine, erro
 	ctx, cancel := context.WithTimeout(context.Background(), provider.DefaultAPITimeout)
 	defer cancel()
 
-	var result object.Reference
-	var err error
-	version := viapi.ParseVersionFromClient(client)
-	expected := vmUUIDSearchIndexVersion
-	expected.Product = version.Product
-	if version.Older(expected) {
-		result, err = virtualMachineFromContainerView(ctx, client, uuid)
-	} else {
-		result, err = virtualMachineFromSearchIndex(ctx, client, uuid)
-	}
-
+	result, err := virtualMachineFromSearchIndex(ctx, client, uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -174,51 +155,6 @@ func virtualMachineFromSearchIndex(ctx context.Context, client *govmomi.Client, 
 	}
 
 	return result, nil
-}
-
-// virtualMachineFromContainerView is a compatibility method that is
-// used when the version of vSphere is too old to support using SearchIndex's
-// FindByUuid method correctly. This is mainly to facilitate the ability to use
-// FromUUID to find both templates in addition to virtual machines, which
-// historically was not supported by FindByUuid.
-func virtualMachineFromContainerView(ctx context.Context, client *govmomi.Client, uuid string) (object.Reference, error) {
-	log.Printf("[DEBUG] Using ContainerView to look up UUID %q", uuid)
-	m := view.NewManager(client.Client)
-
-	v, err := m.CreateContainerView(ctx, client.ServiceContent.RootFolder, []string{"VirtualMachine"}, true)
-	if err != nil {
-		return nil, err
-	}
-
-	defer func() {
-		if err = v.Destroy(ctx); err != nil {
-			log.Printf("[DEBUG] virtualMachineFromContainerView: Unexpected error destroying container view: %s", err)
-		}
-	}()
-
-	var vms, results []mo.VirtualMachine
-	err = v.Retrieve(ctx, []string{"VirtualMachine"}, []string{"config.uuid"}, &results)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, result := range results {
-		if result.Config == nil {
-			continue
-		}
-		if result.Config.Uuid == uuid {
-			vms = append(vms, result)
-		}
-	}
-
-	switch {
-	case len(vms) == 0:
-		return nil, newUUIDNotFoundError(fmt.Sprintf("virtual machine with UUID %q not found", uuid))
-	case len(vms) > 1:
-		return nil, fmt.Errorf("multiple virtual machines with UUID %q found", uuid)
-	}
-
-	return object.NewReference(client.Client, vms[0].Self), nil
 }
 
 // FromMOID locates a virtualMachine by its managed

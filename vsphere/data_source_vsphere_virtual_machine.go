@@ -325,7 +325,7 @@ func dataSourceVSphereVirtualMachineRead(d *schema.ResourceData, meta interface{
 	}
 
 	// Read general VM config info
-	if err := flattenVirtualMachineConfigInfo(d, props.Config, client); err != nil {
+	if err := flattenVirtualMachineConfigInfo(d, props.Config); err != nil {
 		return fmt.Errorf("error reading virtual machine configuration: %s", err)
 	}
 

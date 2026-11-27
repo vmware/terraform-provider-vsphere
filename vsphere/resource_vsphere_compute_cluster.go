@@ -841,14 +841,7 @@ func resourceVSphereComputeClusterDelete(d *schema.ResourceData, meta interface{
 		return err
 	}
 
-	client, err := resourceVSphereComputeClusterClient(meta)
-	if err != nil {
-		return err
-	}
-
-	version := viapi.ParseVersionFromClient(client)
-
-	spec, err := expandClusterConfigSpecEx(d, version, cluster)
+	spec, err := expandClusterConfigSpecEx(d, cluster)
 	if err != nil {
 		return err
 	}
@@ -1081,17 +1074,8 @@ func resourceVSphereComputeClusterApplyClusterConfiguration(
 		return err
 	}
 
-	client, err := resourceVSphereComputeClusterClient(meta)
-	if err != nil {
-		return err
-	}
-
-	// Get the version of the vSphere connection to help determine what
-	// attributes we need to set
-	version := viapi.ParseVersionFromClient(client)
-
 	// Expand the cluster configuration.
-	spec, err := expandClusterConfigSpecEx(d, version, cluster)
+	spec, err := expandClusterConfigSpecEx(d, cluster)
 	if err != nil {
 		return err
 	}
@@ -1619,15 +1603,6 @@ func resourceVSphereComputeClusterFlattenData(
 	cluster *object.ClusterComputeResource,
 ) error {
 	log.Printf("[DEBUG] %s: Saving cluster attributes", resourceVSphereComputeClusterIDString(d))
-	client, err := resourceVSphereComputeClusterClient(meta)
-	if err != nil {
-		return err
-	}
-
-	// Get the version of the vSphere connection to help determine what
-	// attributes we need to set
-	version := viapi.ParseVersionFromClient(client)
-
 	props, err := clustercomputeresource.Properties(cluster)
 	if err != nil {
 		return err
@@ -1716,21 +1691,24 @@ func resourceVSphereComputeClusterFlattenData(
 		return err
 	}
 
-	return flattenClusterConfigSpecEx(d, props.ConfigurationEx.(*types.ClusterConfigInfoEx), version)
+	return flattenClusterConfigSpecEx(d, props.ConfigurationEx.(*types.ClusterConfigInfoEx))
 }
 
 // expandClusterConfigSpecEx reads certain ResourceData keys and returns a
 // ClusterConfigSpecEx.
-func expandClusterConfigSpecEx(d *schema.ResourceData, version viapi.VSphereVersion, cluster *object.ClusterComputeResource) (*types.ClusterConfigSpecEx, error) {
+func expandClusterConfigSpecEx(d *schema.ResourceData, cluster *object.ClusterComputeResource) (*types.ClusterConfigSpecEx, error) {
 	props, err := clustercomputeresource.Properties(cluster)
 	if err != nil {
 		return nil, err
 	}
 
 	obj := &types.ClusterConfigSpecEx{
-		DasConfig: expandClusterDasConfigInfo(d, version),
-		DpmConfig: expandClusterDpmConfigInfo(d),
-		DrsConfig: expandClusterDrsConfigInfo(d, version),
+		DasConfig:           expandClusterDasConfigInfo(d),
+		DpmConfig:           expandClusterDpmConfigInfo(d),
+		DrsConfig:           expandClusterDrsConfigInfo(d),
+		InfraUpdateHaConfig: expandClusterInfraUpdateHaConfigInfo(d),
+		Orchestration:       expandClusterOrchestrationInfo(d),
+		ProactiveDrsConfig:  expandClusterProactiveDrsConfigInfo(d),
 	}
 
 	if _, stretchedClusterConfExist := d.GetOk("vsan_stretched_cluster"); !stretchedClusterConfExist {
@@ -1738,13 +1716,6 @@ func expandClusterConfigSpecEx(d *schema.ResourceData, version viapi.VSphereVers
 		if err != nil {
 			return nil, err
 		}
-	}
-
-	// Minimum Supported Version: 6.5.0
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6, Minor: 5}) {
-		obj.InfraUpdateHaConfig = expandClusterInfraUpdateHaConfigInfo(d)
-		obj.Orchestration = expandClusterOrchestrationInfo(d)
-		obj.ProactiveDrsConfig = expandClusterProactiveDrsConfigInfo(d)
 	}
 
 	return obj, nil
@@ -2252,14 +2223,14 @@ func flattenVsanStretchedCluster(client *vsan.Client, d *schema.ResourceData, cl
 
 // flattenClusterConfigSpecEx saves a ClusterConfigSpecEx into the supplied
 // ResourceData.
-func flattenClusterConfigSpecEx(d *schema.ResourceData, obj *types.ClusterConfigInfoEx, version viapi.VSphereVersion) error {
-	if err := flattenClusterDasConfigInfo(d, obj.DasConfig, version); err != nil {
+func flattenClusterConfigSpecEx(d *schema.ResourceData, obj *types.ClusterConfigInfoEx) error {
+	if err := flattenClusterDasConfigInfo(d, obj.DasConfig); err != nil {
 		return err
 	}
 	if err := flattenClusterDpmConfigInfo(d, obj.DpmConfigInfo); err != nil {
 		return err
 	}
-	if err := flattenClusterDrsConfigInfo(d, obj.DrsConfig, version); err != nil {
+	if err := flattenClusterDrsConfigInfo(d, obj.DrsConfig); err != nil {
 		return err
 	}
 
@@ -2269,38 +2240,28 @@ func flattenClusterConfigSpecEx(d *schema.ResourceData, obj *types.ClusterConfig
 		}
 	}
 
-	// Minimum Supported Version: 6.5.0
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6, Minor: 5}) {
-		if err := flattenClusterInfraUpdateHaConfigInfo(d, obj.InfraUpdateHaConfig); err != nil {
-			return err
-		}
+	if err := flattenClusterInfraUpdateHaConfigInfo(d, obj.InfraUpdateHaConfig); err != nil {
+		return err
 	}
 
-	// Minimum Supported Version: 6.5.0
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6, Minor: 5}) {
-		if err := flattenClusterOrchestrationInfo(d, obj.Orchestration); err != nil {
-			return err
-		}
+	if err := flattenClusterOrchestrationInfo(d, obj.Orchestration); err != nil {
+		return err
 	}
 
-	// Minimum Supported Version: 6.5.0
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6, Minor: 5}) {
-		return flattenClusterProactiveDrsConfigInfo(d, obj.ProactiveDrsConfig)
-	}
-
-	return nil
+	return flattenClusterProactiveDrsConfigInfo(d, obj.ProactiveDrsConfig)
 }
 
 // expandClusterDasConfigInfo reads certain ResourceData keys and returns a
 // ClusterDasConfigInfo.
-func expandClusterDasConfigInfo(d *schema.ResourceData, version viapi.VSphereVersion) *types.ClusterDasConfigInfo {
+func expandClusterDasConfigInfo(d *schema.ResourceData) *types.ClusterDasConfigInfo {
 	obj := &types.ClusterDasConfigInfo{
-		DefaultVmSettings:          expandClusterDasVMSettings(d, version),
+		DefaultVmSettings:          expandClusterDasVMSettings(d),
 		Enabled:                    structure.GetBool(d, "ha_enabled"),
 		HBDatastoreCandidatePolicy: d.Get("ha_heartbeat_datastore_policy").(string),
 		HostMonitoring:             d.Get("ha_host_monitoring").(string),
 		Option:                     expandResourceVSphereComputeClusterDasAdvancedOptions(d),
 		VmMonitoring:               d.Get("ha_vm_monitoring").(string),
+		VmComponentProtecting:      d.Get("ha_vm_component_protection").(string),
 		HeartbeatDatastore: structure.SliceInterfacesToManagedObjectReferences(
 			d.Get("ha_heartbeat_datastore_ids").(*schema.Set).List(),
 			"Datastore",
@@ -2313,19 +2274,14 @@ func expandClusterDasConfigInfo(d *schema.ResourceData, version viapi.VSphereVer
 	} else {
 		obj.AdmissionControlEnabled = structure.BoolPtr(false)
 	}
-	obj.AdmissionControlPolicy = expandBaseClusterDasAdmissionControlPolicy(d, policy, version)
-
-	// Minimum Supported Version: 6.0.0
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6}) {
-		obj.VmComponentProtecting = d.Get("ha_vm_component_protection").(string)
-	}
+	obj.AdmissionControlPolicy = expandBaseClusterDasAdmissionControlPolicy(d, policy)
 
 	return obj
 }
 
 // flattenClusterDasConfigInfo saves a ClusterDasConfigInfo into the supplied
 // ResourceData.
-func flattenClusterDasConfigInfo(d *schema.ResourceData, obj types.ClusterDasConfigInfo, version viapi.VSphereVersion) error {
+func flattenClusterDasConfigInfo(d *schema.ResourceData, obj types.ClusterDasConfigInfo) error {
 	var dsIDs []string
 	for _, v := range obj.HeartbeatDatastore {
 		dsIDs = append(dsIDs, v.Value)
@@ -2337,23 +2293,17 @@ func flattenClusterDasConfigInfo(d *schema.ResourceData, obj types.ClusterDasCon
 		"ha_host_monitoring":            obj.HostMonitoring,
 		"ha_vm_monitoring":              obj.VmMonitoring,
 		"ha_heartbeat_datastore_ids":    dsIDs,
+		"ha_vm_component_protection":    obj.VmComponentProtecting,
 	})
 	if err != nil {
 		return err
 	}
 
-	if err := flattenClusterDasVMSettings(d, obj.DefaultVmSettings, version); err != nil {
+	if err := flattenClusterDasVMSettings(d, obj.DefaultVmSettings); err != nil {
 		return err
 	}
 	if err := flattenResourceVSphereComputeClusterDasAdvancedOptions(d, obj.Option); err != nil {
 		return err
-	}
-
-	// Minimum Supported Version: 6.0.0
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6}) {
-		if err := d.Set("ha_vm_component_protection", obj.VmComponentProtecting); err != nil {
-			return err
-		}
 	}
 
 	// If AdmissionControlEnabled is false, AdmissionControlPolicy is still
@@ -2363,7 +2313,7 @@ func flattenClusterDasConfigInfo(d *schema.ResourceData, obj types.ClusterDasCon
 	if !*obj.AdmissionControlEnabled {
 		return d.Set("ha_admission_control_policy", clusterAdmissionControlTypeDisabled)
 	}
-	return flattenBaseClusterDasAdmissionControlPolicy(d, obj.AdmissionControlPolicy, version)
+	return flattenBaseClusterDasAdmissionControlPolicy(d, obj.AdmissionControlPolicy)
 }
 
 // expandBaseClusterDasAdmissionControlPolicy reads certain ResourceData keys
@@ -2371,23 +2321,21 @@ func flattenClusterDasConfigInfo(d *schema.ResourceData, obj types.ClusterDasCon
 func expandBaseClusterDasAdmissionControlPolicy(
 	d *schema.ResourceData,
 	policy string,
-	version viapi.VSphereVersion,
 ) types.BaseClusterDasAdmissionControlPolicy {
 	var obj types.BaseClusterDasAdmissionControlPolicy
 
 	switch policy {
 	case clusterAdmissionControlTypeResourcePercentage:
-		obj = expandClusterFailoverResourcesAdmissionControlPolicy(d, version)
+		obj = expandClusterFailoverResourcesAdmissionControlPolicy(d)
 	case clusterAdmissionControlTypeSlotPolicy:
 		obj = expandClusterFailoverLevelAdmissionControlPolicy(d)
 	case clusterAdmissionControlTypeFailoverHosts:
-		obj = expandClusterFailoverHostAdmissionControlPolicy(d, version)
+		obj = expandClusterFailoverHostAdmissionControlPolicy(d)
 	case clusterAdmissionControlTypeDisabled:
 		return nil
 	}
 
-	// Minimum Supported Version: 6.5.0
-	if obj != nil && version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6, Minor: 5}) {
+	if obj != nil {
 		obj.GetClusterDasAdmissionControlPolicy().ResourceReductionToToleratePercent = structure.Int32Ptr(int32(d.Get("ha_admission_control_performance_tolerance").(int)))
 	}
 
@@ -2399,13 +2347,12 @@ func expandBaseClusterDasAdmissionControlPolicy(
 func flattenBaseClusterDasAdmissionControlPolicy(
 	d *schema.ResourceData,
 	obj types.BaseClusterDasAdmissionControlPolicy,
-	version viapi.VSphereVersion,
 ) error {
 	var policy string
 
 	switch t := obj.(type) {
 	case *types.ClusterFailoverResourcesAdmissionControlPolicy:
-		if err := flattenClusterFailoverResourcesAdmissionControlPolicy(d, t, version); err != nil {
+		if err := flattenClusterFailoverResourcesAdmissionControlPolicy(d, t); err != nil {
 			return err
 		}
 		policy = clusterAdmissionControlTypeResourcePercentage
@@ -2415,7 +2362,7 @@ func flattenBaseClusterDasAdmissionControlPolicy(
 		}
 		policy = clusterAdmissionControlTypeSlotPolicy
 	case *types.ClusterFailoverHostAdmissionControlPolicy:
-		if err := flattenClusterFailoverHostAdmissionControlPolicy(d, t, version); err != nil {
+		if err := flattenClusterFailoverHostAdmissionControlPolicy(d, t); err != nil {
 			return err
 		}
 		policy = clusterAdmissionControlTypeFailoverHosts
@@ -2429,22 +2376,13 @@ func flattenBaseClusterDasAdmissionControlPolicy(
 // expandClusterFailoverResourcesAdmissionControlPolicy reads certain
 // ResourceData keys and returns a
 // ClusterFailoverResourcesAdmissionControlPolicy.
-func expandClusterFailoverResourcesAdmissionControlPolicy(
-	d *schema.ResourceData,
-	version viapi.VSphereVersion,
-) *types.ClusterFailoverResourcesAdmissionControlPolicy {
-	obj := &types.ClusterFailoverResourcesAdmissionControlPolicy{
+func expandClusterFailoverResourcesAdmissionControlPolicy(d *schema.ResourceData) *types.ClusterFailoverResourcesAdmissionControlPolicy {
+	return &types.ClusterFailoverResourcesAdmissionControlPolicy{
 		CpuFailoverResourcesPercent:    int32(d.Get("ha_admission_control_resource_percentage_cpu").(int)),
 		MemoryFailoverResourcesPercent: int32(d.Get("ha_admission_control_resource_percentage_memory").(int)),
+		AutoComputePercentages:         structure.GetBool(d, "ha_admission_control_resource_percentage_auto_compute"),
+		FailoverLevel:                  int32(d.Get("ha_admission_control_host_failure_tolerance").(int)),
 	}
-
-	// Minimum Supported Version: 6.5.0
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6, Minor: 5}) {
-		obj.AutoComputePercentages = structure.GetBool(d, "ha_admission_control_resource_percentage_auto_compute")
-		obj.FailoverLevel = int32(d.Get("ha_admission_control_host_failure_tolerance").(int))
-	}
-
-	return obj
 }
 
 // flattenClusterFailoverResourcesAdmissionControlPolicy saves a
@@ -2453,7 +2391,6 @@ func expandClusterFailoverResourcesAdmissionControlPolicy(
 func flattenClusterFailoverResourcesAdmissionControlPolicy(
 	d *schema.ResourceData,
 	obj *types.ClusterFailoverResourcesAdmissionControlPolicy,
-	version viapi.VSphereVersion,
 ) error {
 	// When AutoComputePercentages is enabled the admission control CPU/memory
 	// values will be auto-set and caused spurious diffs, so do a nil check to
@@ -2468,15 +2405,10 @@ func flattenClusterFailoverResourcesAdmissionControlPolicy(
 		}
 	}
 
-	// Minimum Supported Version: 6.5.0
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6, Minor: 5}) {
-		return structure.SetBatch(d, map[string]interface{}{
-			"ha_admission_control_resource_percentage_auto_compute": obj.AutoComputePercentages,
-			"ha_admission_control_host_failure_tolerance":           obj.FailoverLevel,
-		})
-	}
-
-	return nil
+	return structure.SetBatch(d, map[string]interface{}{
+		"ha_admission_control_resource_percentage_auto_compute": obj.AutoComputePercentages,
+		"ha_admission_control_host_failure_tolerance":           obj.FailoverLevel,
+	})
 }
 
 // expandClusterFailoverLevelAdmissionControlPolicy reads certain ResourceData
@@ -2518,23 +2450,14 @@ func flattenClusterFailoverLevelAdmissionControlPolicy(
 
 // expandClusterFailoverHostAdmissionControlPolicy reads certain ResourceData
 // keys and returns a ClusterFailoverHostAdmissionControlPolicy.
-func expandClusterFailoverHostAdmissionControlPolicy(
-	d *schema.ResourceData,
-	version viapi.VSphereVersion,
-) *types.ClusterFailoverHostAdmissionControlPolicy {
-	obj := &types.ClusterFailoverHostAdmissionControlPolicy{
+func expandClusterFailoverHostAdmissionControlPolicy(d *schema.ResourceData) *types.ClusterFailoverHostAdmissionControlPolicy {
+	return &types.ClusterFailoverHostAdmissionControlPolicy{
 		FailoverHosts: structure.SliceInterfacesToManagedObjectReferences(
 			d.Get("ha_admission_control_failover_host_system_ids").(*schema.Set).List(),
 			"HostSystem",
 		),
+		FailoverLevel: int32(d.Get("ha_admission_control_host_failure_tolerance").(int)),
 	}
-
-	// Minimum Supported Version: 6.5.0
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6, Minor: 5}) {
-		obj.FailoverLevel = int32(d.Get("ha_admission_control_host_failure_tolerance").(int))
-	}
-
-	return obj
 }
 
 // flattenClusterFailoverHostAdmissionControlPolicy saves a
@@ -2542,7 +2465,6 @@ func expandClusterFailoverHostAdmissionControlPolicy(
 func flattenClusterFailoverHostAdmissionControlPolicy(
 	d *schema.ResourceData,
 	obj *types.ClusterFailoverHostAdmissionControlPolicy,
-	version viapi.VSphereVersion,
 ) error {
 	var hsIDs []string
 	for _, v := range obj.FailoverHosts {
@@ -2553,39 +2475,24 @@ func flattenClusterFailoverHostAdmissionControlPolicy(
 		return err
 	}
 
-	// Minimum Supported Version: 6.5.0
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6, Minor: 5}) {
-		return d.Set("ha_admission_control_host_failure_tolerance", obj.FailoverLevel)
-	}
-
-	return nil
+	return d.Set("ha_admission_control_host_failure_tolerance", obj.FailoverLevel)
 }
 
 // expandClusterDasVMSettings reads certain ResourceData keys and returns a
 // ClusterDasVmSettings.
-func expandClusterDasVMSettings(d *schema.ResourceData, version viapi.VSphereVersion) *types.ClusterDasVmSettings {
-	obj := &types.ClusterDasVmSettings{
-		IsolationResponse:         d.Get("ha_host_isolation_response").(string),
-		RestartPriority:           d.Get("ha_vm_restart_priority").(string),
-		VmToolsMonitoringSettings: expandClusterVMToolsMonitoringSettings(d),
+func expandClusterDasVMSettings(d *schema.ResourceData) *types.ClusterDasVmSettings {
+	return &types.ClusterDasVmSettings{
+		IsolationResponse:             d.Get("ha_host_isolation_response").(string),
+		RestartPriority:               d.Get("ha_vm_restart_priority").(string),
+		VmToolsMonitoringSettings:     expandClusterVMToolsMonitoringSettings(d),
+		VmComponentProtectionSettings: expandClusterVMComponentProtectionSettings(d),
+		RestartPriorityTimeout:        int32(d.Get("ha_vm_restart_timeout").(int)),
 	}
-
-	// Minimum Supported Version: 6.0.0
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6}) {
-		obj.VmComponentProtectionSettings = expandClusterVMComponentProtectionSettings(d)
-	}
-
-	// Minimum Supported Version: 6.5.0
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6, Minor: 5}) {
-		obj.RestartPriorityTimeout = int32(d.Get("ha_vm_restart_timeout").(int))
-	}
-
-	return obj
 }
 
 // flattenClusterDasVMSettings saves a ClusterDasVmSettings into the supplied
 // ResourceData.
-func flattenClusterDasVMSettings(d *schema.ResourceData, obj *types.ClusterDasVmSettings, version viapi.VSphereVersion) error {
+func flattenClusterDasVMSettings(d *schema.ResourceData, obj *types.ClusterDasVmSettings) error {
 	err := structure.SetBatch(d, map[string]interface{}{
 		"ha_host_isolation_response": obj.IsolationResponse,
 		"ha_vm_restart_priority":     obj.RestartPriority,
@@ -2598,19 +2505,11 @@ func flattenClusterDasVMSettings(d *schema.ResourceData, obj *types.ClusterDasVm
 		return err
 	}
 
-	// Minimum Supported Version: 6.0.0
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6}) {
-		if err := flattenClusterVMComponentProtectionSettings(d, obj.VmComponentProtectionSettings); err != nil {
-			return err
-		}
+	if err := flattenClusterVMComponentProtectionSettings(d, obj.VmComponentProtectionSettings); err != nil {
+		return err
 	}
 
-	// Minimum Supported Version: 6.5.0
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6, Minor: 5}) {
-		return d.Set("ha_vm_restart_timeout", obj.RestartPriorityTimeout)
-	}
-
-	return nil
+	return d.Set("ha_vm_restart_timeout", obj.RestartPriorityTimeout)
 }
 
 // expandClusterVMComponentProtectionSettings reads certain ResourceData keys and returns a
@@ -2726,41 +2625,29 @@ func flattenClusterDpmConfigInfo(d *schema.ResourceData, obj *types.ClusterDpmCo
 
 // expandClusterDrsConfigInfo reads certain ResourceData keys and returns a
 // ClusterDrsConfigInfo.
-func expandClusterDrsConfigInfo(d *schema.ResourceData, version viapi.VSphereVersion) *types.ClusterDrsConfigInfo {
-	obj := &types.ClusterDrsConfigInfo{
+func expandClusterDrsConfigInfo(d *schema.ResourceData) *types.ClusterDrsConfigInfo {
+	return &types.ClusterDrsConfigInfo{
 		DefaultVmBehavior:         types.DrsBehavior(d.Get("drs_automation_level").(string)),
 		Enabled:                   structure.GetBool(d, "drs_enabled"),
 		EnableVmBehaviorOverrides: structure.GetBool(d, "drs_enable_vm_overrides"),
 		VmotionRate:               int32(d.Get("drs_migration_threshold").(int)),
 		Option:                    expandResourceVSphereComputeClusterDrsAdvancedOptions(d),
+		ScaleDescendantsShares:    d.Get("drs_scale_descendants_shares").(string),
 	}
-
-	// Minimum Supported Version: 7.0.0
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 7, Minor: 0}) {
-		obj.ScaleDescendantsShares = d.Get("drs_scale_descendants_shares").(string)
-	}
-
-	return obj
 }
 
 // flattenClusterDrsConfigInfo saves a ClusterDrsConfigInfo into the supplied
 // ResourceData.
-func flattenClusterDrsConfigInfo(d *schema.ResourceData, obj types.ClusterDrsConfigInfo, version viapi.VSphereVersion) error {
+func flattenClusterDrsConfigInfo(d *schema.ResourceData, obj types.ClusterDrsConfigInfo) error {
 	err := structure.SetBatch(d, map[string]interface{}{
-		"drs_automation_level":    obj.DefaultVmBehavior,
-		"drs_enabled":             obj.Enabled,
-		"drs_enable_vm_overrides": obj.EnableVmBehaviorOverrides,
-		"drs_migration_threshold": obj.VmotionRate,
+		"drs_automation_level":         obj.DefaultVmBehavior,
+		"drs_enabled":                  obj.Enabled,
+		"drs_enable_vm_overrides":      obj.EnableVmBehaviorOverrides,
+		"drs_migration_threshold":      obj.VmotionRate,
+		"drs_scale_descendants_shares": obj.ScaleDescendantsShares,
 	})
 	if err != nil {
 		return err
-	}
-
-	// Minimum Supported Version: 7.0.0
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 7, Minor: 0}) {
-		_ = d.Set("drs_scale_descendants_shares", obj.ScaleDescendantsShares)
-	} else {
-		_ = d.Set("drs_scale_descendants_shares", string(types.ResourceConfigSpecScaleSharesBehaviorDisabled))
 	}
 
 	return flattenResourceVSphereComputeClusterDrsAdvancedOptions(d, obj.Option)

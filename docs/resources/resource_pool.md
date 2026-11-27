@@ -181,9 +181,3 @@ terraform import vsphere_resource_pool.resource_pool /dc-01/host/cluster-01/Reso
 
 The above would import the resource pool named `resource-pool-01` that is located
 in the compute cluster `cluster-01` in the `dc-01` datacenter.
-
-### Settings that Require vSphere 7.0 or higher
-
-These settings require vSphere 7.0 or higher:
-
-* [`scale_descendants_shares`](#scale_descendants_shares)

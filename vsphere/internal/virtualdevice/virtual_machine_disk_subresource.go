@@ -23,7 +23,6 @@ import (
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/spbm"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/storagepod"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/structure"
-	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/viapi"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/virtualmachine"
 )
 
@@ -1479,8 +1478,7 @@ func (r *DiskSubresource) setFlatBackingProperties(b *types.VirtualDiskFlatVer2B
 	// situations where the VM hardware version does not actually allow disk
 	// sharing. In this situation, the value will be blank, and setting it will
 	// actually result in an error.
-	version := viapi.ParseVersionFromClient(r.client)
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6}) && b.Sharing != "" {
+	if b.Sharing != "" {
 		r.Set("disk_sharing", b.Sharing)
 	}
 
@@ -1736,14 +1734,6 @@ func (r *DiskSubresource) DiffGeneral() error {
 		return fmt.Errorf("size for disk %q: required option not set", name)
 	}
 
-	version := viapi.ParseVersionFromClient(r.client)
-
-	// Minimum Supported Version: 6.0.0
-	if r.Get("disk_sharing").(string) != string(types.VirtualDiskSharingSharingNone) {
-		if version.Older(viapi.VSphereVersion{Product: version.Product, Major: 6}) {
-			return fmt.Errorf("multi-writer disk_sharing is only supported on vSphere 6 and higher")
-		}
-	}
 	// Prevent eagerly_scrub and thin_provisioned from both being set to true. A
 	// thin_provisioned disk cannot be eagerly scrubbed since it would then be
 	// allocating the entire disk.
@@ -1912,13 +1902,7 @@ func (r *DiskSubresource) expandDiskSettings(disk *types.VirtualDisk) error {
 	b := disk.Backing.(*types.VirtualDiskFlatVer2BackingInfo)
 	b.DiskMode = r.GetWithRestart("disk_mode").(string)
 	b.WriteThrough = structure.BoolPtr(r.GetWithRestart("write_through").(bool))
-
-	version := viapi.ParseVersionFromClient(r.client)
-
-	// Minimum Supported Version: 6.0.0
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 6}) {
-		b.Sharing = r.GetWithRestart("disk_sharing").(string)
-	}
+	b.Sharing = r.GetWithRestart("disk_sharing").(string)
 
 	// This settings are only set for internal disks
 	if !r.Get("attach").(bool) {

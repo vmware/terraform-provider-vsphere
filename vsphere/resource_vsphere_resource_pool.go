@@ -158,9 +158,8 @@ func resourceVSphereResourcePoolCreate(d *schema.ResourceData, meta interface{})
 	if err != nil {
 		return err
 	}
-	version := viapi.ParseVersionFromClient(client)
-	rpSpec := expandResourcePoolConfigSpec(d, version)
-	err = reconcileScaleDescendantsShares(version, rpSpec, prp)
+	rpSpec := expandResourcePoolConfigSpec(d)
+	err = reconcileScaleDescendantsShares(rpSpec, prp)
 	if err != nil {
 		return err
 	}
@@ -179,7 +178,6 @@ func resourceVSphereResourcePoolCreate(d *schema.ResourceData, meta interface{})
 func resourceVSphereResourcePoolRead(d *schema.ResourceData, meta interface{}) error {
 	log.Printf("[DEBUG] %s: Beginning read", resourceVSphereResourcePoolIDString(d))
 	client, err := resourceVSphereResourcePoolClient(meta)
-	version := viapi.ParseVersionFromClient(client)
 	if err != nil {
 		return err
 	}
@@ -206,7 +204,7 @@ func resourceVSphereResourcePoolRead(d *schema.ResourceData, meta interface{}) e
 	if err = d.Set("parent_resource_pool_id", rpProps.Parent.Value); err != nil {
 		return err
 	}
-	err = flattenResourcePoolConfigSpec(d, rpProps.Config, version)
+	err = flattenResourcePoolConfigSpec(d, rpProps.Config)
 	if err != nil {
 		return err
 	}
@@ -240,13 +238,12 @@ func resourceVSphereResourcePoolUpdate(d *schema.ResourceData, meta interface{})
 		}
 		log.Printf("[DEBUG] %s: Move finished successfully", resourceVSphereResourcePoolIDString(d))
 	}
-	version := viapi.ParseVersionFromClient(client)
-	rpSpec := expandResourcePoolConfigSpec(d, version)
+	rpSpec := expandResourcePoolConfigSpec(d)
 	prp, err := resourcepool.FromID(client, d.Get("parent_resource_pool_id").(string))
 	if err != nil {
 		return err
 	}
-	err = reconcileScaleDescendantsShares(version, rpSpec, prp)
+	err = reconcileScaleDescendantsShares(rpSpec, prp)
 	if err != nil {
 		return err
 	}
@@ -286,13 +283,8 @@ func resourceVSphereResourcePoolIDString(d structure.ResourceIDStringer) string 
 	return structure.ResourceIDString(d, resourceVSphereResourcePoolName)
 }
 
-func flattenResourcePoolConfigSpec(d *schema.ResourceData, obj types.ResourceConfigSpec, version viapi.VSphereVersion) error {
-	// Minimum Supported Version: 7.0.0
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 7, Minor: 0}) {
-		_ = d.Set("scale_descendants_shares", obj.ScaleDescendantsShares)
-	} else {
-		_ = d.Set("scale_descendants_shares", string(types.ResourceConfigSpecScaleSharesBehaviorDisabled))
-	}
+func flattenResourcePoolConfigSpec(d *schema.ResourceData, obj types.ResourceConfigSpec) error {
+	_ = d.Set("scale_descendants_shares", obj.ScaleDescendantsShares)
 	err := flattenResourcePoolMemoryAllocation(d, obj.MemoryAllocation)
 	if err != nil {
 		return err
@@ -320,18 +312,12 @@ func flattenResourcePoolMemoryAllocation(d *schema.ResourceData, obj types.Resou
 	})
 }
 
-func expandResourcePoolConfigSpec(d *schema.ResourceData, version viapi.VSphereVersion) *types.ResourceConfigSpec {
-	obj := &types.ResourceConfigSpec{
-		CpuAllocation:    expandResourcePoolCPUAllocation(d),
-		MemoryAllocation: expandResourcePoolMemoryAllocation(d),
+func expandResourcePoolConfigSpec(d *schema.ResourceData) *types.ResourceConfigSpec {
+	return &types.ResourceConfigSpec{
+		CpuAllocation:          expandResourcePoolCPUAllocation(d),
+		MemoryAllocation:       expandResourcePoolMemoryAllocation(d),
+		ScaleDescendantsShares: d.Get("scale_descendants_shares").(string),
 	}
-
-	// Minimum Supported Version: 7.0.0
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 7, Minor: 0}) {
-		obj.ScaleDescendantsShares = d.Get("scale_descendants_shares").(string)
-	}
-
-	return obj
 }
 
 func expandResourcePoolCPUAllocation(d *schema.ResourceData) types.ResourceAllocationInfo {
@@ -411,17 +397,14 @@ func resourceVSphereResourcePoolReadTags(d *schema.ResourceData, meta interface{
 // reconcileScaleDescendantsShares reconciles the scale descendants shares setting for a resource pool. If the parent
 // resource pool has scale descendants shares set to scale CPU and memory shares, the child resource pool shares will
 // inherit the parent resource pool setting.
-func reconcileScaleDescendantsShares(version viapi.VSphereVersion, obj *types.ResourceConfigSpec, prp *object.ResourcePool) error {
-	// Minimum Supported Version: 7.0.0
-	if version.Newer(viapi.VSphereVersion{Product: version.Product, Major: 7, Minor: 0}) {
-		prpProp, err := resourcepool.Properties(prp)
-		if err != nil {
-			return fmt.Errorf("error getting properties of resource pool: %s", err)
-		}
-		prpDrsConfig := prpProp.Config
-		if prpDrsConfig.ScaleDescendantsShares == string(types.ResourceConfigSpecScaleSharesBehaviorScaleCpuAndMemoryShares) {
-			obj.ScaleDescendantsShares = ""
-		}
+func reconcileScaleDescendantsShares(obj *types.ResourceConfigSpec, prp *object.ResourcePool) error {
+	prpProp, err := resourcepool.Properties(prp)
+	if err != nil {
+		return fmt.Errorf("error getting properties of resource pool: %s", err)
+	}
+	prpDrsConfig := prpProp.Config
+	if prpDrsConfig.ScaleDescendantsShares == string(types.ResourceConfigSpecScaleSharesBehaviorScaleCpuAndMemoryShares) {
+		obj.ScaleDescendantsShares = ""
 	}
 	return nil
 }

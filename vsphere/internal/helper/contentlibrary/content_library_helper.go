@@ -85,16 +85,8 @@ func CreateLibrary(d *schema.ResourceData, restclient *rest.Client, backings []l
 			Password:             publication["password"].(string),
 		}
 	}
-	if len(d.Get("subscription").([]interface{})) > 0 {
-		subscription := d.Get("subscription").([]interface{})[0].(map[string]interface{})
-		lib.Subscription = &library.Subscription{
-			AutomaticSyncEnabled: structure.BoolPtr(subscription["automatic_sync"].(bool)),
-			OnDemand:             structure.BoolPtr(subscription["on_demand"].(bool)),
-			AuthenticationMethod: subscription["authentication_method"].(string),
-			UserName:             subscription["username"].(string),
-			Password:             subscription["password"].(string),
-			SubscriptionURL:      subscription["subscription_url"].(string),
-		}
+	if subscription := ExpandSubscription(d); subscription != nil {
+		lib.Subscription = subscription
 		lib.Type = "SUBSCRIBED"
 	}
 	id, err := clm.CreateLibrary(ctx, lib)
@@ -103,6 +95,25 @@ func CreateLibrary(d *schema.ResourceData, restclient *rest.Client, backings []l
 	}
 	log.Printf("[DEBUG] contentlibrary.CreateLibrary: Content library %s successfully created", name)
 	return id, nil
+}
+
+// ExpandSubscription reads the subscription block from ResourceData and
+// returns a Subscription, or nil if no subscription is configured.
+func ExpandSubscription(d *schema.ResourceData) *library.Subscription {
+	subscriptions := d.Get("subscription").([]interface{})
+	if len(subscriptions) == 0 || subscriptions[0] == nil {
+		return nil
+	}
+	subscription := subscriptions[0].(map[string]interface{})
+	return &library.Subscription{
+		AutomaticSyncEnabled: structure.BoolPtr(subscription["automatic_sync"].(bool)),
+		OnDemand:             structure.BoolPtr(subscription["on_demand"].(bool)),
+		AuthenticationMethod: subscription["authentication_method"].(string),
+		UserName:             subscription["username"].(string),
+		Password:             subscription["password"].(string),
+		SubscriptionURL:      subscription["subscription_url"].(string),
+		SslThumbprint:        subscription["ssl_thumbprint"].(string),
+	}
 }
 
 // DeleteLibrary deletes a Content Library.
@@ -561,6 +572,13 @@ func FlattenSubscription(d *schema.ResourceData, subscription *library.Subscript
 	flatSubscription["subscription_url"] = subscription.SubscriptionURL
 	flatSubscription["automatic_sync"] = subscription.AutomaticSyncEnabled
 	flatSubscription["on_demand"] = subscription.OnDemand
+	// Keep the configured thumbprint so a differently formatted value returned
+	// by the vCenter doesn't force a new resource.
+	thumbprint := d.Get("subscription.0.ssl_thumbprint").(string)
+	if thumbprint == "" {
+		thumbprint = subscription.SslThumbprint
+	}
+	flatSubscription["ssl_thumbprint"] = thumbprint
 	return d.Set("subscription", []interface{}{flatSubscription})
 }
 

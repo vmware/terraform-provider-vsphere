@@ -78,6 +78,9 @@ The following arguments are supported:
   * `password` - (Optional) Password used for authentication.
   * `automatic_sync` - (Optional) Enable automatic synchronization with the published library. Default `false`.
   * `on_demand` - (Optional) Download the library from a content only when needed. Default `true`.
+  * `ssl_thumbprint` - (Optional) The SHA-1 thumbprint of the SSL certificate presented by the published content library, in the form `AA:BB:...`. Required when the certificate is not trusted by vCenter, such as a self-signed certificate or one replaced by an SSL inspection proxy. If not set, the thumbprint reported by the vCenter is used.
+
+~> **NOTE:** The thumbprint can be retrieved with `openssl s_client -connect <host>:443 </dev/null | openssl x509 -noout -fingerprint -sha1`.
 
 [docs-about-morefs]: /docs/providers/vsphere/index.html#use-of-managed-object-references-by-the-vsphere-provider
 

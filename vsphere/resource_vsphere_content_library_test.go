@@ -9,8 +9,11 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/vmware/govmomi/vapi/library"
+	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/contentlibrary"
 	"github.com/vmware/terraform-provider-vsphere/vsphere/internal/helper/testhelper"
 )
 
@@ -203,5 +206,90 @@ func testAccResourceVSphereContentLibraryCheckExists(expected bool) resource.Tes
 			return fmt.Errorf("expected Content Library to be missing")
 		}
 		return nil
+	}
+}
+
+const testContentLibrarySubscriptionThumbprint = "AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD"
+
+func testContentLibrarySubscriptionData(t *testing.T, subscription map[string]interface{}) *schema.ResourceData {
+	raw := map[string]interface{}{
+		"name":            "library",
+		"storage_backing": []interface{}{"datastore-1"},
+	}
+	if subscription != nil {
+		raw["subscription"] = []interface{}{subscription}
+	}
+	return schema.TestResourceDataRaw(t, resourceVSphereContentLibrary().Schema, raw)
+}
+
+func TestContentLibraryExpandSubscription(t *testing.T) {
+	t.Run("no subscription", func(t *testing.T) {
+		d := testContentLibrarySubscriptionData(t, nil)
+		if actual := contentlibrary.ExpandSubscription(d); actual != nil {
+			t.Fatalf("expected nil subscription, got %#v", actual)
+		}
+	})
+
+	t.Run("ssl thumbprint", func(t *testing.T) {
+		d := testContentLibrarySubscriptionData(t, map[string]interface{}{
+			"subscription_url": "https://publisher.example.com/lib.json",
+			"ssl_thumbprint":   testContentLibrarySubscriptionThumbprint,
+		})
+		actual := contentlibrary.ExpandSubscription(d)
+		if actual == nil {
+			t.Fatal("expected subscription, got nil")
+		}
+		if actual.SslThumbprint != testContentLibrarySubscriptionThumbprint {
+			t.Fatalf("expected ssl thumbprint %q, got %q", testContentLibrarySubscriptionThumbprint, actual.SslThumbprint)
+		}
+		if actual.SubscriptionURL != "https://publisher.example.com/lib.json" {
+			t.Fatalf("expected subscription url %q, got %q", "https://publisher.example.com/lib.json", actual.SubscriptionURL)
+		}
+	})
+}
+
+func TestContentLibraryFlattenSubscriptionThumbprint(t *testing.T) {
+	cases := []struct {
+		name       string
+		configured string
+		returned   string
+		expected   string
+	}{
+		{
+			name:     "not configured",
+			returned: testContentLibrarySubscriptionThumbprint,
+			expected: testContentLibrarySubscriptionThumbprint,
+		},
+		{
+			name:       "configured value is kept",
+			configured: "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99:aa:bb:cc:dd",
+			returned:   testContentLibrarySubscriptionThumbprint,
+			expected:   "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99:aa:bb:cc:dd",
+		},
+		{
+			name:       "not returned",
+			configured: testContentLibrarySubscriptionThumbprint,
+			expected:   testContentLibrarySubscriptionThumbprint,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			d := testContentLibrarySubscriptionData(t, map[string]interface{}{
+				"subscription_url": "https://publisher.example.com/lib.json",
+				"ssl_thumbprint":   tc.configured,
+			})
+			err := contentlibrary.FlattenSubscription(d, &library.Subscription{
+				AuthenticationMethod: "NONE",
+				SubscriptionURL:      "https://publisher.example.com/lib.json",
+				SslThumbprint:        tc.returned,
+			})
+			if err != nil {
+				t.Fatalf("error flattening subscription: %s", err)
+			}
+			if actual := d.Get("subscription.0.ssl_thumbprint").(string); actual != tc.expected {
+				t.Fatalf("expected ssl thumbprint %q, got %q", tc.expected, actual)
+			}
+		})
 	}
 }

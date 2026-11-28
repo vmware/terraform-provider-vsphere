@@ -127,6 +127,13 @@ func resourceVSphereContentLibrary() *schema.Resource {
 						Optional: true,
 						Default:  false,
 					},
+					"ssl_thumbprint": {
+						Type:        schema.TypeString,
+						ForceNew:    true,
+						Computed:    true,
+						Optional:    true,
+						Description: "The SHA-1 thumbprint of the SSL certificate presented by the published content library. Required when the certificate is not trusted by the vCenter.",
+					},
 				},
 				},
 			},

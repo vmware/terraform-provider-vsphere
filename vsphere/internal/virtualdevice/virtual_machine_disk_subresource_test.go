@@ -56,3 +56,23 @@ func TestDiskCapacityInGiB(t *testing.T) {
 		})
 	}
 }
+
+func TestScsiUsableUnitsPerController(t *testing.T) {
+	cases := []struct {
+		name     string
+		scsiType string
+		expected int
+	}{
+		{name: "pvscsi", scsiType: SubresourceControllerTypeParaVirtual, expected: 63},
+		{name: "lsilogic", scsiType: SubresourceControllerTypeLsiLogic, expected: 15},
+		{name: "lsilogic-sas", scsiType: SubresourceControllerTypeLsiLogicSAS, expected: 15},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			actual := scsiUsableUnitsPerController(tc.scsiType)
+			if tc.expected != actual {
+				t.Fatalf("expected %d, got %d", tc.expected, actual)
+			}
+		})
+	}
+}

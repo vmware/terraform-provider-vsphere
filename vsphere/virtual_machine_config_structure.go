@@ -110,6 +110,14 @@ func getBoolWithRestart(d *schema.ResourceData, key string) *bool {
 	return structure.GetBool(d, key)
 }
 
+// suppressLineEndingDiff suppresses a diff between two strings that differ
+// only by CRLF and LF line endings. vSphere returns text with LF line endings,
+// so values written with CRLF line endings, such as heredocs in configuration
+// saved on Windows, would otherwise never match the value read back.
+func suppressLineEndingDiff(_, oldValue, newValue string, _ *schema.ResourceData) bool {
+	return strings.ReplaceAll(oldValue, "\r\n", "\n") == strings.ReplaceAll(newValue, "\r\n", "\n")
+}
+
 // schemaVirtualMachineConfigSpec returns schema items for resources that
 // need to work with a VirtualMachineConfigSpec.
 func schemaVirtualMachineConfigSpec() map[string]*schema.Schema {
@@ -313,10 +321,11 @@ func schemaVirtualMachineConfigSpec() map[string]*schema.Schema {
 			ValidateFunc: validation.StringInSlice(virtualMachineSwapPlacementAllowedValues, false),
 		},
 		"annotation": {
-			Type:        schema.TypeString,
-			Optional:    true,
-			Computed:    true,
-			Description: "User-provided description of the virtual machine.",
+			Type:             schema.TypeString,
+			Optional:         true,
+			Computed:         true,
+			Description:      "User-provided description of the virtual machine.",
+			DiffSuppressFunc: suppressLineEndingDiff,
 		},
 		"guest_id": {
 			Type:        schema.TypeString,
